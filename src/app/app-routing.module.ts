@@ -3,14 +3,34 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
-  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'login',
     pathMatch: 'full'
   },
+  {
+    path: 'home',
+    loadChildren: () => import('./pages/Admin-Panel/home/home.module').then( m => m.HomePageModule)
+  },
+  {
+    path: 'add-expense',
+    loadChildren: () => import('./pages/expense/add-expense/add-expense.module').then( m => m.AddExpensePageModule)
+  },
+  {
+    path: 'view-expenses',
+    loadChildren: () => import('./pages/expense/view-expenses/view-expenses.module').then( m => m.ViewExpensesPageModule)
+  },
+  {
+    path: 'edit-expense',
+    loadChildren: () => import('./pages/expense/edit-expense/edit-expense.module').then( m => m.EditExpensePageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./pages/setting/login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'registration',
+    loadChildren: () => import('./pages/setting/registration/registration.module').then( m => m.RegistrationPageModule)
+  }
 ];
 
 @NgModule({
