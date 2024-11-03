@@ -1,23 +1,27 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>View Expenses</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/add-expense">Add Expense</ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let expense of expenses">
-      <ion-label>
-        <h2>{{ expense.category }} - {{ expense.amount | currency }}</h2>
-        <p>{{ expense.date }} | {{ expense.transactionType }}</p>
-        <p>{{ expense.description }}</p>
-        <p>{{ expense.notes }}</p>
-      </ion-label>
-      <ion-button fill="outline" (click)="editExpense(expense)">Edit</ion-button>
-      <ion-button color="danger" (click)="deleteExpense(expense.id)">Delete</ion-button>
-    </ion-item>
-  </ion-list>
+  <ion-grid>
+    <ion-row>
+      <ion-col>Date</ion-col>
+      <ion-col>Category</ion-col>
+      <ion-col>Transaction Type</ion-col>
+      <ion-col>Description</ion-col>
+      <ion-col>Amount</ion-col>
+      <ion-col>Notes</ion-col>
+    </ion-row>
+
+    <ion-row *ngFor="let expense of expenses">
+      <ion-col>{{ expense.date }}</ion-col>
+      <ion-col>{{ expense.category }}</ion-col>
+      <ion-col>{{ expense.transactionType }}</ion-col>
+      <ion-col>{{ expense.description }}</ion-col>
+      <ion-col>{{ expense.amount }}</ion-col>
+      <ion-col>{{ expense.notes }}</ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

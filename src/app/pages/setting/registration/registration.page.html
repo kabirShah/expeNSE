@@ -1,33 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title align="center">Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content>
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Register</ion-card-title>
-    </ion-card-header>
-
-    <ion-card-content>
+  <ion-list >
       <ion-item>
-        <ion-label position="floating">Full Name</ion-label>
-        <ion-input type="text" [(ngModel)]="user.fullName" required></ion-input>
+        <ion-input labelPlacement="stacked" label="First Name" placeholder="Enter your first name" type="text" [(ngModel)]="user.firstName" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input labelPlacement="stacked" label="Last Name" placeholder="Enter your last name" type="text" [(ngModel)]="user.lastName" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input labelPlacement="stacked" label="Email" placeholder="Enter your email" type="email" [(ngModel)]="user.email" required></ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">Email</ion-label>
-        <ion-input type="email" [(ngModel)]="user.email" required></ion-input>
+         <ion-input labelPlacement="stacked" label="Phone Number" placeholder="Enter your phone number"  type="tel" [(ngModel)]="user.phoneNumber" required></ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">Phone Number</ion-label>
-        <ion-input type="tel" [(ngModel)]="user.phoneNumber" required></ion-input>
+         <ion-input
+          type="text"
+          [value]="user.dob"
+          readonly
+          (click)="openDatePicker()"
+          placeholder="Select Date of Birth"
+        ></ion-input>
       </ion-item>
+    
+      <!-- Date Picker -->
+      <ion-datetime
+        *ngIf="isDatePickerOpen"
+        presentation="date"
+        (ionChange)="onDateChange($event)"
+        [showDefaultButtons]="true"
+      ></ion-datetime>
 
       <ion-item>
-        <ion-label>Date Of Birth</ion-label>
-            <ion-datetime presentation="date-time" [preferWheel]="true" [(ngModel)]="user.dob"></ion-datetime>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="floating">Gender</ion-label>
-        <ion-select [(ngModel)]="user.gender">
+        <ion-select label="Gender" [(ngModel)]="user.gender">
           <ion-select-option value="male">Male</ion-select-option>
           <ion-select-option value="female">Female</ion-select-option>
           <ion-select-option value="other">Other</ion-select-option>
@@ -35,11 +47,8 @@
       </ion-item>
 
       <ion-item>
-        <ion-label position="floating">Password</ion-label>
         <ion-input type="password" [(ngModel)]="user.password" required></ion-input>
       </ion-item>
-
+    </ion-list>
       <ion-button expand="block" (click)="register()">Register</ion-button>
-    </ion-card-content>
-  </ion-card>
 </ion-content>

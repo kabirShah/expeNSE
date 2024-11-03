@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -10,7 +11,7 @@ export class LoginPage {
   email: string = '';
   password: string = '';
   rememberMe: boolean = false;
-  constructor(private navCtrl: NavController) {}
+  constructor(private navCtrl: NavController, private router: Router) {}
 
   login() {
     console.log('Logging in with', this.email, this.password);
@@ -30,9 +31,6 @@ export class LoginPage {
     // Integrate Google login API logic here
   }
 
-  goToRegister() {
-    this.navCtrl.navigateForward('/register');
-  }
 
   forgotPassword() {
     this.navCtrl.navigateForward('/forgot-password');

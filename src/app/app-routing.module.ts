@@ -30,6 +30,10 @@ const routes: Routes = [
   {
     path: 'register',
     loadChildren: () => import('./pages/setting/registration/registration.module').then( m => m.RegistrationPageModule)
+  },
+  {
+    path: '**',
+    loadChildren: () => import('./pages/notfound/notfound.module').then( m => m.NotfoundPageModule)
   }
 ];
 

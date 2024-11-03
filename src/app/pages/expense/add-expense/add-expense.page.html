@@ -7,28 +7,66 @@
 <ion-content>
   <ion-list>
     <ion-item>
-      <ion-label>Date</ion-label>
-      <ion-datetime displayFormat="MM/DD/YYYY" [(ngModel)]="expense.date"></ion-datetime>
+      <ion-input
+      label="Select Expense Date"
+      labelPlacement="stacked"
+       type="text"
+       [value]="expense.date"
+       readonly
+       (click)="openDatePicker()"
+       placeholder="Select Expense Date"
+     ></ion-input>
+   </ion-item>
+ 
+   <ion-datetime
+     *ngIf="isDatePickerOpen"
+     presentation="date"
+     (ionChange)="onDateChange($event)"
+     [showDefaultButtons]="true"
+   ></ion-datetime>
+
+    <ion-item>
+      <ion-select 
+      labelPlacement="stacked"
+      label="Expense Category"
+      [(ngModel)]="expense.category"
+      (ionChange)="onCategoryChange($event)"
+      placeholder="Select Expense Category">
+ 
+      <ion-select-option *ngFor="let category of expenseCategories" [value]="category">{{category}}</ion-select-option>
+    </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-select 
+      labelPlacement="stacked"
+      label="Expense Transaction Type"
+      [(ngModel)]="expense.transactionType"
+      (ionChange)="onTransactionTypeChange($event)"
+      placeholder="Select transaction type">
+      <ion-select-option *ngFor="let transactions of transactionTypes" [value]="transactions">{{transactions}}</ion-select-option>
+    </ion-select>
     </ion-item>
     <ion-item>
-      <ion-label>Category</ion-label>
-      <ion-input [(ngModel)]="expense.category"></ion-input>
+      <ion-input 
+      labelPlacement="stacked"
+      label="Description"
+      placeholder="Enter expense description"
+      [(ngModel)]="expense.description"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Transaction Type</ion-label>
-      <ion-input [(ngModel)]="expense.transactionType"></ion-input>
+      <ion-input 
+      labelPlacement="stacked"
+      label="Amount"
+      placeholder="Enter expense amount"
+      type="number" 
+      [(ngModel)]="expense.amount"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Description</ion-label>
-      <ion-input [(ngModel)]="expense.description"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Amount</ion-label>
-      <ion-input type="number" [(ngModel)]="expense.amount"></ion-input>
-    </ion-item>
-    <ion-item>
-      <ion-label>Notes</ion-label>
-      <ion-textarea [(ngModel)]="expense.notes"></ion-textarea>
+      <ion-textarea       
+      labelPlacement="stacked"
+      label="Notes"
+      [(ngModel)]="expense.notes"></ion-textarea>
     </ion-item>
   </ion-list>
   <ion-button expand="full" (click)="addExpense()">Save Expense</ion-button>
