@@ -1,13 +1,61 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>login</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="login-content">
+  <div class="login-container">
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="assets/logo.png" alt="App Logo" class="app-logo" />
+    </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">login</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Login</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Email Input with Icon -->
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" [(ngModel)]="email" required></ion-input>
+        </ion-item>
+
+        <!-- Password Input with Icon -->
+        <ion-item>
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" [(ngModel)]="password" required></ion-input>
+        </ion-item>
+
+        <!-- Remember Me and Forgot Password Options -->
+        <ion-item lines="none">
+          <ion-checkbox [(ngModel)]="rememberMe" slot="start"></ion-checkbox>
+          <ion-label>Remember Me</ion-label>
+          <a class="forgot-password" href="#" (click)="forgotPassword()">Forgot Password?</a>
+        </ion-item>
+
+        <!-- Login Button -->
+        <ion-button expand="block" (click)="login()" class="login-button">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          Login
+        </ion-button>
+
+        <!-- Social Login Buttons with Icons -->
+        <div class="social-login-buttons">
+          <ion-button expand="block" color="primary" (click)="loginWithFacebook()" class="facebook-button">
+            <ion-icon name="logo-facebook" slot="start"></ion-icon>
+            Login with Facebook
+          </ion-button>
+
+          <ion-button expand="block" color="danger" (click)="loginWithGoogle()" class="google-button">
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            Login with Google
+          </ion-button>
+        </div>
+
+        <!-- Additional Links (Register) -->
+        <div class="additional-links">
+          <a href="#" (click)="goToRegister()">Register</a>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>
