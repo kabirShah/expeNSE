@@ -35,3 +35,34 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+/* Apply Font Family Globally */
+* {
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Global Styles */
+  body {
+    background-color: var(--ion-background-color);
+    color: var(--ion-text-color);
+  }
+  
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-light);
+  }
+  
+  ion-button {
+    --background: var(--ion-color-secondary);
+    --color: var(--ion-color-light);
+  }
+  // Styling all ion-input fields
+ion-input {
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-dark);
+    border: 1px solid var(--ion-color-medium);
+    border-radius: 8px;
+    padding: 8px;
+  }
+  

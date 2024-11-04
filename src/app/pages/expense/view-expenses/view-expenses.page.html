@@ -1,27 +1,34 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>View Expenses</ion-title>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="2">
+          <ion-button href="/add-expense" color="light">
+            <ion-icon name="chevron-back" size="medium"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col size="8">
+          <ion-title>View Expenses</ion-title>
+        </ion-col>
+        <ion-col size="2">
+
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-grid>
-    <ion-row>
-      <ion-col>Date</ion-col>
-      <ion-col>Category</ion-col>
-      <ion-col>Transaction Type</ion-col>
-      <ion-col>Description</ion-col>
-      <ion-col>Amount</ion-col>
-      <ion-col>Notes</ion-col>
-    </ion-row>
-
-    <ion-row *ngFor="let expense of expenses">
-      <ion-col>{{ expense.date }}</ion-col>
-      <ion-col>{{ expense.category }}</ion-col>
-      <ion-col>{{ expense.transactionType }}</ion-col>
-      <ion-col>{{ expense.description }}</ion-col>
-      <ion-col>{{ expense.amount }}</ion-col>
-      <ion-col>{{ expense.notes }}</ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-card *ngFor="let expense of expenses">
+    <ion-card-header>
+      <ion-card-title> {{ expense.date }} </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Category: {{ expense.category }}</p>
+      <p>Type: {{ expense.transactionType }}</p>
+      <p>Description: {{ expense.description }}</p>
+      <p>Amount: {{ expense.amount }}</p>
+      <p>Notes: {{ expense.notes }}</p>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

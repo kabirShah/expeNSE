@@ -1,6 +1,20 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Add Expense</ion-title>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="2">
+          <ion-button href="/home" color="light">
+            <ion-icon name="chevron-back" size="medium"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col size="8">
+          <ion-title>Add Expense</ion-title>
+        </ion-col>
+        <ion-col size="2">
+
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-toolbar>
 </ion-header>
 
@@ -11,7 +25,7 @@
       label="Select Expense Date"
       labelPlacement="stacked"
        type="text"
-       [value]="expense.date"
+       [value]="newExpense.date"
        readonly
        (click)="openDatePicker()"
        placeholder="Select Expense Date"
@@ -29,7 +43,7 @@
       <ion-select 
       labelPlacement="stacked"
       label="Expense Category"
-      [(ngModel)]="expense.category"
+      [(ngModel)]="newExpense.category"
       (ionChange)="onCategoryChange($event)"
       placeholder="Select Expense Category">
  
@@ -41,7 +55,7 @@
       <ion-select 
       labelPlacement="stacked"
       label="Expense Transaction Type"
-      [(ngModel)]="expense.transactionType"
+      [(ngModel)]="newExpense.transactionType"
       (ionChange)="onTransactionTypeChange($event)"
       placeholder="Select transaction type">
       <ion-select-option *ngFor="let transactions of transactionTypes" [value]="transactions">{{transactions}}</ion-select-option>
@@ -52,7 +66,7 @@
       labelPlacement="stacked"
       label="Description"
       placeholder="Enter expense description"
-      [(ngModel)]="expense.description"></ion-input>
+      [(ngModel)]="newExpense.description"></ion-input>
     </ion-item>
     <ion-item>
       <ion-input 
@@ -60,13 +74,13 @@
       label="Amount"
       placeholder="Enter expense amount"
       type="number" 
-      [(ngModel)]="expense.amount"></ion-input>
+      [(ngModel)]="newExpense.amount"></ion-input>
     </ion-item>
     <ion-item>
       <ion-textarea       
       labelPlacement="stacked"
       label="Notes"
-      [(ngModel)]="expense.notes"></ion-textarea>
+      [(ngModel)]="newExpense.notes"></ion-textarea>
     </ion-item>
   </ion-list>
   <ion-button expand="full" (click)="addExpense()">Save Expense</ion-button>

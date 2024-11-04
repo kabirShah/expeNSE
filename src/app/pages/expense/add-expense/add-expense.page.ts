@@ -7,8 +7,9 @@ import { IonDatetime, NavController } from '@ionic/angular';
   templateUrl: './add-expense.page.html',
 })
 export class AddExpensePage {
-  @ViewChild('dobPicker') dobPicker!:IonDatetime;
-  expense: any = {
+  @ViewChild('dobPicker', { static: false })  dobPicker!:IonDatetime;
+
+  newExpense: any = {
     date: '',
     category: '',
     transactionType: '',
@@ -16,6 +17,7 @@ export class AddExpensePage {
     amount: 0,
     notes: ''
   };
+
   isDatePickerOpen = false;
   expenseCategories = [
     'Utilities', 'Clothes Shopping', 'Entertainment', 'Groceries',
@@ -32,23 +34,28 @@ export class AddExpensePage {
   constructor(private navCtrl: NavController) {}
 
   onCategoryChange(event: any) {
-    this.selectedCategory = event.detail.value;
+    this.newExpense.category = event.detail.value;
   }
   async addExpense() {
+    // Retrieve current expenses from localStorage
     let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-    expenses.push(this.expense);
-    localStorage.setItem('expenses',JSON.stringify(expenses));
-    this.expense ={} // Reset form
+    expenses.push({ ...this.newExpense }); // Add new entry to the array
+    // Save updated expenses array to localStorage
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    // Reset form fields
+    this.newExpense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '' };
+    // Navigate to the View Expenses page
     this.navCtrl.navigateBack('/view-expenses');
   }
+
   openDatePicker(){
     this.isDatePickerOpen = true;
   }
   onDateChange(event:any){
-    this.expense.date = event.detail.value; // Update DOB in user object
+    this.newExpense.date = event.detail.value; // Update DOB in user object
     this.isDatePickerOpen = false; // Close the date picker after selection
   }
   onTransactionTypeChange(event: any) {
-    this.selectedTransactionType = event.detail.value;
+    this.newExpense.transactionType = event.detail.value;
   }
 }
