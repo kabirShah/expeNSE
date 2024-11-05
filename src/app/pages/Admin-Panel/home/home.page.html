@@ -1,9 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>
-      Expense Tracker
-    </ion-title>
-    <!-- Add button for exporting expenses to Excel -->
+    <ion-title>Expense Tracker</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="exportToExcel()">
         <ion-icon name="download-outline"></ion-icon>
@@ -13,7 +10,29 @@
 </ion-header>
 
 <ion-content>
+  <ion-tabs>
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="home" routerLink="/libraries/tabs/home">
+        <ion-icon name="home-outline"></ion-icon>
+        <ion-label>Home</ion-label>
+      </ion-tab-button>
 
+      <ion-tab-button tab="add-expense" routerLink="/libraries/tabs/add-expense">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label>Add Expense</ion-label>
+      </ion-tab-button>
 
+      <ion-tab-button tab="view-expenses" routerLink="/libraries/tabs/view-expenses">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>View Expenses</ion-label>
+      </ion-tab-button>
 
+      <ion-tab-button tab="settings" routerLink="/libraries/tabs/settings">
+        <ion-icon name="cog-outline"></ion-icon>
+        <ion-label>Settings</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+
+    <ion-router-outlet></ion-router-outlet>
+  </ion-tabs>
 </ion-content>

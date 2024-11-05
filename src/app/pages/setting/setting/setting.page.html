@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label>Notifications</ion-label>
+      <ion-toggle slot="end" [(ngModel)]="notificationsEnabled"></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Theme</ion-label>
+      <ion-select [(ngModel)]="selectedTheme">
+        <ion-select-option value="light">Light</ion-select-option>
+        <ion-select-option value="dark">Dark</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>Profile Picture</ion-label>
+      <ion-button expand="full" (click)="changeProfilePicture()">Change</ion-button>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Update Profile</ion-label>
+      <ion-button expand="full" (click)="updateProfile()">Update</ion-button>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Change Password</ion-label>
+      <ion-button expand="full" (click)="changePassword()">Change</ion-button>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label>Account Management</ion-label>
+      <ion-button expand="full" (click)="manageAccount()">Manage</ion-button>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Privacy Policy</ion-label>
+      <ion-button expand="full" (click)="viewPrivacyPolicy()">View</ion-button>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Terms of Service</ion-label>
+      <ion-button expand="full" (click)="viewTerms()">View</ion-button>
+    </ion-item>
+  </ion-list>
+</ion-content>

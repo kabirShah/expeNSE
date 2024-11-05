@@ -8,34 +8,23 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'home',
-    loadChildren: () => import('./pages/Admin-Panel/home/home.module').then( m => m.HomePageModule)
-  },
-  {
-    path: 'add-expense',
-    loadChildren: () => import('./pages/expense/add-expense/add-expense.module').then( m => m.AddExpensePageModule)
-  },
-  {
-    path: 'view-expenses',
-    loadChildren: () => import('./pages/expense/view-expenses/view-expenses.module').then( m => m.ViewExpensesPageModule)
-  },
-  {
-    path: 'edit-expense',
-    loadChildren: () => import('./pages/expense/edit-expense/edit-expense.module').then( m => m.EditExpensePageModule)
-  },
-  {
     path: 'login',
-    loadChildren: () => import('./pages/setting/login/login.module').then( m => m.LoginPageModule)
+    loadChildren: () => import('./pages/setting/login/login.module').then(m => m.LoginPageModule)
   },
   {
     path: 'register',
-    loadChildren: () => import('./pages/setting/registration/registration.module').then( m => m.RegistrationPageModule)
+    loadChildren: () => import('./pages/setting/registration/registration.module').then(m => m.RegistrationPageModule)
+  },
+  {
+    path: 'home',
+    loadChildren: () => import('./libraries/tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
     path: '**',
-    loadChildren: () => import('./pages/notfound/notfound.module').then( m => m.NotfoundPageModule)
+    loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
 ];
+
 
 @NgModule({
   imports: [
