@@ -13,10 +13,6 @@ const routes: Routes = [
         loadChildren: () => import('../../pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
       },
       {
-        path: 'add-expense',
-        loadChildren: () => import('../../pages/expense/add-expense/add-expense.module').then(m => m.AddExpensePageModule)
-      },
-      {
         path: 'view-expenses',
         loadChildren: () => import('../../pages/expense/view-expenses/view-expenses.module').then(m => m.ViewExpensesPageModule)
       },
@@ -30,8 +26,13 @@ const routes: Routes = [
         pathMatch: 'full'
       }
     ]
+  },
+  {
+    path: '**',
+    loadChildren: () => import('../../pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
 ];
+
 
 
 @NgModule({

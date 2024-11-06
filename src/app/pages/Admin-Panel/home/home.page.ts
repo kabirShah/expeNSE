@@ -14,11 +14,13 @@ export class HomePage {
 
   constructor(private router: Router) {}
 
-  goToAddExpense() {
-    this.router.navigate(['/add-expense']);
+  navigateToViewExpenses() {
+    this.router.navigate(['/view-expenses']);
   }
  
-
+  navigateToAddExpense(){
+    this.router.navigate(['/add-expense']);
+  }
   exportToExcel() {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);
     const workbook: XLSX.WorkBook = {

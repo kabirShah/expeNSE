@@ -1,11 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { HomePage } from './home.page';
 
 const routes: Routes =[
   {
-    path: 'tabs',
-    loadChildren: () => import('../../../libraries/tabs/tabs.module').then(m => m.TabsPageModule)
-  }
+    path:'',
+    component: HomePage
+  },
+  {
+    path: 'add-expense',
+    loadChildren: () => import('../../../pages/expense/add-expense/add-expense.module').then(m => m.AddExpensePageModule)
+  },
+  {
+    path: 'view-expense',
+    loadChildren: () => import('../../../pages/expense/view-expenses/view-expenses.module').then(m => m.ViewExpensesPageModule)
+  },
 ];
 
 @NgModule({

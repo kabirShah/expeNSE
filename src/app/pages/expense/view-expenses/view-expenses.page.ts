@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatabaseService } from '../../../services/database.service';
 import { NavController } from '@ionic/angular';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-view-expenses',
@@ -8,8 +9,17 @@ import { NavController } from '@ionic/angular';
 })
 export class ViewExpensesPage implements OnInit {
   expenses: any[] = []; 
+  data: any[] = [];
   ngOnInit() {
     this.loadExpenses();
+  }
+  exportToExcel() {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Expenses': worksheet },
+      SheetNames: ['Expenses']
+    };
+    XLSX.writeFile(workbook, 'expenses.xlsx');
   }
   loadExpenses(){
     // Retrieve the expenses array from localStorage

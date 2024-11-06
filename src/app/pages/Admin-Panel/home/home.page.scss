@@ -25,3 +25,31 @@
 #container a {
   text-decoration: none;
 }
+// Center the welcome text
+.welcome-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+// Style for the header text
+.welcome-section h2 {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.welcome-section p {
+  font-size: 16px;
+  color: var(--ion-color-medium);
+}
+
+// Style for the cards
+ion-card h3 {
+  font-weight: bold;
+  font-size: 22px;
+  color: white;
+}
+
+// Floating action button styling (if needed)
+ion-fab-button {
+  --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
