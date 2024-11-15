@@ -27,14 +27,16 @@ const routes: Routes = [
     path:'home',
     loadChildren:()=>import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
   },
-  // {
-  //   path: 'home',
-  //   loadChildren: () => import('./libraries/tabs/tabs.module').then(m => m.TabsPageModule)
-  // },
+  {
+    path: 'analytics',
+    loadChildren: () => import('./pages/analytics/analytics.module').then( m => m.AnalyticsPageModule)
+  },
   {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
+
+
 ];
 
 
