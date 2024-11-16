@@ -7,4 +7,5 @@ export interface Expense {
   amount: number; // Amount spent
   notes?: string; // Additional notes (optional)
   date: string; // Date of the expense
+  paidBy:string;
 }

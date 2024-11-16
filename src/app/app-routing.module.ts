@@ -27,14 +27,21 @@ const routes: Routes = [
     path:'home',
     loadChildren:()=>import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
   },
-  // {
-  //   path: 'home',
-  //   loadChildren: () => import('./libraries/tabs/tabs.module').then(m => m.TabsPageModule)
-  // },
+  {
+    path: 'drop-expense',
+    loadChildren: () => import('./pages/drop-exp/drop-expense/drop-expense.module').then( m => m.DropExpensePageModule)
+  },
+  {
+    path: 'view-drop',
+    loadChildren: () => import('./pages/drop-exp/view-drop/view-drop.module').then( m => m.ViewDropPageModule)
+  },
   {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
+
+
+
 ];
 
 

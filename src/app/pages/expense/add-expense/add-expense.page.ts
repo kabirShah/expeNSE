@@ -18,6 +18,7 @@ export class AddExpensePage {
     description: '',
     amount: 0,
     notes: '',
+    paidBy:''
   };
 
   isDatePickerOpen = false;
@@ -44,7 +45,7 @@ export class AddExpensePage {
   async saveExpense() {
     try {
       await this.db.addExpense(this.expense);
-      this.expense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '' };
+      this.expense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '', paidBy: '' };
       this.navCtrl.navigateBack('/view-expenses');
     } catch (error) {
       console.error('Error saving expense', error);
