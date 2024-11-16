@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { DatabaseService } from '../../../services/database.service';
 import { IonDatetime, NavController } from '@ionic/angular';
+import { Expense } from 'src/app/models/expense.model';
 
 @Component({
   selector: 'app-add-expense',
@@ -9,14 +10,15 @@ import { IonDatetime, NavController } from '@ionic/angular';
 export class AddExpensePage {
   @ViewChild('dobPicker', { static: false })  dobPicker!:IonDatetime;
 
-  newExpense: any = {
+  expense: Expense = {
     date: new Date().toISOString(),
     category: '',
     transactionType: '',
     description: '',
     amount: 0,
-    notes: ''
+    notes: '',
   };
+
 
   isDatePickerOpen = false;
   expenseCategories = [
@@ -31,31 +33,27 @@ export class AddExpensePage {
   selectedCategory: string = '';
   selectedTransactionType: string = '';
 
-  constructor(private navCtrl: NavController) {}
+  constructor(private navCtrl: NavController, private db: DatabaseService) {}
 
   onCategoryChange(event: any) {
-    this.newExpense.category = event.detail.value;
+    this.expense.category = event.detail.value;
   }
-  async saveExpense() {
-    // Retrieve current expenses from localStorage
-    let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-    expenses.push({ ...this.newExpense }); // Add new entry to the array
-    // Save updated expenses array to localStorage
-    localStorage.setItem('expenses', JSON.stringify(expenses));
-    // Reset form fields
-    this.newExpense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '' };
-    // Navigate to the View Expenses page
-    this.navCtrl.navigateBack('/view-expenses');
+
+  saveExpense() {
+    this.db.addExpense(this.expense).then(() => {
+      this.expense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '' };
+      this.navCtrl.navigateBack('/view-expenses');
+    });
   }
 
   openDatePicker(){
     this.isDatePickerOpen = true;
   }
   onDateChange(event:any){
-    this.newExpense.date = event.detail.value; // Update DOB in user object
+    this.expense.date = event.detail.value; // Update DOB in user object
     this.isDatePickerOpen = false; // Close the date picker after selection
   }
   onTransactionTypeChange(event: any) {
-    this.newExpense.transactionType = event.detail.value;
+    this.expense.transactionType = event.detail.value;
   }
 }
