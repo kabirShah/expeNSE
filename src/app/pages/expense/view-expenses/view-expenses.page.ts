@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
+import { DatabaseService } from 'src/app/services/database.service';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -10,7 +11,7 @@ export class ViewExpensesPage implements OnInit {
   expenses: any[] = [];
   data: any[] = [];
 
-  constructor(private alertController: AlertController) {}
+  constructor(private databaseService: DatabaseService,private alertController: AlertController) {}
 
   ngOnInit() {
     this.loadExpenses();
@@ -22,8 +23,9 @@ export class ViewExpensesPage implements OnInit {
 
   loadExpenses() {
     // Retrieve the expenses array from localStorage
-    const storedExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-    this.expenses = storedExpenses;
+    this.databaseService.getAllExpenses().then((data) => {
+      this.expenses = data;
+    });
   }
 
   saveExpenses() {
@@ -31,49 +33,15 @@ export class ViewExpensesPage implements OnInit {
     localStorage.setItem('expenses', JSON.stringify(this.expenses));
   }
 
-  async editExpense(expense: any, index: number) {
-    const alert = await this.alertController.create({
-      header: 'Edit Expense',
-      inputs: [
-        { name: 'date', type: 'date', value: expense.date, placeholder: 'Date' },
-        { name: 'category', type: 'text', value: expense.category, placeholder: 'Category' },
-        { name: 'transactionType', type: 'text', value: expense.transactionType, placeholder: 'Type' },
-        { name: 'description', type: 'text', value: expense.description, placeholder: 'Description' },
-        { name: 'amount', type: 'number', value: expense.amount, placeholder: 'Amount' },
-        { name: 'notes', type: 'text', value: expense.notes, placeholder: 'Notes' },
-      ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Save',
-          handler: (data) => {
-            this.expenses[index] = { ...expense, ...data }; // Update the expense object
-            this.saveExpenses(); // Save changes to localStorage
-          },
-        },
-      ],
+  deleteExpense(id: string) {
+    this.databaseService.deleteExpense(id).then(() => {
+      this.loadExpenses();
     });
-
-    await alert.present();
   }
 
-  async deleteExpense(index: number) {
-    const alert = await this.alertController.create({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Delete',
-          handler: () => {
-            this.expenses.splice(index, 1); // Remove the selected expense
-            this.saveExpenses(); // Save changes to localStorage
-          },
-        },
-      ],
-    });
-
-    await alert.present();
+  editExpense(expense: any) {
+    // Implement navigation to the edit page, passing the expense as a parameter
+    console.log('Edit Expense:', expense);
   }
 
   exportToExcel() {

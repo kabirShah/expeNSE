@@ -8,6 +8,7 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
@@ -18,6 +19,8 @@
     "importHelpers": true,
     "target": "es2022",
     "module": "es2020",
+    "allowSyntheticDefaultImports":true,
+    "esModuleInterop": true,
     "lib": [
       "es2018", 
       "dom"

@@ -10,6 +10,9 @@
 </ion-header>
 
 <ion-content>
+  <form>
+    
+  </form>
   <ion-list>
     <ion-item>
       <ion-input
@@ -28,6 +31,7 @@
      presentation="date"
      (ionChange)="onDateChange($event)"
      [showDefaultButtons]="true"
+     [(ngModel)]="newExpense.date"
    ></ion-datetime>
 
     <ion-item>
@@ -74,5 +78,5 @@
       [(ngModel)]="newExpense.notes"></ion-textarea>
     </ion-item>
   </ion-list>
-  <ion-button expand="full" (click)="addExpense()">Save Expense</ion-button>
+  <ion-button expand="full" (click)="saveExpense()">Save Expense</ion-button>
 </ion-content>

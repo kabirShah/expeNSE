@@ -10,7 +10,7 @@ export class AddExpensePage {
   @ViewChild('dobPicker', { static: false })  dobPicker!:IonDatetime;
 
   newExpense: any = {
-    date: '',
+    date: new Date().toISOString(),
     category: '',
     transactionType: '',
     description: '',
@@ -36,7 +36,7 @@ export class AddExpensePage {
   onCategoryChange(event: any) {
     this.newExpense.category = event.detail.value;
   }
-  async addExpense() {
+  async saveExpense() {
     // Retrieve current expenses from localStorage
     let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
     expenses.push({ ...this.newExpense }); // Add new entry to the array
