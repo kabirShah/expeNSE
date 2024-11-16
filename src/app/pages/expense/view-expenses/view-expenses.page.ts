@@ -3,7 +3,7 @@ import { NavController, AlertController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { Expense } from 'src/app/models/expense.model';
+import { Expense } from '../../../models/expense.model';
 
 @Component({
   selector: 'app-view-expenses',
