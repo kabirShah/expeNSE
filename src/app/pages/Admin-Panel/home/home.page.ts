@@ -37,4 +37,12 @@ export class HomePage {
       // Add logic to process the file as needed
     }
   }
+  loadExpenses(){
+    // Retrieve the expenses array from localStorage
+    const storedExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+    this.expenses = storedExpenses;
+  }
+  ionViewWillEnter() {
+    this.expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+  }
 }

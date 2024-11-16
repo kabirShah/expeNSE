@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { ViewExpensesPageRoutingModule } from './view-expenses-routing.module';
 
 import { ViewExpensesPage } from './view-expenses.page';
+import { IonicStorageModule } from '@ionic/storage-angular';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ViewExpensesPageRoutingModule
+    ViewExpensesPageRoutingModule,
+    IonicStorageModule.forRoot(),
   ],
   declarations: [ViewExpensesPage]
 })

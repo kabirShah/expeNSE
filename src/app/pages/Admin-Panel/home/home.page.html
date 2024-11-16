@@ -40,39 +40,29 @@
   </ion-grid>
 
   <!-- Recent Transactions Section -->
-  <ion-card>
+  <ion-card class="ion-padding">
     <ion-card-header>
       <ion-card-title>Recent Transactions</ion-card-title>
     </ion-card-header>
-    <ion-list>
+    <div *ngIf="expenses.length === 0" class="no-data-container">
+      <ion-icon class="ion-center" name="alert-circle-outline" size="large" color="medium"></ion-icon>
+      <p>No expenses found. Please add some expenses to view them here.</p>
+    </div>
+    <ion-list *ngFor="let expense of expenses">
       <ion-item>
         <ion-label>
-          <h2>Groceries</h2>
-          <p>October 5, 2024</p>
+          <h2>{{ expense.category }}</h2>
+          <p>{{ expense.date }}</p>
         </ion-label>
-        <ion-note slot="end" color="danger">- $150.00</ion-note>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <h2>Transport</h2>
-          <p>October 3, 2024</p>
-        </ion-label>
-        <ion-note slot="end" color="danger">- $20.00</ion-note>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <h2>Entertainment</h2>
-          <p>October 1, 2024</p>
-        </ion-label>
-        <ion-note slot="end" color="danger">- $50.00</ion-note>
-      </ion-item>
+        <ion-note slot="end" color="danger">- {{ expense.amount }}</ion-note>
+        </ion-item>
     </ion-list>
   </ion-card>
+    <ion-button expand="full" color="primary" (click)="navigateToViewExpenses()" style="margin-top: 20px;">
+      View Expenses
+    </ion-button>
+    <ion-button expand="full" color="secondary" (click)="navigateToAddExpense()" style="margin-top: 20px;">
+      Add Expenses
+    </ion-button> 
 
-  <ion-button expand="full" color="secondary" (click)="navigateToViewExpenses()" style="margin-top: 20px;">
-    View Expenses
-  </ion-button>
-  <ion-button expand="full" color="secondary" (click)="navigateToAddExpense()" style="margin-top: 20px;">
-    Add Expenses
-  </ion-button> 
 </ion-content>
