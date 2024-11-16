@@ -35,7 +35,7 @@
         <!-- Login Button -->
         <ion-button expand="block" (click)="login()" class="login-button">
           <ion-icon name="log-in-outline" slot="start"></ion-icon>
-          Login
+          Signin
         </ion-button>
 
         <!-- Social Login Buttons with Icons -->
@@ -49,11 +49,7 @@
             <ion-icon name="logo-google" slot="start"></ion-icon>
             Login with Google
           </ion-button>
-        </div>
-
-        <!-- Additional Links (Register) -->
-        <div class="additional-links">
-          <a href="/register">Register</a>
+          <ion-button expand="block" color="primary" (click)="register()">Sign UP</ion-button>
         </div>
       </ion-card-content>
     </ion-card>

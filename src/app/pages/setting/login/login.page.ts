@@ -30,7 +30,9 @@ export class LoginPage {
     console.log('Logging in with Google');
     // Integrate Google login API logic here
   }
-
+  register(){
+    this.navCtrl.navigateForward('/register');
+  }
 
   forgotPassword() {
     this.navCtrl.navigateForward('/forgot-password');
