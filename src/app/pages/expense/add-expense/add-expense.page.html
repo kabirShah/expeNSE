@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-  <form (ngSumbit)="saveExpense()">
+  <form (ngSubmit)="saveExpense()">
     <ion-item>
       <ion-label position="floating">Date</ion-label>
       <ion-datetime [(ngModel)]="expense.date" name="date"></ion-datetime>
@@ -19,18 +19,14 @@
     <ion-item>
       <ion-label>Category</ion-label>
       <ion-select [(ngModel)]="expense.category" name="category">
-        <ion-select-option value="Utilities">Utilities</ion-select-option>
-        <ion-select-option value="Groceries">Groceries</ion-select-option>
-        <ion-select-option value="Entertainment">Entertainment</ion-select-option>
+        <ion-select-option *ngFor="let category of expenseCategories" [value]="category">{{category}}</ion-select-option>
       </ion-select>
     </ion-item>
 
     <ion-item>
       <ion-label>Transaction Type</ion-label>
       <ion-select [(ngModel)]="expense.transactionType" name="transactionType">
-        <ion-select-option value="Cash">Cash</ion-select-option>
-        <ion-select-option value="Credit Card">Credit Card</ion-select-option>
-        <ion-select-option value="UPI">UPI</ion-select-option>
+        <ion-select-option *ngFor = "let type of transactionTypes" [value]="type">{{type}}</ion-select-option>
       </ion-select>
     </ion-item>
 
@@ -43,8 +39,7 @@
       <ion-label position="floating">Description</ion-label>
       <ion-input [(ngModel)]="expense.description" name="description"></ion-input>
     </ion-item>
-    <ion-button expand="block" type="submit">Save Expense</ion-button>    
+
+    <ion-button expand="block" type="submit">Save Expense</ion-button>
   </form>
-
-
 </ion-content>

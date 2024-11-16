@@ -1,10 +1,10 @@
 {
   "name": "expenseManagerApp",
   "integrations": {
-    "capacitor": {
+    "capacitor": {},
+    "cordova": {
       "enabled": false
-    },
-    "cordova": {}
+    }
   },
   "type": "angular"
 }

@@ -1,14 +1,15 @@
 import { Component, ViewChild } from '@angular/core';
-import { DatabaseService } from '../../../services/database.service';
 import { IonDatetime, NavController } from '@ionic/angular';
+import { DatabaseService } from '../../../services/database.service';
 import { Expense } from 'src/app/models/expense.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-expense',
   templateUrl: './add-expense.page.html',
 })
 export class AddExpensePage {
-  @ViewChild('dobPicker', { static: false })  dobPicker!:IonDatetime;
+  @ViewChild('dobPicker', { static: false }) dobPicker!: IonDatetime;
 
   expense: Expense = {
     date: new Date().toISOString(),
@@ -18,7 +19,6 @@ export class AddExpensePage {
     amount: 0,
     notes: '',
   };
-
 
   isDatePickerOpen = false;
   expenseCategories = [
@@ -30,29 +30,36 @@ export class AddExpensePage {
 
   transactionTypes = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Bank Transfer', 'Mobile Wallet'];
 
-  selectedCategory: string = '';
-  selectedTransactionType: string = '';
-
-  constructor(private navCtrl: NavController, private db: DatabaseService) {}
+  constructor(private navCtrl: NavController, private db: DatabaseService, private router: Router) {
+    const navState = this.router.getCurrentNavigation()?.extras.state;
+    if (navState) {
+      this.expense = navState['expense'];
+    }
+  }
 
   onCategoryChange(event: any) {
     this.expense.category = event.detail.value;
   }
 
-  saveExpense() {
-    this.db.addExpense(this.expense).then(() => {
+  async saveExpense() {
+    try {
+      await this.db.addExpense(this.expense);
       this.expense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '' };
       this.navCtrl.navigateBack('/view-expenses');
-    });
+    } catch (error) {
+      console.error('Error saving expense', error);
+    }
   }
 
-  openDatePicker(){
+  openDatePicker() {
     this.isDatePickerOpen = true;
   }
-  onDateChange(event:any){
+
+  onDateChange(event: any) {
     this.expense.date = event.detail.value; // Update DOB in user object
     this.isDatePickerOpen = false; // Close the date picker after selection
   }
+
   onTransactionTypeChange(event: any) {
     this.expense.transactionType = event.detail.value;
   }

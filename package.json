@@ -33,6 +33,7 @@
     "@ionic/angular": "^8.0.0",
     "@ionic/storage-angular": "^4.0.0",
     "cordova-sqlite-storage": "^6.1.0",
+    "file-saver": "^2.0.5",
     "ionicons": "^7.0.0",
     "pouchdb": "^9.0.0",
     "pouchdb-adapter-cordova-sqlite": "^2.0.8",

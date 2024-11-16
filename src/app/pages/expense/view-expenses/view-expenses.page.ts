@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { Expense } from 'src/app/models/expense.model';
 
 @Component({
   selector: 'app-view-expenses',
@@ -11,7 +13,7 @@ export class ViewExpensesPage implements OnInit {
   expenses: any[] = [];
   data: any[] = [];
 
-  constructor(private databaseService: DatabaseService,private alertController: AlertController) {}
+  constructor(private navCtrl: NavController,private db: DatabaseService,private alertController: AlertController) {}
 
   ngOnInit() {
     this.loadExpenses();
@@ -23,7 +25,7 @@ export class ViewExpensesPage implements OnInit {
 
   loadExpenses() {
     // Retrieve the expenses array from localStorage
-    this.databaseService.getAllExpenses().then((data) => {
+    this.db.getAllExpenses().then((data) => {
       this.expenses = data;
     });
   }
@@ -34,22 +36,39 @@ export class ViewExpensesPage implements OnInit {
   }
 
   deleteExpense(id: string) {
-    this.databaseService.deleteExpense(id).then(() => {
+    this.db.deleteExpense(id).then(() => {
       this.loadExpenses();
     });
   }
 
+
   editExpense(expense: any) {
     // Implement navigation to the edit page, passing the expense as a parameter
+    this.navCtrl.navigateForward('/add-expense', {
+      state: { expense },
+    });
     console.log('Edit Expense:', expense);
   }
 
   exportToExcel() {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);
+
+    // Create a workbook and add the worksheet
     const workbook: XLSX.WorkBook = {
-      Sheets: { Expenses: worksheet },
+      Sheets: { 'Expenses': worksheet },
       SheetNames: ['Expenses'],
     };
-    XLSX.writeFile(workbook, 'expenses.xlsx');
+  
+    // Generate a buffer from the workbook
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+  
+    // Create a Blob from the buffer
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  
+    // Use FileSaver to save the file
+    saveAs(blob, 'expenses.xlsx');
   }
 }

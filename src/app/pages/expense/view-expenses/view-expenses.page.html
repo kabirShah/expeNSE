@@ -14,17 +14,19 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngFor="let expense of expenses">
-    <ion-card-header>
-      <ion-card-title> {{ expense.date }} </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>Category: {{ expense.category }}</p>
-      <p>Type: {{ expense.transactionType }}</p>
-      <p>Description: {{ expense.description }}</p>
-      <p>Amount: {{ expense.amount }}</p>
-      <p>Notes: {{ expense.notes }}</p>
-    </ion-card-content>
-  </ion-card>
+<ion-content class="ion-padding">
+  <ion-list *ngIf="expenses.length; else noData">
+    <ion-item *ngFor="let expense of expenses">
+      <ion-label>
+        <h2>{{ expense.category }}</h2>
+        <p>{{ expense.description }} - {{ expense.amount | currency }}</p>
+      </ion-label>
+      <ion-button slot="end" color="primary" (click)="editExpense(expense)">Edit</ion-button>
+      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id)">Delete</ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #noData>
+    <ion-label>No expenses found.</ion-label>
+  </ng-template>
 </ion-content>

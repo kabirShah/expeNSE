@@ -8,12 +8,28 @@ import * as XLSX from 'xlsx';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit{
+
   expenses: any[] = [];
   data: any[] = [];
+  
+  ngOnInit() {
+    this.loadExpenses();
+  }
+  
+  constructor(private router: Router, private db: DatabaseService) {}
 
-  constructor(private router: Router) {}
 
+  ionViewWillEnter() {
+    this.loadExpenses();
+  }
+
+  loadExpenses() {
+    // Retrieve the expenses array from localStorage
+    this.db.getAllExpenses().then((data) => {
+      this.expenses = data;
+    });
+  }
   navigateToViewExpenses() {
     this.router.navigate(['/view-expenses']);
   }
@@ -36,13 +52,5 @@ export class HomePage {
       console.log('Selected file:', file);
       // Add logic to process the file as needed
     }
-  }
-  loadExpenses(){
-    // Retrieve the expenses array from localStorage
-    const storedExpenses = JSON.parse(localStorage.getItem('expenses') || '[]');
-    this.expenses = storedExpenses;
-  }
-  ionViewWillEnter() {
-    this.expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
   }
 }
