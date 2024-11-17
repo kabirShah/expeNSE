@@ -9,24 +9,22 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class ViewDropPage implements OnInit {
 
-  expenses: Expense[] = [];
+  autoExpenses: any[] = [];
 
-  constructor(private databaseService: DatabaseService) {}
+
+  constructor(private db: DatabaseService) {}
 
   ngOnInit() {
-    this.loadExpenses();
+    this.loadAutoExpenses();
   }
 
-  loadExpenses() {
-    this.databaseService.getAllExpenses().then((data) => {
-      this.expenses = data;
-    });
+  async loadAutoExpenses() {
+    this.autoExpenses = await this.db.getAllAutoExpenses();
   }
 
-  deleteExpense(id: string) {
-    this.databaseService.deleteExpense(id).then(() => {
-      this.loadExpenses();
-    });
+  async deleteAutoExpense(id: string) {
+    await this.db.deleteAutoExpense(id);
+    this.loadAutoExpenses();
   }
 
 }

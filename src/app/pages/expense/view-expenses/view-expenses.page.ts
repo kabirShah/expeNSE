@@ -10,35 +10,29 @@ import { Expense } from '../../../models/expense.model';
   templateUrl: './view-expenses.page.html',
 })
 export class ViewExpensesPage implements OnInit {
+  manualExpenses: any[] = [];
+
   expenses: any[] = [];
   data: any[] = [];
 
   constructor(private navCtrl: NavController,private db: DatabaseService,private alertController: AlertController) {}
 
   ngOnInit() {
-    this.loadExpenses();
+    this.loadManualExpenses();
   }
 
   ionViewWillEnter() {
-    this.loadExpenses();
+    this.loadManualExpenses();
   }
 
-  loadExpenses() {
+  async loadManualExpenses() {
     // Retrieve the expenses array from localStorage
-    this.db.getAllExpenses().then((data) => {
-      this.expenses = data;
-    });
+    this.manualExpenses = await this.db.getAllManualExpenses();
   }
 
-  saveExpenses() {
-    // Save the updated expenses array to localStorage
-    localStorage.setItem('expenses', JSON.stringify(this.expenses));
-  }
-
-  deleteExpense(id: string) {
-    this.db.deleteExpense(id).then(() => {
-      this.loadExpenses();
-    });
+  async deleteExpense(id: string) {
+    await this.db.deleteManualExpense(id);
+    this.loadManualExpenses();
   }
 
 

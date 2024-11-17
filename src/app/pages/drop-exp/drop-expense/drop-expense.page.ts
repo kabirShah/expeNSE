@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ExpenseParserService } from '../../../services/expense-parser.service';
 import { ToastController } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-drop-expense',
@@ -12,7 +13,8 @@ export class DropExpensePage {
 
   constructor(
     private expenseParserService: ExpenseParserService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private router: Router
   ) {}
 
   async submitMessage() {
@@ -20,6 +22,7 @@ export class DropExpensePage {
       await this.expenseParserService.parseMessageAndSave(this.message);
       this.message = ''; // Clear input field
       this.showToast('Expense saved successfully!');
+      this.router.navigate(['/view-drop']);
     } catch (error) {
       this.showToast('Invalid message format. Please try again.');
     }

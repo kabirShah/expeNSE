@@ -15,6 +15,14 @@ const routes: Routes =[
     path: 'view-expense',
     loadChildren: () => import('../../../pages/expense/view-expenses/view-expenses.module').then(m => m.ViewExpensesPageModule)
   },
+  {
+    path: 'drop-expense',
+    loadChildren: () => import('../../../pages/drop-exp/drop-expense/drop-expense.module').then( m => m.DropExpensePageModule)
+  },
+  {
+    path: 'view-drop',
+    loadChildren: () => import('../../../pages/drop-exp/view-drop/view-drop.module').then( m => m.ViewDropPageModule)
+  }
 ];
 
 @NgModule({

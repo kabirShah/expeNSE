@@ -1,39 +1,42 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
-import { Expense } from '../models/expense.model'; // Adjust path as needed
+import { Expense } from '../models/expense.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DatabaseService {
-  private db: any;
+  private manualDb: any; // For View Expenses
+  private autoDb: any; // For View Drops
 
   constructor() {
-    this.db = new PouchDB('expenseDB');
+    this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
+    this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
   }
 
-  addExpense(expense: Expense) {
-    return this.db.post(expense);
+  // Manual Expense CRUD
+  addManualExpense(expense: Expense) {
+    return this.manualDb.post(expense);
   }
-
-  getAllExpenses(): Promise<Expense[]> {
-    return this.db.allDocs({ include_docs: true }).then(result => {
-      return result.rows.map(row => row.doc as Expense);
+  getAllManualExpenses() {
+    return this.manualDb.allDocs({ include_docs: true }).then((result) => {
+      return result.rows.map((row) => row.doc);
     });
   }
+  deleteManualExpense(id: string) {
+    return this.manualDb.get(id).then((doc) => this.manualDb.remove(doc));
+  }
 
-  deleteExpense(expenseId: string) {
-    return this.db.get(expenseId).then(doc => {
-      return this.db.remove(doc);
+  // Auto Expense CRUD
+  addAutoExpense(expense: Expense) {
+    return this.autoDb.post(expense);
+  }
+  getAllAutoExpenses() {
+    return this.autoDb.allDocs({ include_docs: true }).then((result) => {
+      return result.rows.map((row) => row.doc);
     });
   }
-
-  updateExpense(expense: Expense) {
-    return this.db.put(expense);
-  }
-
-  syncWithRemoteServer() {
-    const remoteDb = new PouchDB('https://remote-couchdb-server.com/my_database');
-    this.db.sync(remoteDb, { live: true, retry: true });
+  deleteAutoExpense(id: string) {
+    return this.autoDb.get(id).then((doc) => this.autoDb.remove(doc));
   }
 }

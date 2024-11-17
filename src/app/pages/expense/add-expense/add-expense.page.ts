@@ -44,7 +44,7 @@ export class AddExpensePage {
 
   async saveExpense() {
     try {
-      await this.db.addExpense(this.expense);
+      await this.db.addManualExpense(this.expense);
       this.expense = { date: '', category: '', transactionType: '', description: '', amount: 0, notes: '', paidBy: '' };
       this.navCtrl.navigateBack('/view-expenses');
     } catch (error) {

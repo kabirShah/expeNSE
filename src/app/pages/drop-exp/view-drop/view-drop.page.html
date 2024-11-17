@@ -1,20 +1,28 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button href="/home" color="light">
+          <ion-icon name="chevron-back" size="medium"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     <ion-title>View Drop</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngFor="let expense of expenses">
+<ion-content class="ion-padding">
+  <h2>Auto-Parsed Expenses</h2>
+  <ion-card *ngFor="let expense of autoExpenses">
     <ion-card-header>
       <ion-card-title>{{ expense.category }}</ion-card-title>
-      <ion-card-subtitle>{{ expense.date | date }}</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
-      <p>{{ expense.description }}</p>
-      <p>Amount: {{ expense.amount }}</p>
+      <p>Amount: {{ expense.amount }}₹</p>
+      <p>Description: {{ expense.description }}</p>
+      <p>Date: {{ expense.date }}</p>
       <p>Paid By: {{ expense.paidBy }}</p>
+      <ion-button color="danger" (click)="deleteAutoExpense(expense._id)">
+        Delete
+      </ion-button>
     </ion-card-content>
-    <ion-button color="danger">Delete</ion-button>
   </ion-card>
 </ion-content>

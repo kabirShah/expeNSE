@@ -26,7 +26,7 @@ export class HomePage implements OnInit{
 
   loadExpenses() {
     // Retrieve the expenses array from localStorage
-    this.db.getAllExpenses().then((data) => {
+    this.db.getAllManualExpenses().then((data) => {
       this.expenses = data;
     });
   }
@@ -36,6 +36,12 @@ export class HomePage implements OnInit{
  
   navigateToAddExpense(){
     this.router.navigate(['/add-expense']);
+  }
+  navigateToDrop(){
+    this.router.navigate(['/drop-expense']);
+  }
+  navigateToViewDrop(){
+    this.router.navigate(['/view-drop']);
   }
   exportToExcel() {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);

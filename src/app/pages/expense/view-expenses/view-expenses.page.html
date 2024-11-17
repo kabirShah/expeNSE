@@ -15,8 +15,8 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-list *ngIf="expenses.length; else noData">
-    <ion-item *ngFor="let expense of expenses">
+  <ion-list *ngIf="manualExpenses.length; else noData">
+    <ion-item *ngFor="let expense of manualExpenses">
       <ion-label>
         <h2>{{ expense.category }}</h2>
         <p>{{ expense.description }} - {{ expense.amount | currency }}</p>
