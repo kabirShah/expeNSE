@@ -36,6 +36,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/drop-exp/view-drop/view-drop.module').then( m => m.ViewDropPageModule)
   },
   {
+    path: 'analytics',
+    loadChildren: () => import('./pages/analytics/analytics.module').then( m => m.AnalyticsPageModule)
+  },
+  {
+    path:'setting',
+    loadChildren: () => import('./pages/setting/setting/setting.module').then(m=>m.SettingPageModule)
+  },
+  {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }

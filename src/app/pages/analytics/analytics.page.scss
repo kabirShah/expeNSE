@@ -1,0 +1,9 @@
+/* In your expense-chart.page.scss (or global styles file) */
+canvas {
+    width: 100% !important; /* Ensures the canvas takes up full width */
+    height: 300px; /* Adjust the height as needed */
+  }
+ion-content {
+    --padding-top: 0;
+    --padding-bottom: 0;
+  }
