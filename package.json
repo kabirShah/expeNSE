@@ -1,8 +1,8 @@
 {
-  "name": "expenseManagerApp",
+  "name": "Paisa-App",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "author": "Jay Shah",
+  "homepage": "https://blughere.wordpress.com/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -23,16 +23,15 @@
     "@angular/router": "^18.0.0",
     "@awesome-cordova-plugins/core": "^6.9.0",
     "@awesome-cordova-plugins/sqlite": "^6.9.0",
-    "@capacitor/android": "6.1.2",
+    "@capacitor/android": "6.2.0",
     "@capacitor/app": "6.0.1",
-    "@capacitor/core": "6.1.2",
+    "@capacitor/core": "^6.2.0",
     "@capacitor/haptics": "6.0.1",
     "@capacitor/ios": "6.1.2",
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/storage-angular": "^4.0.0",
-    "@types/highcharts": "^7.0.0",
     "cordova-sqlite-storage": "^6.1.0",
     "file-saver": "^2.0.5",
     "highcharts": "^11.4.8",
@@ -54,10 +53,11 @@
     "@angular/cli": "^18.0.0",
     "@angular/compiler-cli": "^18.0.0",
     "@angular/language-service": "^18.0.0",
-    "@capacitor/cli": "6.1.2",
+    "@capacitor/cli": "^6.2.0",
     "@ionic/angular-toolkit": "^11.0.1",
     "@types/file-saver": "^2.0.7",
     "@types/google.visualization": "^0.0.74",
+    "@types/highcharts": "^7.0.0",
     "@types/jasmine": "~5.1.0",
     "@types/pouchdb": "^6.4.2",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -75,5 +75,5 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.4.0"
   },
-  "description": "An Ionic project"
+  "description": "Money Saver App"
 }
