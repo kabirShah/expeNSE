@@ -1,8 +1,15 @@
-<ion-content class="login-content">
+<ion-content [fullscreen]="true" class="login-content">
   <div class="login-container">
     <!-- Logo -->
+    <div>
+      <ion-title>Welcome Back</ion-title>
+      <p>Sign in to access your account</p>
+    </div>
+  
     <div class="logo-container">
+      
       <img src="assets/logo.png" alt="App Logo" class="app-logo" />
+
     </div>
 
     <ion-card>
@@ -31,7 +38,9 @@
           <ion-label>Remember Me</ion-label>
           <a class="forgot-password" href="/forgot-password">Forgot Password?</a>
         </ion-item>
-
+        <ion-item lines="none">
+          <p>New Member? <a [routerLink]="['/register']">Register</a></p>
+        </ion-item>
         <!-- Login Button -->
         <ion-button expand="block" (click)="login()" class="login-button">
           <ion-icon name="log-in-outline" slot="start"></ion-icon>
@@ -49,7 +58,7 @@
             <ion-icon name="logo-google" slot="start"></ion-icon>
             Login with Google
           </ion-button>
-          <ion-button expand="block" color="primary" (click)="register()">Sign UP</ion-button>
+
         </div>
       </ion-card-content>
     </ion-card>
