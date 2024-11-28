@@ -29,7 +29,7 @@ export class RegistrationPage implements OnInit {
           Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/),
         ],
       ],
-      phoneNumber: [
+      phone: [
         '',
         [
           Validators.required,
@@ -46,6 +46,14 @@ export class RegistrationPage implements OnInit {
         ],
       ],
     });
+  }
+  async showToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'top',
+    });
+    await toast.present();
   }
 
   // Registration logic
@@ -64,14 +72,7 @@ export class RegistrationPage implements OnInit {
       console.log('Form is Invalid!', this.regForm);
     }
   }
-  async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top',
-    });
-    await toast.present();
-  }
+
   // Open date picker
   openDatePicker() {
     this.isDatePickerOpen = true;

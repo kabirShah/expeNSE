@@ -56,12 +56,12 @@
           labelPlacement="stacked"
           label="Phone Number"
           placeholder="Enter your phone number"
-          formControlName="phoneNumber"
+          formControlName="phone"
           type="tel"
           required
         ></ion-input>
       </ion-item>
-      <ion-note color="danger" *ngIf="regForm.get('phoneNumber')?.invalid && regForm.get('phoneNumber')?.touched">
+      <ion-note color="danger" *ngIf="regForm.get('phone')?.invalid && regForm.get('phone')?.touched">
         Enter a valid 10-digit phone number.
       </ion-note>
 

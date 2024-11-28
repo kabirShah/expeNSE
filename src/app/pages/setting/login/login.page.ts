@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
+import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -11,20 +12,40 @@ import { NavController } from '@ionic/angular';
 export class LoginPage {
   logForm!:FormGroup;
 
-  constructor(private fb:FormBuilder, private navCtrl: NavController, private router: Router) {
+  constructor(
+    private fb:FormBuilder, 
+    private navCtrl: NavController,
+    private router: Router,
+    private auth:Auth,
+    private toastCtrl: ToastController
+  ) {
     this.logForm = this.fb.group({
-      email:['', Validators.required],
-      password: ['', Validators.required],
+      email:['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       rememberMe: ['']
-    })
+    });
   }
-
-  login() {
-    console.log('Logging in with', this.logForm);
+  async showToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'top',
+    });
+    await toast.present();
+  }
+  async login() {
     if (this.logForm.valid) {
-      // await createUserWithEmailAndPassword(this.auth, email, password);
+      const {email,password} = this.logForm.value;
+      try{
+        await signInWithEmailAndPassword(this.auth, email, password);
+        this.showToast('Login successfully');
+        this.navCtrl.navigateForward('/home');
+      }catch (error){
+        this.showToast("Error");
+      }
       console.log("Login Form", this.logForm.value);
     }else{
+      this.showToast('Please fill out the form correctly.');
       console.log("Invalid login form");
     }
   }
