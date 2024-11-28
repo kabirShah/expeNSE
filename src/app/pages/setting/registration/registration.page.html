@@ -5,50 +5,113 @@
 </ion-header>
 
 <ion-content>
-  <ion-list >
+  <form [formGroup]="regForm" (ngSubmit)="register()">
+    <ion-list>
+      <!-- First Name -->
       <ion-item>
-        <ion-input labelPlacement="stacked" label="First Name" placeholder="Enter your first name" type="text" [(ngModel)]="user.firstName" required></ion-input>
+        <ion-input
+          labelPlacement="stacked"
+          label="First Name"
+          placeholder="Enter your first name"
+          formControlName="firstName"
+          required
+        ></ion-input>
       </ion-item>
-      <ion-item>
-        <ion-input labelPlacement="stacked" label="Last Name" placeholder="Enter your last name" type="text" [(ngModel)]="user.lastName" required></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-input labelPlacement="stacked" label="Email" placeholder="Enter your email" type="email" [(ngModel)]="user.email" required></ion-input>
-      </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('firstName')?.invalid && regForm.get('firstName')?.touched">
+        First Name is required.
+      </ion-note>
 
+      <!-- Last Name -->
       <ion-item>
-         <ion-input labelPlacement="stacked" label="Phone Number" placeholder="Enter your phone number"  type="tel" [(ngModel)]="user.phoneNumber" required></ion-input>
+        <ion-input
+          labelPlacement="stacked"
+          label="Last Name"
+          placeholder="Enter your last name"
+          formControlName="lastName"
+          required
+        ></ion-input>
       </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('lastName')?.invalid && regForm.get('lastName')?.touched">
+        Last Name is required.
+      </ion-note>
 
+      <!-- Email -->
       <ion-item>
-         <ion-input
+        <ion-input
+          labelPlacement="stacked"
+          label="Email"
+          placeholder="Enter your email"
+          formControlName="email"
+          type="email"
+          required
+        ></ion-input>
+      </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('email')?.invalid && regForm.get('email')?.touched">
+        Enter a valid email address.
+      </ion-note>
+
+      <!-- Phone Number -->
+      <ion-item>
+        <ion-input
+          labelPlacement="stacked"
+          label="Phone Number"
+          placeholder="Enter your phone number"
+          formControlName="phoneNumber"
+          type="tel"
+          required
+        ></ion-input>
+      </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('phoneNumber')?.invalid && regForm.get('phoneNumber')?.touched">
+        Enter a valid 10-digit phone number.
+      </ion-note>
+
+      <!-- Date of Birth -->
+      <ion-item>
+        <ion-input
           type="text"
-          [value]="user.dob"
+          [value]="regForm.get('dob')?.value"
           readonly
           (click)="openDatePicker()"
           placeholder="Select Date of Birth"
         ></ion-input>
       </ion-item>
-    
-      <!-- Date Picker -->
       <ion-datetime
         *ngIf="isDatePickerOpen"
         presentation="date"
         (ionChange)="onDateChange($event)"
         [showDefaultButtons]="true"
       ></ion-datetime>
+      <ion-note color="danger" *ngIf="regForm.get('dob')?.invalid && regForm.get('dob')?.touched">
+        Date of Birth is required.
+      </ion-note>
 
+      <!-- Gender -->
       <ion-item>
-        <ion-select label="Gender" [(ngModel)]="user.gender">
+        <ion-select formControlName="gender" label="Gender">
           <ion-select-option value="male">Male</ion-select-option>
           <ion-select-option value="female">Female</ion-select-option>
           <ion-select-option value="other">Other</ion-select-option>
         </ion-select>
       </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('gender')?.invalid && regForm.get('gender')?.touched">
+        Gender is required.
+      </ion-note>
 
+      <!-- Password -->
       <ion-item>
-        <ion-input label="Password" type="password" [(ngModel)]="user.password" required></ion-input>
+        <ion-input
+          formControlName="password"
+          type="password"
+          placeholder="Enter your password"
+          required
+        ></ion-input>
       </ion-item>
+      <ion-note color="danger" *ngIf="regForm.get('password')?.invalid && regForm.get('password')?.touched">
+        Password must be at least 6 characters long.
+      </ion-note>
     </ion-list>
-      <ion-button expand="block" (click)="register()">Register</ion-button>
+
+    <!-- Submit Button -->
+    <ion-button expand="block" type="submit" [disabled]="regForm.invalid">Register</ion-button>
+  </form>
 </ion-content>

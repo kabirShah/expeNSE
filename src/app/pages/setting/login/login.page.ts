@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 
@@ -8,17 +9,24 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
-  email: string = '';
-  password: string = '';
-  rememberMe: boolean = false;
-  constructor(private navCtrl: NavController, private router: Router) {}
+  logForm!:FormGroup;
+
+  constructor(private fb:FormBuilder, private navCtrl: NavController, private router: Router) {
+    this.logForm = this.fb.group({
+      email:['', Validators.required],
+      password: ['', Validators.required],
+      rememberMe: ['']
+    })
+  }
 
   login() {
-    console.log('Logging in with', this.email, this.password);
-    if (this.rememberMe) {
-      // Store login info or token if "Remember Me" is checked
+    console.log('Logging in with', this.logForm);
+    if (this.logForm.valid) {
+      // await createUserWithEmailAndPassword(this.auth, email, password);
+      console.log("Login Form", this.logForm.value);
+    }else{
+      console.log("Invalid login form");
     }
-    // Add actual login logic here
   }
 
   loginWithFacebook() {

@@ -16,51 +16,52 @@
       <ion-card-header>
         <ion-card-title>Login</ion-card-title>
       </ion-card-header>
+      <form [formGroup]="logForm" (ngSubmit)="login()">
+        <ion-card-content>
+          <!-- Email Input with Icon -->
+          <ion-item>
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Email</ion-label>
+            <ion-input type="email" formControlName="email" required></ion-input>
+          </ion-item>
+  
+          <!-- Password Input with Icon -->
+          <ion-item>
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" formControlName="password" required></ion-input>
+          </ion-item>
+  
+          <!-- Remember Me and Forgot Password Options -->
+          <ion-item lines="none">
+            <ion-checkbox formControlName="rememberMe" slot="start"></ion-checkbox>
+            <ion-label>Remember Me</ion-label>
+            <a class="forgot-password" href="/forgot-password">Forgot Password?</a>
+          </ion-item>
+          <ion-item lines="none">
+            <p>New Member? <a [routerLink]="['/register']">Register</a></p>
+          </ion-item>
+          <!-- Login Button -->
+          <ion-button expand="block" type="submit" class="login-button" [disabled]="logForm.invalid">
+            <ion-icon name="log-in-outline" slot="start"></ion-icon>
+            Signin
+          </ion-button>
+  
+          <!-- Social Login Buttons with Icons -->
 
-      <ion-card-content>
-        <!-- Email Input with Icon -->
-        <ion-item>
-          <ion-icon name="mail-outline" slot="start"></ion-icon>
-          <ion-label position="floating">Email</ion-label>
-          <ion-input type="email" [(ngModel)]="email" required></ion-input>
-        </ion-item>
-
-        <!-- Password Input with Icon -->
-        <ion-item>
-          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-          <ion-label position="floating">Password</ion-label>
-          <ion-input type="password" [(ngModel)]="password" required></ion-input>
-        </ion-item>
-
-        <!-- Remember Me and Forgot Password Options -->
-        <ion-item lines="none">
-          <ion-checkbox [(ngModel)]="rememberMe" slot="start"></ion-checkbox>
-          <ion-label>Remember Me</ion-label>
-          <a class="forgot-password" href="/forgot-password">Forgot Password?</a>
-        </ion-item>
-        <ion-item lines="none">
-          <p>New Member? <a [routerLink]="['/register']">Register</a></p>
-        </ion-item>
-        <!-- Login Button -->
-        <ion-button expand="block" (click)="login()" class="login-button">
-          <ion-icon name="log-in-outline" slot="start"></ion-icon>
-          Signin
+        </ion-card-content>  
+      </form>
+      <div class="social-login-buttons">
+        <ion-button expand="block" color="primary" (click)="loginWithFacebook()" class="facebook-button">
+          <ion-icon name="logo-facebook" slot="start"></ion-icon>
+          Login with Facebook
         </ion-button>
 
-        <!-- Social Login Buttons with Icons -->
-        <div class="social-login-buttons">
-          <ion-button expand="block" color="primary" (click)="loginWithFacebook()" class="facebook-button">
-            <ion-icon name="logo-facebook" slot="start"></ion-icon>
-            Login with Facebook
-          </ion-button>
-
-          <ion-button expand="block" color="danger" (click)="loginWithGoogle()" class="google-button">
-            <ion-icon name="logo-google" slot="start"></ion-icon>
-            Login with Google
-          </ion-button>
-
-        </div>
-      </ion-card-content>
-    </ion-card>
+        <ion-button expand="block" color="danger" (click)="loginWithGoogle()" class="google-button">
+          <ion-icon name="logo-google" slot="start"></ion-icon>
+          Login with Google
+        </ion-button>
+      </div>
+     </ion-card>
   </div>
 </ion-content>
