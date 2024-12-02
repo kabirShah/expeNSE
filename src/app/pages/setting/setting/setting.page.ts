@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-setting',
@@ -10,14 +11,11 @@ export class SettingPage {
   notificationsEnabled: boolean = true; // Default value
   selectedTheme: string = 'light'; // Default theme
 
-  constructor() {}
-  changeProfilePicture() {
-    // Logic to change the profile picture
-    console.log('Change Profile Picture clicked');
-  }
-
+  constructor(private router:Router) {}
+  
   updateProfile() {
     // Logic to update profile information
+    this.router.navigate(['profile']);
     console.log('Update Profile clicked');
   }
 

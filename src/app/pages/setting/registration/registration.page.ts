@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { IonDatetime, NavController, ToastController } from '@ionic/angular';
+import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-registration',
@@ -14,7 +14,11 @@ export class RegistrationPage implements OnInit {
   regForm!: FormGroup; // Initialize properly
   isDatePickerOpen = false;
 
-  constructor(private auth: Auth,private toastCtrl: ToastController, private fb: FormBuilder, private navCtrl: NavController) {}
+  constructor(
+    private auth: Auth,
+    private toastCtrl: ToastController,
+    private loadingController: LoadingController,
+    private fb: FormBuilder, private navCtrl: NavController) {}
 
   ngOnInit() {
     // Define FormGroup and validations
@@ -42,10 +46,13 @@ export class RegistrationPage implements OnInit {
         '',
         [
           Validators.required,
-          Validators.minLength(6), // At least 6 characters for password
+          Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-8])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}')
         ],
       ],
     });
+  }
+  get errorControl() {
+    return this.regForm.controls;
   }
   async showToast(message: string) {
     const toast = await this.toastCtrl.create({
@@ -58,6 +65,8 @@ export class RegistrationPage implements OnInit {
 
   // Registration logic
   async register() {
+    const loading = await this.loadingController.create();
+    await loading.present();
     if (this.regForm.valid) {
       const {email, password } = this.regForm.value;
       try{

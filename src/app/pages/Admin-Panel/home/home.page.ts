@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import * as XLSX from 'xlsx';
 
@@ -9,16 +10,25 @@ import * as XLSX from 'xlsx';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit{
-
+  email :any;
   expenses: any[] = [];
   data: any[] = [];
   
-  ngOnInit() {
-    this.loadExpenses();
-  }
-  
-  constructor(private router: Router, private db: DatabaseService) {}
 
+  
+  constructor(
+    private router: Router,
+    private db: DatabaseService) {}
+
+    ngOnInit() {
+      this.loadExpenses();
+      // this.authService.getProfile().then(user => {
+      //   this.email = user?.email;
+      //   console.log(user?.email);
+      // }).catch(error => {
+      //   console.error('Error getting user profile:', error);
+      // });
+    }
 
   ionViewWillEnter() {
     this.loadExpenses();
@@ -59,4 +69,10 @@ export class HomePage implements OnInit{
       // Add logic to process the file as needed
     }
   }
+  // signOut(){
+  //   console.log("Signout")
+  //   this.authService.signOut().then(()=>{
+  //     this.router.navigate(['login']);
+  //   })
+  // }
 }

@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding">
   <form [formGroup]="regForm" (ngSubmit)="register()">
     <ion-list>
       <!-- First Name -->
@@ -107,7 +107,7 @@
         ></ion-input>
       </ion-item>
       <ion-note color="danger" *ngIf="regForm.get('password')?.invalid && regForm.get('password')?.touched">
-        Password must be at least 6 characters long.
+        Password must be at least 8 characters long, contain at least one uppercase letter, one number, and one special character.
       </ion-note>
     </ion-list>
 

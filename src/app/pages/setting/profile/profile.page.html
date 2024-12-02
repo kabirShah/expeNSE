@@ -1,13 +1,46 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>profile</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button> 
+   </ion-buttons>
+    <ion-title>Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <!-- Show loading spinner until the data is ready -->
+  <ion-spinner *ngIf="isLoading"></ion-spinner>
+
+  <!-- Profile content -->
+  <div *ngIf="!isLoading && user">
+    <ion-item>
+      <ion-label>Email:</ion-label>
+      <ion-text>{{ user.email }}</ion-text>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Display Name:</ion-label>
+      <ion-input
+        [(ngModel)]="user.displayName"
+        placeholder="Enter your name"
+      ></ion-input>
+    </ion-item>
+
+    <!-- Add other fields as needed -->
+    <ion-item>
+      <ion-label>Phone:</ion-label>
+      <ion-input
+        placeholder="Enter your phone number"
+      ></ion-input>
+    </ion-item>
+
+    <ion-button expand="block" (click)="updateProfile({ displayName: user.displayName, phone: user.phone })">
+      Save Changes
+    </ion-button>
+  </div>
+
+  <!-- Show fallback message if no user is logged in -->
+  <div *ngIf="!isLoading && !user">
+    <p>No user is logged in. Please log in to view your profile.</p>
+  </div>
 </ion-content>
