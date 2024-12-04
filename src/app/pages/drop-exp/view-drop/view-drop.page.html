@@ -13,7 +13,7 @@
   <h2>Auto-Parsed Expenses</h2>
   <ion-card *ngFor="let expense of autoExpenses">
     <ion-card-header>
-      <ion-card-title>{{ expense.category }}</ion-card-title>
+      <ion-card-title>{{ expense.description }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <p>Amount: {{ expense.amount }}₹</p>

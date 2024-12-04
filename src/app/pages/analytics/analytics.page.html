@@ -7,32 +7,31 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Month and Year Selector -->
-  <ion-item>
-    <ion-label>Month</ion-label>
-    <ion-select [(ngModel)]="selectedMonth" (ionChange)="filterExpenses()">
-      <ion-select-option *ngFor="let month of months" [value]="month.value">
-        {{ month.name }}
-      </ion-select-option>
-    </ion-select>
-  </ion-item>
+<ion-content class="ion-padding">
+  <!-- Filter Section -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Filter Expenses</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label>Month</ion-label>
+        <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
+          <ion-select-option *ngFor="let month of months" [value]="month.value">{{ month.name }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label>Category</ion-label>
+        <ion-select [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
+          <ion-select-option *ngFor="let category of categories">{{ category }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
 
-  <ion-item>
-    <ion-label>Year</ion-label>
-    <ion-input
-      type="number"
-      [(ngModel)]="selectedYear"
-      (ionChange)="filterExpenses()"
-      placeholder="Enter Year"
-    ></ion-input>
-  </ion-item>
-
-  <!-- Manual Expenses Chart -->
-  <h2>Manual Expenses ({{ getSelectedMonthName() }} {{ selectedYear }})</h2>
-  <div id="manualExpensesContainer" style="width: 100%; height: 400px; margin-bottom: 20px;"></div>
-
-  <!-- Auto Expenses Chart -->
-  <h2>Auto Expenses ({{ getSelectedMonthName() }} {{ selectedYear }})</h2>
+  <!-- Chart Section -->
+   <div id="manualcontainer" style="width:100%; height:400px;"></div>
+  <div id="manualExpensesContainer" style="width: 100%; height: 400px;"></div>
   <div id="autoExpensesContainer" style="width: 100%; height: 400px;"></div>
+
 </ion-content>
