@@ -14,6 +14,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -23,8 +24,10 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
     IonicModule.forRoot(), 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
+    HttpClientModule
   ],
   providers: [
+    HttpClient,
     DatabaseService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideFirestore(() => getFirestore()), // Provide Firestore

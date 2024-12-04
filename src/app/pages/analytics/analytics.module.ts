@@ -7,14 +7,17 @@ import { IonicModule } from '@ionic/angular';
 import { AnalyticsPageRoutingModule } from './analytics-routing.module';
 
 import { AnalyticsPage } from './analytics.page';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AnalyticsPageRoutingModule
+    AnalyticsPageRoutingModule,
+    HttpClientModule
   ],
+  providers:[HttpClient],
   declarations: [AnalyticsPage]
 })
 export class AnalyticsPageModule {}

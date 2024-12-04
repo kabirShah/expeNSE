@@ -20,10 +20,10 @@
       <ion-col size="6">
         <ion-card color="secondary">
           <ion-card-header>
-            <ion-card-title>Total Expenses</ion-card-title>
+            <ion-card-title>Total Expenses for {{ currentMonth }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h3>$1,250.00</h3>
+            <h3>₹{{ totalExpense }}</h3>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -33,7 +33,7 @@
             <ion-card-title>Monthly Limit</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h3>$2,000.00</h3>
+            <h3>₹{{ monthlyLimit }}</h3>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -41,34 +41,37 @@
   </ion-grid>
 
   <!-- Recent Transactions Section -->
-  <ion-card class="ion-padding">
+  <ion-card>
     <ion-card-header>
-      <ion-card-title>Recent Transactions</ion-card-title>
+      <ion-card-title>Recent Transactions ({{ currentMonth }})</ion-card-title>
     </ion-card-header>
-    <div *ngIf="expenses.length === 0" class="no-data-container">
-      <ion-icon class="ion-center" name="alert-circle-outline" size="large" color="medium"></ion-icon>
-      <p>No expenses found. Please add some expenses to view them here.</p>
-    </div>
-    <ion-list *ngFor="let expense of expenses">
-      <ion-item>
-        <ion-label>
-          <h2>{{ expense.category }}</h2>
-          <p>{{ expense.date }}</p>
-        </ion-label>
-        <ion-note slot="end" color="danger">- {{ expense.amount }}</ion-note>
+    <ion-card-content>
+      <div *ngIf="currentMonthExpenses.length === 0" class="no-data-container">
+        <ion-icon class="ion-center" name="alert-circle-outline" size="large" color="medium"></ion-icon>
+        <p>No expenses found for {{ currentMonth }}. Please add some expenses to view them here.</p>
+      </div>
+      <ion-list *ngIf="currentMonthExpenses.length > 0">
+        <ion-item *ngFor="let expense of currentMonthExpenses">
+          <ion-label>
+            <h2>{{ expense.category }}</h2>
+            <p>{{ expense.date | date: 'shortDate' }}</p>
+          </ion-label>
+          <ion-note slot="end" color="danger">- ₹{{ expense.amount }}</ion-note>
         </ion-item>
-    </ion-list>
+      </ion-list>
+    </ion-card-content>
   </ion-card>
-    <ion-button expand="full" color="primary" (click)="navigateToViewExpenses()" style="margin-top: 20px;">
+  
+    <ion-button color="primary" (click)="navigateToViewExpenses()" style="margin-top: 20px;">
       View Expenses
     </ion-button>
-    <ion-button expand="full" color="secondary" (click)="navigateToAddExpense()" style="margin-top: 20px;">
-      Add Expenses
+    <ion-button color="secondary" (click)="navigateToAddExpense()" style="margin-top: 20px;">
+      Add Single Expenses
     </ion-button> 
-    <ion-button expand="full" color="primary" (click)="navigateToDrop()" style="margin-top:20px;">
-      Drop Expense
+    <ion-button color="primary" (click)="navigateToDrop()" style="margin-top:20px;">
+      Add Multiple Expense
     </ion-button>
-    <ion-button expand="full" color="primary" (click)="navigateToViewDrop()" style="margin-top:20px;">
-      View Drop
+    <ion-button color="primary" (click)="navigateToViewDrop()" style="margin-top:20px;">
+      View Multiple Expense
     </ion-button>
 </ion-content>

@@ -13,7 +13,11 @@ export class HomePage implements OnInit{
   email :any;
   expenses: any[] = [];
   data: any[] = [];
-  
+  currentMonthExpenses: any[] = []; // Filtered expenses for the current month
+  totalExpense: number = 0; // Total monthly expenses
+  monthlyLimit: number = 2000; // Default monthly limit (can be dynamic)
+  currentMonth: string = '';
+  currentYear: number = new Date().getFullYear();  
 
   
   constructor(
@@ -34,11 +38,40 @@ export class HomePage implements OnInit{
     this.loadExpenses();
   }
 
-  loadExpenses() {
+  async loadExpenses() {
     // Retrieve the expenses array from localStorage
     this.db.getAllManualExpenses().then((data) => {
       this.expenses = data;
     });
+    
+    const allExpenses = await this.db.getAllManualExpenses();
+
+    // Filter expenses for the current month
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString();
+
+    this.currentMonthExpenses = allExpenses.filter((expense) =>
+      this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth)
+    );
+
+    // Calculate the total for the current month
+    this.totalExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+    // Update current month name
+    this.currentMonth = this.getMonthName(today.getMonth());
+  }
+  isExpenseInDateRange(date: string, start: string, end: string): boolean {
+    const expenseDate = new Date(date).getTime();
+    return expenseDate >= new Date(start).getTime() && expenseDate <= new Date(end).getTime();
+  }
+
+  getMonthName(monthIndex: number): string {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return monthNames[monthIndex];
   }
   navigateToViewExpenses() {
     this.router.navigate(['/view-expenses']);
