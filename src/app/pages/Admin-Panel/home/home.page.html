@@ -12,6 +12,7 @@
   <div class="welcome-section">
     <h2>Welcome, Jay</h2>
     <p>Track and manage your expenses effortlessly.</p>
+    <h1>Grand Total: {{ grandTotalExpense }}₹/-</h1>
   </div>
 
   <!-- Expense Overview Cards -->
@@ -20,20 +21,20 @@
       <ion-col size="6">
         <ion-card color="secondary">
           <ion-card-header>
-            <ion-card-title>Total Expenses for {{ currentMonth }}</ion-card-title>
+            <ion-card-title>Total Manual {{ currentMonth }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h3>₹{{ totalExpense }}</h3>
+            <h3>₹{{ totalManualExpense }}</h3>
           </ion-card-content>
         </ion-card>
       </ion-col>
       <ion-col size="6">
-        <ion-card color="tertiary">
+        <ion-card color="secondary">
           <ion-card-header>
-            <ion-card-title>Monthly Limit</ion-card-title>
+            <ion-card-title>Total Auto {{ currentMonth }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h3>₹{{ monthlyLimit }}</h3>
+            <h3>₹{{ totalAutoExpense }}</h3>
           </ion-card-content>
         </ion-card>
       </ion-col>

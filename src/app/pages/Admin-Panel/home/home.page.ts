@@ -14,18 +14,19 @@ export class HomePage implements OnInit{
   expenses: any[] = [];
   data: any[] = [];
   currentMonthExpenses: any[] = []; // Filtered expenses for the current month
-  totalExpense: number = 0; // Total monthly expenses
   monthlyLimit: number = 2000; // Default monthly limit (can be dynamic)
   currentMonth: string = '';
   currentYear: number = new Date().getFullYear();  
-
+  totalManualExpense: number = 0; // Total manual monthly expenses
+  totalAutoExpense: number = 0; // Total auto monthly expenses
+  grandTotalExpense: number = 0;
   
   constructor(
     private router: Router,
     private db: DatabaseService) {}
 
-    ngOnInit() {
-      this.loadExpenses();
+    async ngOnInit() {
+      await this.calculateTotalExpense();
       // this.authService.getProfile().then(user => {
       //   this.email = user?.email;
       //   console.log(user?.email);
@@ -38,6 +39,12 @@ export class HomePage implements OnInit{
     this.loadExpenses();
   }
 
+  async calculateTotalExpense(){
+    const expenses = await this.db.getAllAutoExpenses(); // Replace this with your database fetch method
+    this.totalAutoExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    console.log('Total Auto Expense:', this.totalAutoExpense); // Debugging log
+    this.grandTotalExpense = this.totalManualExpense + this.totalAutoExpense;
+   }
   async loadExpenses() {
     // Retrieve the expenses array from localStorage
     this.db.getAllManualExpenses().then((data) => {
@@ -56,7 +63,7 @@ export class HomePage implements OnInit{
     );
 
     // Calculate the total for the current month
-    this.totalExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
     // Update current month name
     this.currentMonth = this.getMonthName(today.getMonth());
