@@ -12,24 +12,23 @@
   <div class="welcome-section">
     <h2>Welcome, Jay</h2>
     <p>Track and manage your expenses effortlessly.</p>
-    <h1>Grand Total: {{ grandTotalExpense }}₹/-</h1>
   </div>
 
   <!-- Expense Overview Cards -->
   <ion-grid>
     <ion-row>
       <ion-col size="6">
-        <ion-card color="secondary">
+        <ion-card color="secondary" (click)="navigateToViewExpenses()">
           <ion-card-header>
             <ion-card-title>Total Manual {{ currentMonth }}</ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content >
             <h3>₹{{ totalManualExpense }}</h3>
           </ion-card-content>
         </ion-card>
       </ion-col>
       <ion-col size="6">
-        <ion-card color="secondary">
+        <ion-card color="secondary" (click)="navigateToViewDrop()">
           <ion-card-header>
             <ion-card-title>Total Auto {{ currentMonth }}</ion-card-title>
           </ion-card-header>
@@ -38,41 +37,21 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
+      <h1 style="text-align: center;">Grand Total: {{ grandTotalExpense }}₹/-</h1>
     </ion-row>
   </ion-grid>
-
-  <!-- Recent Transactions Section -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Recent Transactions ({{ currentMonth }})</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div *ngIf="currentMonthExpenses.length === 0" class="no-data-container">
-        <ion-icon class="ion-center" name="alert-circle-outline" size="large" color="medium"></ion-icon>
-        <p>No expenses found for {{ currentMonth }}. Please add some expenses to view them here.</p>
-      </div>
-      <ion-list *ngIf="currentMonthExpenses.length > 0">
-        <ion-item *ngFor="let expense of currentMonthExpenses">
-          <ion-label>
-            <h2>{{ expense.category }}</h2>
-            <p>{{ expense.date | date: 'shortDate' }}</p>
-          </ion-label>
-          <ion-note slot="end" color="danger">- ₹{{ expense.amount }}</ion-note>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-  
-    <ion-button expand="full" color="primary" (click)="navigateToViewExpenses()" style="margin-top: 20px;">
-      View Expenses
-    </ion-button>
-    <ion-button expand="full" color="secondary" (click)="navigateToAddExpense()" style="margin-top: 20px;">
-      Add Single Expenses
-    </ion-button> 
-    <ion-button expand="full" color="primary" (click)="navigateToDrop()" style="margin-top:20px;">
-      Add Multiple Expense
-    </ion-button>
-    <ion-button expand="full" color="primary" (click)="navigateToViewDrop()" style="margin-top:20px;">
-      View Multiple Expense
-    </ion-button>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+          <ion-button size="default" color="secondary" (click)="navigateToAddExpense()">
+            Add Single Expenses
+          </ion-button> 
+          </ion-col>
+          <ion-col>
+            <ion-button size="default" color="primary" (click)="navigateToDrop()">
+              Add Multiple Expense
+            </ion-button>
+          </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
