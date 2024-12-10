@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ViewExpensesPageRoutingModule } from './view-expenses-routing.module';
+import { SingleViewExpensesPageRoutingModule } from './single-view-expenses-routing.module';
 
-import { ViewExpensesPage } from './view-expenses.page';
+import { SingleViewExpensesPage } from './single-view-expenses.page';
 import { IonicStorageModule } from '@ionic/storage-angular';
 
 @NgModule({
@@ -14,9 +14,9 @@ import { IonicStorageModule } from '@ionic/storage-angular';
     CommonModule,
     FormsModule,
     IonicModule,
-    ViewExpensesPageRoutingModule,
+    SingleViewExpensesPageRoutingModule,
     IonicStorageModule.forRoot(),
   ],
-  declarations: [ViewExpensesPage]
+  declarations: [SingleViewExpensesPage]
 })
-export class ViewExpensesPageModule {}
+export class SingleViewExpensesPageModule {}

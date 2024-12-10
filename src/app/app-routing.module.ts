@@ -16,24 +16,28 @@ const routes: Routes = [
     loadChildren: () => import('./pages/setting/registration/registration.module').then(m => m.RegistrationPageModule)
   },
   {
-    path: 'add-expense',
-    loadChildren: () => import('./pages/expense/add-expense/add-expense.module').then(m => m.AddExpensePageModule)
+    path: 'single-expense',
+    loadChildren: () => import('./pages/expense/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {
-    path: 'view-expenses',
-    loadChildren: () => import('./pages/expense/view-expenses/view-expenses.module').then(m => m.ViewExpensesPageModule)
+    path: 'single-view-expenses',
+    loadChildren: () => import('./pages/expense/single-view-expenses/single-view-expenses.module').then(m => m.SingleViewExpensesPageModule)
   },
   {
     path:'home',
     loadChildren:()=>import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
   },
   {
-    path: 'drop-expense',
-    loadChildren: () => import('./pages/drop-exp/drop-expense/drop-expense.module').then( m => m.DropExpensePageModule)
+    path: 'multi-expense',
+    loadChildren: () => import('./pages/expense/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule)
   },
   {
-    path: 'view-drop',
-    loadChildren: () => import('./pages/drop-exp/view-drop/view-drop.module').then( m => m.ViewDropPageModule)
+    path: 'multi-view-expense',
+    loadChildren: () => import('./pages/expense/view-drop/multi-view.module').then( m => m.MultiViewPageModule)
+  },
+  {
+    path: 'split',
+    loadChildren: () => import('./pages/expense/split/split.module').then( m => m.SplitPageModule)
   },
   {
     path: 'analytics',
@@ -51,6 +55,8 @@ const routes: Routes = [
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
+
+
 ];
 
 

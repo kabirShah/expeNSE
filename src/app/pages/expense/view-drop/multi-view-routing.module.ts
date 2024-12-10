@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { DropExpensePage } from './drop-expense.page';
+import { MultiViewPage } from './multi-view.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: DropExpensePage
+    component: MultiViewPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class DropExpensePageRoutingModule {}
+export class MultiViewPageRoutingModule {}

@@ -5,7 +5,7 @@
           <ion-icon name="chevron-back" size="medium"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>View Expenses</ion-title>
+      <ion-title>Single Expense</ion-title>
       <ion-buttons slot="end">
         <ion-button (click)="exportToExcel()">
           <ion-icon name="download-outline"></ion-icon>
@@ -18,8 +18,12 @@
   <ion-list *ngIf="manualExpenses.length; else noData">
     <ion-item *ngFor="let expense of manualExpenses">
       <ion-label>
-        <h2>{{ expense.category }}</h2>
-        <p>{{ expense.description }} - {{ expense.amount | currency }}</p>
+        <h2>{{ expense.description }}</h2>
+        <p>
+          Amount: ₹{{ expense.amount }} | 
+          Date: {{ expense.date | date: 'medium' }} | 
+          Category: {{ expense.category }}
+        </p>
       </ion-label>
       <ion-button slot="end" color="primary" (click)="editExpense(expense)">Edit</ion-button>
       <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id)">Delete</ion-button>

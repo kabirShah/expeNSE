@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DropExpensePage } from './drop-expense.page';
+import { SplitPage } from './split.page';
 
-describe('DropExpensePage', () => {
-  let component: DropExpensePage;
-  let fixture: ComponentFixture<DropExpensePage>;
+describe('SplitPage', () => {
+  let component: SplitPage;
+  let fixture: ComponentFixture<SplitPage>;
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DropExpensePage);
+    fixture = TestBed.createComponent(SplitPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

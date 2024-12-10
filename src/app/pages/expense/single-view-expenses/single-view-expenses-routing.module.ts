@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ViewDropPage } from './view-drop.page';
+import { SingleViewExpensesPage } from './single-view-expenses.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: ViewDropPage
+    component: SingleViewExpensesPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class ViewDropPageRoutingModule {}
+export class SingleViewExpensesPageRoutingModule {}

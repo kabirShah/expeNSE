@@ -14,8 +14,8 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-
+import { HttpClient } from '@angular/common/http';
+import { File } from "@ionic-native/file/ngx";
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -24,15 +24,15 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     IonicModule.forRoot(), 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
-    HttpClientModule
   ],
   providers: [
     HttpClient,
     DatabaseService,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    File,
     provideFirestore(() => getFirestore()), // Provide Firestore
     provideFirebaseApp(() => initializeApp(environment.firebase)), // Initialize Firebase
     provideAuth(() => getAuth()), // Provide Firebase Auth
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]

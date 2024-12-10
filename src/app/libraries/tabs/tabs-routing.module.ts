@@ -14,7 +14,7 @@ const routes: Routes = [
       },
       {
         path: 'view-expenses',
-        loadChildren: () => import('../../pages/expense/view-expenses/view-expenses.module').then(m => m.ViewExpensesPageModule)
+        loadChildren: () => import('../../pages/expense/single-view-expenses/single-view-expenses.module').then(m => m.ViewExpensesPageModule)
       },
       {
         path: 'settings',

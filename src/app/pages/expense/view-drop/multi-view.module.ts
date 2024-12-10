@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { DropExpensePageRoutingModule } from './drop-expense-routing.module';
+import { MultiViewPageRoutingModule } from './multi-view-routing.module';
 
-import { DropExpensePage } from './drop-expense.page';
+import { MultiViewPage } from './multi-view.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    DropExpensePageRoutingModule
+    MultiViewPageRoutingModule
   ],
-  declarations: [DropExpensePage]
+  declarations: [MultiViewPage]
 })
-export class DropExpensePageModule {}
+export class MultiViewPageModule {}

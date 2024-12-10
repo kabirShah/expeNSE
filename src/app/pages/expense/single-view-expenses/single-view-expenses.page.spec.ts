@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ViewExpensesPage } from './view-expenses.page';
+import { ViewExpensesPage } from './single-view-expenses.page';
 
 describe('ViewExpensesPage', () => {
   let component: ViewExpensesPage;

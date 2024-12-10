@@ -22,16 +22,17 @@ export class ExpenseParserService {
 
   private extractExpenses(message: string): Expense[] {
     // Example message: "200₹ Groceries paid by Jay, 500₹ Transport paid by Sam"
-    const expensePattern = /(\d+)₹ ([\w\s]+) paid by (\w+)/gi;
+    const expensePattern = /(\d+(\.\d{1,2})?)₹\s*([\w\s]+?)(?:\s*paid by\s*([\w\s]+))?(?:\s*using\s*([\w\s]+))?/gi;
     let match;
     const expenses: Expense[] = [];
-
+  
     while ((match = expensePattern.exec(message)) !== null) {
-      const [, amount, description, paidBy] = match;
+      const [, amount, , description, paidBy = 'Unknown', transactionType = 'Cash'] = match;
+  
       expenses.push({
         date: new Date().toISOString(),
         category: this.detectCategory(description),
-        transactionType: 'Cash', // Default for now
+        transactionType: this.detectTransactionType(transactionType),
         description: description.trim(),
         amount: parseFloat(amount),
         notes: '',
@@ -40,11 +41,26 @@ export class ExpenseParserService {
     }
     return expenses;
   }
-
   private detectCategory(description: string): string {
-    if (description.toLowerCase().includes('grocery')) return 'Groceries';
-    if (description.toLowerCase().includes('shopping')) return 'Clothes Shopping';
-    if (description.toLowerCase().includes('transport')) return 'Transport';
-    return 'Miscellaneous';
+    const categories: { [key: string]: string[] } = {
+      Groceries: ['milk', 'khakhra', 'tea', 'grocery'],
+      Transport: ['auto', 'petrol', 'transport'],
+      Food: ['lunch', 'poha', 'dabeli', 'sandwich', 'food'],
+      Rent: ['rent'],
+      Education: ['education', 'loan'],
+      Miscellaneous: ['soda', 'coffee', 'show', 'bill'],
+    };
+  
+    for (const [category, keywords] of Object.entries(categories)) {
+      if (keywords.some(keyword => description.toLowerCase().includes(keyword))) {
+        return category;
+      }
+    }
+    return 'Miscellaneous'; 
+  }
+  
+  private detectTransactionType(transactionType: string): string {
+    const types = ['Cash', 'UPI', 'Card', 'Wallet', 'Bank Transfer'];
+    return types.includes(transactionType) ? transactionType : 'Cash';
   }
 }

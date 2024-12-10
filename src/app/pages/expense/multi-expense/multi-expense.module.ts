@@ -4,10 +4,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { LoginPageRoutingModule } from './login-routing.module';
+import { MultiExpensePageRoutingModule } from './multi-expense-routing.module';
 
-import { LoginPage } from './login.page';
-
+import { MultiExpensePage } from './multi-expense.page';
 
 @NgModule({
   imports: [
@@ -15,11 +14,8 @@ import { LoginPage } from './login.page';
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    LoginPageRoutingModule
+    MultiExpensePageRoutingModule
   ],
-  providers:[
-
-  ],
-  declarations: [LoginPage]
+  declarations: [MultiExpensePage]
 })
-export class LoginPageModule {}
+export class MultiExpensePageModule {}

@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { AddExpensePageRoutingModule } from './add-expense-routing.module';
+import { SplitPageRoutingModule } from './split-routing.module';
 
-import { AddExpensePage } from './add-expense.page';
+import { SplitPage } from './split.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AddExpensePageRoutingModule
+    SplitPageRoutingModule
   ],
-  declarations: [AddExpensePage]
+  declarations: [SplitPage]
 })
-export class AddExpensePageModule {}
+export class SplitPageModule {}

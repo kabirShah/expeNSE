@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { AddExpensePage } from './add-expense.page';
+import { SplitPage } from './split.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: AddExpensePage
+    component: SplitPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AddExpensePageRoutingModule {}
+export class SplitPageRoutingModule {}

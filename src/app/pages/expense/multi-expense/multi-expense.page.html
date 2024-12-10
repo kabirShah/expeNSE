@@ -1,0 +1,22 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button href="/home" color="light">
+        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Drop Expense</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+
+</ion-content>
+<ion-footer>
+  <form [formGroup]="multiForm" (ngSubmit)="submitMessage()">
+    <ion-item>
+      <ion-label position="floating">Enter your expense message ₹</ion-label>
+      <ion-textarea type="message" formControlName="message"></ion-textarea>
+    </ion-item>
+    <ion-button expand="block" type="submit">Submit</ion-button>
+  </form>
+</ion-footer>

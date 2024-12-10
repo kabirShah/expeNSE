@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AddExpensePage } from './add-expense.page';
+import { AddExpensePage } from './single-expense.page';
 
 describe('AddExpensePage', () => {
   let component: AddExpensePage;
