@@ -67,51 +67,7 @@ export class HomePage implements OnInit{
     const expenses = await this.db.getAllExpenses(); // Mock method
     return expenses.reduce((sum, expense) => sum + expense.amount, 0);
   }
-   async askForCredit() {
-    if (this.isCreditAdded) return;
-    const alert = await this.alertCtrl.create({
-      header: 'Add Credit',
-      message: 'Enter your credit amount to proceed:',
-      inputs: [
-        {
-          name: 'creditAmount',
-          type: 'number',
-          placeholder: 'Enter Amount',
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'Add',
-          handler: async (data) => {
-            const creditAmount = parseFloat(data.creditAmount);
-            if (creditAmount > 0) {
-              await this.addCredit(creditAmount);
-              await this.calculateTotalExpense();
-            } else {
-              console.error('Invalid credit amount entered.');
-              this.isCreditAdded = false; 
-            }
-          },
-        },
-      ],
-    });
 
-    await alert.present();
-  }
-  async addCredit(amount: number) {
-    const newCredit = {
-      id: Date.now(),
-      amount: amount,
-      date: new Date().toISOString(),
-    };
-
-    await this.db.addCredit(newCredit);
-    console.log('Credit added successfully!');
-  }
    async loadExpenses() {
     const manualExpenses = await this.db.getAllManualExpenses();
     const today = new Date();
