@@ -51,12 +51,12 @@ export class HomePage implements OnInit{
     this.debitTotal = await this.calculateTotalDebits(); // Assuming expenses are debits
     this.userBalance = this.creditTotal - this.debitTotal;
 
-    if (this.userBalance <= 0) {
-      console.error('No sufficient credit available. Please add more!');
-      await this.askForCredit();
-    } else {
-      console.log('Calculation successful! Current Balance:', this.userBalance);
-    }
+    // if (this.userBalance <= 0) {
+    //   console.error('No sufficient credit available. Please add more!');
+    //   await this.askForCredit();
+    // } else {
+    //   console.log('Calculation successful! Current Balance:', this.userBalance);
+    // }
    }
 
    async calculateTotalCredits(){

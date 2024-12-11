@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
-import { Expense } from '../models/expense.model';
+import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,9 @@ export class DatabaseService {
   private autoDb: any; // For View Drops
   private credits: any[] = [];
   private expenses: any[] = []; 
-
+  private ExpenseCategory: any[]=[];
+  private TransactionType: any[]=[];
+  
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
@@ -38,6 +40,20 @@ export class DatabaseService {
       return result.rows.map((row) => row.doc);
     });
   }
+  async updateManualExpense(expense: any) {
+    const expenses = await this.getAllManualExpenses();
+  
+    const index = expenses.findIndex((exp) => exp._id === expense._id);
+  
+    if (index !== -1) {
+      expenses[index] = expense;
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      return Promise.resolve(true);
+    }
+  
+    return Promise.reject('Expense not found');
+  }
+
   deleteAutoExpense(id: string) {
     return this.autoDb.get(id).then((doc) => this.autoDb.remove(doc));
   }
@@ -75,4 +91,14 @@ export class DatabaseService {
   async getAllCredits() {
     return Promise.resolve(this.credits);
   }
+  // async getExpenseCategories() {
+  //   const result = await this.manualDb.allDocs({ include_docs: true, startkey: 'category_', endkey: 'category_\ufff0' });
+  //   return result.rows.map((row) => row.doc as ExpenseCategory);
+  // }
+  
+  // async getTransactionTypes() {
+  //   const result = await this.manualDb.allDocs({ include_docs: true, startkey: 'transaction_', endkey: 'transaction_\ufff0' });
+  //   return result.rows.map((row) => row.doc as TransactionType);
+  // }
+  
 }

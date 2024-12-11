@@ -42,7 +42,8 @@ export class SingleExpensePage implements OnInit {
       transactionType: ['', Validators.required],
       description: ['', [Validators.required, Validators.minLength(3)]],
       amount: [0, [Validators.required, Validators.min(1)]],
-      notes: ['']
+      notes: [''],
+      _id: ['']
     });
   }
 
@@ -51,10 +52,17 @@ export class SingleExpensePage implements OnInit {
       console.error('Form is invalid');
       return;
     }
+    const expense = this.expenseForm.value;
     try {
-      await this.db.addManualExpense(this.expenseForm.value);
+      if (expense._id) {
+      await this.db.updateManualExpense(expense);
+      this.navCtrl.navigateBack('/single-view-expenses');
+      }else{
+        await this.db.addManualExpense(expense);
+        console.log('Expense added manually successfully');
+      }
       this.expenseForm.reset();
-      this.navCtrl.navigateBack('/view-expenses');
+      this.navCtrl.navigateBack('/single-view-expenses'); 
     } catch (error) {
       console.error('Error saving expense', error);
     }
