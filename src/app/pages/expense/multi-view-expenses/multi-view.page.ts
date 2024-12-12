@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Expense } from 'src/app/models/expense.model';
 import { DatabaseService } from 'src/app/services/database.service';
 
@@ -12,7 +13,7 @@ export class MultiViewPage implements OnInit {
   autoExpenses: any[] = [];
 
 
-  constructor(private db: DatabaseService) {}
+  constructor(private router: Router, private db: DatabaseService) {}
 
   ngOnInit() {
     this.loadAutoExpenses();
@@ -26,8 +27,7 @@ export class MultiViewPage implements OnInit {
     await this.db.deleteAutoExpense(id);
     this.loadAutoExpenses();
   }
-  
-  async exportToExcel(){
-
+  navigateToMultiExpense(){
+    this.router.navigate(['/multi-expense']);
   }
 }

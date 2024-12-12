@@ -39,26 +39,19 @@
       <ion-card-content>Grand Total: ₹{{ grandTotalExpense }}</ion-card-content>
     </ion-card-header>
   </ion-card>
-<ion-grid>
-  <ion-row>
-    <ion-col>
-      <ion-card color="secondary" (click)="navigateToViewExpenses()">
-        <ion-card-header>
-          <ion-card-title>Expense Single {{ currentMonth }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content><h3>₹{{ totalManualExpense }}</h3></ion-card-content>
-      </ion-card>
-    </ion-col>
-    <ion-col>
-      <ion-card color="secondary" (click)="navigateToViewDrop()">
-      <ion-card-header><ion-card-title>Expense Multi {{ currentMonth }}</ion-card-title></ion-card-header>
-      <ion-card-content><h3>₹{{ totalAutoExpense }}</h3></ion-card-content>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
-  
-  <ion-button size="default" color="secondary" (click)="navigateToAddExpense()">Add Single Expenses</ion-button> 
-  <ion-button size="default" color="primary" (click)="navigateToMultiExpense()">Add Multiple Expense</ion-button>
-  <ion-button size="default" color="secondary" (click)="addSplit()">Add Split</ion-button>
+  <ion-card color="secondary" (click)="navigateToViewExpenses()">
+    <ion-card-header>
+      <ion-card-title>Expense Single {{ currentMonth }}</ion-card-title>
+      </ion-card-header>
+    <ion-card-content><h3>₹{{ totalManualExpense }}</h3></ion-card-content>
+  </ion-card>
+
+  <ion-card color="secondary" (click)="navigateToMultiView()">
+    <ion-card-header><ion-card-title>Expense Multi {{ currentMonth }}</ion-card-title></ion-card-header>
+    <ion-card-content><h3>₹{{ totalAutoExpense }}</h3></ion-card-content>
+  </ion-card>
+  <ion-card color="secondary" (click)="navigateToSplitView()">
+    <ion-card-header><ion-card-title>Split Expense {{ currentMonth }}</ion-card-title></ion-card-header>
+    <ion-card-content><h3>₹{{ totalSplitExpense }}</h3></ion-card-content>
+  </ion-card>
 </ion-content>

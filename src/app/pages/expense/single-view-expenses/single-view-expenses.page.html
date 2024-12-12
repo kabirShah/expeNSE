@@ -6,11 +6,6 @@
         </ion-button>
       </ion-buttons>
       <ion-title>Single Expense</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="exportToExcel()">
-          <ion-icon name="download-outline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -34,3 +29,7 @@
     <ion-label>No expenses found.</ion-label>
   </ng-template>
 </ion-content>
+
+<ion-footer>
+  <ion-button size="default" color="secondary" (click)="navigateToAddExpense()">Add Single Expenses</ion-button> 
+</ion-footer>

@@ -25,7 +25,7 @@ export class HomePage implements OnInit{
   creditTotal: number = 0;
   userBalance: number = 0;
   isCreditAdded: boolean = false;
-
+  totalSplitExpense: number = 0;
   constructor(
     private router: Router,
     private db: DatabaseService,
@@ -114,21 +114,17 @@ export class HomePage implements OnInit{
     return monthNames[monthIndex];
   }
 
-  async addSplit(){
-    this.router.navigate(['/split']);
-  }
+
   navigateToViewExpenses() {
     this.router.navigate(['/single-view-expenses']);
   }
+
  
-  navigateToAddExpense(){
-    this.router.navigate(['/single-expense']);
-  }
-  navigateToMultiExpense(){
-    this.router.navigate(['/multi-expense']);
-  }
-  navigateToViewDrop(){
+  navigateToMultiView(){
     this.router.navigate(['/multi-view-expense']);
+  }
+  navigateToSplitView(){
+    this.router.navigate(['/split-view']);
   }
   exportToExcel() {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);

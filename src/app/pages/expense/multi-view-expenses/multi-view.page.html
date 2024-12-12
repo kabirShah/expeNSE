@@ -6,11 +6,6 @@
         </ion-button>
       </ion-buttons>
     <ion-title>Multi Expense</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="exportToExcel()">
-        <ion-icon name="download-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -31,3 +26,6 @@
     </ion-card-content>
   </ion-card>
 </ion-content>
+<ion-footer>
+  <ion-button size="default" color="primary" (click)="navigateToMultiExpense()">Add Multiple Expense</ion-button>
+</ion-footer>

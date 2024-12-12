@@ -17,7 +17,7 @@ const routes: Routes = [
   },
   {
     path: 'single-expense',
-    loadChildren: () => import('./pages/expense/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
+    loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {
     path: 'single-view-expenses',
@@ -29,15 +29,15 @@ const routes: Routes = [
   },
   {
     path: 'multi-expense',
-    loadChildren: () => import('./pages/expense/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule)
+    loadChildren: () => import('./pages/expense/multi-view-expenses/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule)
   },
   {
     path: 'multi-view-expense',
-    loadChildren: () => import('./pages/expense/view-drop/multi-view.module').then( m => m.MultiViewPageModule)
+    loadChildren: () => import('./pages/expense/multi-view-expenses/multi-view.module').then( m => m.MultiViewPageModule)
   },
   {
     path: 'split',
-    loadChildren: () => import('./pages/expense/split/split.module').then( m => m.SplitPageModule)
+    loadChildren: () => import('./pages/expense/split-view/split/split.module').then( m => m.SplitPageModule)
   },
   {
     path: 'analytics',
@@ -52,9 +52,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/setting/profile/profile.module').then(m=>m.ProfilePageModule)
   },
   {
+    path: 'split-view',
+    loadChildren: () => import('./pages/expense/split-view/split-view.module').then( m => m.SplitViewPageModule)
+  },
+  {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
+
 
 
 ];

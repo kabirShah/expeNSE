@@ -43,12 +43,42 @@ export class AnalyticsPage implements AfterViewInit {
     this.filterExpenses();
     this.createManualChart();
     this.createAutoChart();
+    this.applyFilters();
   }
   async initFilters(){
     this.categories = ['All', ...new Set(this.manualExpenses.map((expense) => expense.category))];
     // Set the default month to the current month
     const currentMonthIndex = new Date().getMonth();
     this.selectedMonth = this.getMonthName(currentMonthIndex);
+  }
+  applyFilters() {
+    const selectedMonthIndex = this.getMonthNameIndex(this.selectedMonth);
+    const startOfMonth = new Date(this.selectedYear, selectedMonthIndex, 1).toISOString();
+    const endOfMonth = new Date(this.selectedYear, selectedMonthIndex + 1, 0).toISOString();
+  
+    this.filteredManualExpenses = this.manualExpenses.filter((expense) => {
+      const isInMonth = this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth);
+      const isInCategory = this.selectedCategory === 'All' || expense.category === this.selectedCategory;
+      return isInMonth && isInCategory;
+    });
+  
+    this.filteredAutoExpenses = this.autoExpenses.filter((expense) => {
+      const isInMonth = this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth);
+      const isInCategory = this.selectedCategory === 'All' || expense.category === this.selectedCategory;
+      return isInMonth && isInCategory;
+    });
+  
+    // Refresh the charts
+    this.createManualChart();
+    this.createAutoChart();
+  }
+  isExpenseInMonth(expenseDate: string, month: string, year: number): boolean {
+    const expenseDateObj = new Date(expenseDate);
+    console.log('Expense Date:', expenseDateObj, 'Month:', month, 'Year:', year);
+    return (
+      expenseDateObj.getMonth() + 1 === parseInt(month) && 
+      expenseDateObj.getFullYear() === year
+    );
   }
   getMonthName(monthIndex: number): string {
     const monthNames = [
@@ -80,53 +110,28 @@ export class AnalyticsPage implements AfterViewInit {
     this.createManualChart();
     this.createAutoChart();
   }
-  isExpenseInMonth(expenseDate: string, month: string, year: number): boolean {
-    const expenseDateObj = new Date(expenseDate);
-    return (
-      expenseDateObj.getMonth() + 1 === parseInt(month) && 
-      expenseDateObj.getFullYear() === year
-    );
-  }
+
   async loadExpenses(){
     this.manualExpenses = await this.db.getAllManualExpenses();
     this.filteredManualExpenses = [...this.manualExpenses];
     this.autoExpenses = await this.db.getAllAutoExpenses();
   }
-  // async fetchExpensesData() {
-  //   try {
-  //     // Replace the URL with your actual backend API endpoint
-  //     const response: any = await this.http.get('http://localhost:3000/api/expenses').toPromise();
-  //     this.manualExpenses = response; // Assign the fetched data
-  //   } catch (error) {
-  //     console.error('Error fetching expenses data:', error);
-  //   }
-  // }
   createManualChart() {
-    const categories = this.filteredManualExpenses.map(expense => expense.category);
-    const amounts = this.filteredManualExpenses.map(expense => expense.amount);
-
+    const groupedExpenses = this.groupExpensesByCategory(this.filteredManualExpenses);
+    const categories = Object.keys(groupedExpenses);
+    const amounts = Object.values(groupedExpenses);
+  
     HighCharts.chart('manualExpensesContainer', {
-      chart: {
-        type: 'column',
-      },
-      title: {
-        text: 'Manual Expenses Analytics',
-        align: 'left',
-      },
-      subtitle: {
-        text: `Source: Local Data (${this.getSelectedMonthName()})`,
-      },
+      chart: { type: 'column' },
+      title: { text: 'Manual Expenses Analytics', align: 'left' },
+      subtitle: { text: `Source: Local Data (${this.getSelectedMonthName()})` },
       xAxis: {
-        categories: categories,
-        title: {
-          text: 'Expense Categories',
-        },
+        categories,
+        title: { text: 'Expense Categories' },
       },
       yAxis: {
         min: 0,
-        title: {
-          text: 'Total Amount Spent',
-        },
+        title: { text: 'Total Amount Spent' },
       },
       series: [
         {
@@ -138,40 +143,31 @@ export class AnalyticsPage implements AfterViewInit {
   }
   
   createAutoChart(){
-    const categories = this.filteredAutoExpenses.map((expense) => expense.category);
-    const amounts = this.filteredAutoExpenses.map((expense) => expense.amount);
-  
-    HighCharts.chart('autoExpensesContainer', {
-      chart: {
-        type: 'column',
+    const groupedExpenses = this.groupExpensesByCategory(this.filteredAutoExpenses);
+  const categories = Object.keys(groupedExpenses);
+  const amounts = Object.values(groupedExpenses);
+
+  HighCharts.chart('autoExpensesContainer', {
+    chart: { type: 'column' },
+    title: { text: 'Auto Expenses Analytics', align: 'left' },
+    subtitle: { text: `Source: Local Data (${this.getSelectedMonthName()})` },
+    xAxis: {
+      categories,
+      title: { text: 'Expense Categories' },
+    },
+    yAxis: {
+      min: 0,
+      title: { text: 'Total Amount Spent' },
+    },
+    series: [
+      {
+        name: 'Auto Expenses',
+        data: amounts,
       },
-      title: {
-        text: 'Auto Expenses Analytics',
-        align: 'left',
-      },
-      subtitle: {
-        text: `Source: Local Data (${this.getSelectedMonthName()})`,
-      },
-      xAxis: {
-        categories: categories,
-        title: {
-          text: 'Expense Categories',
-        },
-      },
-      yAxis: {
-        min: 0,
-        title: {
-          text: 'Total Amount Spent',
-        },
-      },
-      series: [
-        {
-          name: 'Auto Expenses',
-          data: amounts,
-        },
-      ] as HighCharts.SeriesColumnOptions[],
-    });
+    ] as HighCharts.SeriesColumnOptions[],
+  });
   }
+
   getMonthNameIndex(monthName: string): number {
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -226,22 +222,13 @@ export class AnalyticsPage implements AfterViewInit {
     ];
     return [...new Set(categories)];
   }
-  
-  applyFilters() {
-    const today = new Date();
-    const selectedMonthIndex = this.getMonthNameIndex(this.selectedMonth);
-    const startOfMonth = new Date(today.getFullYear(), selectedMonthIndex, 1).toISOString();
-    const endOfMonth = new Date(today.getFullYear(), selectedMonthIndex + 1, 0).toISOString();
-
-    this.filteredManualExpenses = this.manualExpenses.filter((expense) => {
-      const isInMonth = this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth);
-      const isInCategory =
-        this.selectedCategory === 'All' || expense.category === this.selectedCategory;
-
-      return isInMonth && isInCategory;
-    });
-
-    this.updateCharts();
+  groupExpensesByCategory(expenses: any[]) {
+    return expenses.reduce((acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+      return acc;
+    }, {});
   }
+  
+
 
 }

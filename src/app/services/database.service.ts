@@ -68,12 +68,6 @@ export class DatabaseService {
   async getUserBalance(): Promise<number | null> {
       const balanceDoc = await this.manualDb.get('userBalance');
       return balanceDoc ? balanceDoc.amount : null;
-    // catch (error) {
-    //   if (error.status === 404) {
-    //     return null;  // No balance set
-    //   }
-    //   throw error;
-    // }
   }
   async setUserBalance(balance: number) {
       const balanceDoc = await this.manualDb.get('userBalance');
@@ -91,14 +85,4 @@ export class DatabaseService {
   async getAllCredits() {
     return Promise.resolve(this.credits);
   }
-  // async getExpenseCategories() {
-  //   const result = await this.manualDb.allDocs({ include_docs: true, startkey: 'category_', endkey: 'category_\ufff0' });
-  //   return result.rows.map((row) => row.doc as ExpenseCategory);
-  // }
-  
-  // async getTransactionTypes() {
-  //   const result = await this.manualDb.allDocs({ include_docs: true, startkey: 'transaction_', endkey: 'transaction_\ufff0' });
-  //   return result.rows.map((row) => row.doc as TransactionType);
-  // }
-  
 }

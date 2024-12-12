@@ -5,6 +5,7 @@ import { Expense } from '../../../models/expense.model';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { File } from "@ionic-native/file/ngx";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-view-expenses',
@@ -20,11 +21,8 @@ export class SingleViewExpensesPage implements OnInit {
     private navCtrl: NavController,
     private db: DatabaseService,
     private file:File,
-    private alertController: AlertController) {
-    for(var i = 0; i<100; i++){
-      var obj = {id:"id"+i.toString(),name:"name"+i.toString(),email:"email"+i.toString()};
-      this.arr.push(obj);
-    }
+    private alertController: AlertController,
+    private router: Router) {
   }
 
   ngOnInit() {
@@ -53,55 +51,9 @@ export class SingleViewExpensesPage implements OnInit {
     });
     console.log('Edit Expense:', expense);
   }
-
-  exportToExcel() {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.manualExpenses, {
-      header: ['Date', 'Category', 'Amount', 'Description', 'Transaction Type'],
-    });
-  
-    // Create Workbook
-    const workbook: XLSX.WorkBook = { Sheets: { Expenses: worksheet }, SheetNames: ['Expenses'] };
-  
-    // Export the Excel File
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  
-    // Save File
-    const fileName = `${Date.now()}-expenses.xlsx`;
-    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, fileName);
-    this.saveToPhone(excelBuffer);
-    // const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses, {
-    //   header: ['Date', 'Category', 'Amount', 'Description', 'Transaction Type'],
-    // });
-
-    // // Create Workbook
-    // const workbook: XLSX.WorkBook = {
-    //   Sheets: { Expenses: worksheet },
-    //   SheetNames: ['Expenses'],
-    // };
-
-    // // Export the Excel File
-    // const excelBuffer: any = XLSX.write(workbook, {
-    //   bookType: 'xlsx',
-    //   type: 'array',
-    // });
-
-    // // Save File
-    // this.saveAsExcelFile(excelBuffer, 'Expenses');
+ 
+  navigateToAddExpense(){
+    this.router.navigate(['/single-expense']);
   }
-  private saveToPhone(buffer){
-    var fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-    var fileName = Date.now().toString();
-    var fileExtension = ".xlsx";
-    var data:Blob = new Blob([buffer],{type:fileType});
-    this.file.writeFile(this.file.externalRootDirectory,fileName+fileExtension,data,{replace:true}).then(()=>{
-      alert("Excel file saved in phone");
-    })
-  }
-  private saveAsExcelFile(buffer: any, fileName: string) {
-    const data: Blob = new Blob([buffer], {
-      type: 'application/octet-stream',
-    });
-    saveAs(data, `${fileName}.xlsx`);
-  }
+
 }

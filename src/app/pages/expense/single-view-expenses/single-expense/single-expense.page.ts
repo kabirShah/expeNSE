@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { DatabaseService } from '../../../services/database.service';
+import { DatabaseService } from '../../../../services/database.service';
 
 @Component({
   selector: 'app-single-expense',
