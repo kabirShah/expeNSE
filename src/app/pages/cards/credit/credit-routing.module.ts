@@ -7,11 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: CreditPage
-  },  {
+  },
+  {
     path: 'add-credit',
     loadChildren: () => import('./add-credit/add-credit.module').then( m => m.AddCreditPageModule)
-  }
-
+  },
 ];
 
 @NgModule({

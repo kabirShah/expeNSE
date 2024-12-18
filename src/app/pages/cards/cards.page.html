@@ -10,20 +10,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-list *ngIf="">
-    <ion-item *ngFor="">
-      <ion-label>
-        <h2></h2>
-        <p>
-
-        </p>
-      </ion-label>
-      <ion-button slot="end" color="primary">Edit</ion-button>
-      <ion-button slot="end" color="danger">Delete</ion-button>
-    </ion-item>
-  </ion-list>
-
-  <ng-template #noData>
+   <ng-template #noData>
     <ion-label>No expenses found.</ion-label>
   </ng-template>
 </ion-content>

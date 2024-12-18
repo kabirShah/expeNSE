@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cards',
@@ -7,14 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CardsPage implements OnInit {
 
-  constructor() { }
+  constructor(private router:Router) { }
 
   ngOnInit() {
   }
-  navigateToAddCreditCard(){
-    
+  async navigateToAddCreditCard(){
+    await this.router.navigateByUrl('/cards/credit/add-credit');
   }
-  navigateToAddDebitCard(){
-    
+  async navigateToAddDebitCard(){
+    await this.router.navigateByUrl('/cards/debit/add-debit');
   }
 }
