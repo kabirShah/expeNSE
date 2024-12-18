@@ -17,7 +17,9 @@ export class DatabaseService {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
   }
-
+  async getExpense(databaseName: string, id: string){
+    return await this.manualDb.get(id); 
+  }
   // Manual Expense CRUD
   addManualExpense(expense: Expense) {
     return this.manualDb.post(expense);
@@ -27,8 +29,8 @@ export class DatabaseService {
       return result.rows.map((row) => row.doc);
     });
   }
-  deleteManualExpense(id: string) {
-    return this.manualDb.get(id).then((doc) => this.manualDb.remove(doc));
+  async deleteManualExpense(databaseName:string, id: string, rev:string) {
+    return await this.manualDb.remove(id,rev);
   }
 
   // Auto Expense CRUD

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from '../../../../services/database.service';
 
 @Component({
@@ -17,24 +17,36 @@ export class SingleExpensePage implements OnInit {
     'Subscriptions', 'Household Supplies', 'Travel'
   ];
   transactionTypes = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Bank Transfer', 'Mobile Wallet'];
-
+  expenseId: string | null = null;
+  
   constructor(
     private fb: FormBuilder,
     private navCtrl: NavController,
     private db: DatabaseService,
-    private router: Router
+    private router: Router,
+    private route:ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.createForm();
 
-    // Populate the form if navigation state exists
-    const navState = this.router.getCurrentNavigation()?.extras.state;
-    if (navState?.['expense']) {
-      this.expenseForm.patchValue(navState['expense']);
+    this.expenseId = this.route.snapshot.paramMap.get('id');
+    console.log(this.expenseId);
+    if(this.expenseId){
+      this.loadExpense(this.expenseId);
     }
   }
+  async loadExpense(id:string){
+    try{
+      const doc = await this.db.getExpense('expenses', id);
+      if (doc) {
+        this.expenseForm.patchValue(doc);
+      }
+    } catch (error){
+      console.error(' Error Loading Expenses ',error);
+    }
 
+  }
   createForm() {
     this.expenseForm = this.fb.group({
       date: [new Date().toISOString(), Validators.required],
@@ -53,9 +65,12 @@ export class SingleExpensePage implements OnInit {
       return;
     }
     const expense = this.expenseForm.value;
+    console.log(expense);
     try {
-      if (expense._id) {
+      if (this.expenseId) {
+      console.log(this.expenseId);
       await this.db.updateManualExpense(expense);
+      console.log("Expense Updates");
       this.navCtrl.navigateBack('/single-view-expenses');
       }else{
         await this.db.addManualExpense(expense);

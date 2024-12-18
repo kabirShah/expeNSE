@@ -38,18 +38,14 @@ export class SingleViewExpensesPage implements OnInit {
     this.manualExpenses = await this.db.getAllManualExpenses();
   }
 
-  async deleteExpense(id: string) {
-    await this.db.deleteManualExpense(id);
+  async deleteExpense(id: string, rev: string) {
+    await this.db.deleteManualExpense('expenses',id,rev);
     this.loadManualExpenses();
   }
 
 
-  editExpense(expense: any) {
-    // Implement navigation to the edit page, passing the expense as a parameter
-    this.navCtrl.navigateForward('/single-expense', {
-      state: { expense },
-    });
-    console.log('Edit Expense:', expense);
+  editExpense(id:string) {
+    this.router.navigate(['/edit-expense',id]);
   }
  
   navigateToAddExpense(){

@@ -20,8 +20,8 @@
           Category: {{ expense.category }}
         </p>
       </ion-label>
-      <ion-button slot="end" color="primary" (click)="editExpense(expense)">Edit</ion-button>
-      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id)">Delete</ion-button>
+      <ion-button slot="end" color="primary" (click)="editExpense(expense._id)">Edit</ion-button>
+      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id,expense._rev)">Delete</ion-button>
     </ion-item>
   </ion-list>
 

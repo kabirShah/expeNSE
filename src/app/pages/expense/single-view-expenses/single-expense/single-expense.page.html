@@ -1,11 +1,11 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button href="/home" color="light">
+      <ion-button href="/single-view-expenses" color="light">
         <ion-icon name="chevron-back" size="medium"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Single Expense</ion-title>
+    <ion-title>{{ expenseId ? 'Edit Expense' : 'Add Expense' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -56,6 +56,6 @@
       <ion-input formControlName="description"></ion-input>
     </ion-item>
 
-    <ion-button expand="block" type="submit" [disabled]="expenseForm.invalid">Save Expense</ion-button>
+    <ion-button expand="block" type="submit" [disabled]="expenseForm.invalid">{{ expenseId ? 'Update Expense' : 'Save Expense' }}</ion-button>
   </form>
 </ion-content>

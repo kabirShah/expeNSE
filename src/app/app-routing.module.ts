@@ -20,6 +20,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {
+    path: 'edit-expense/:id',
+    loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
+  },
+  {
     path: 'single-view-expenses',
     loadChildren: () => import('./pages/expense/single-view-expenses/single-view-expenses.module').then(m => m.SingleViewExpensesPageModule)
   },
@@ -56,11 +60,13 @@ const routes: Routes = [
     loadChildren: () => import('./pages/expense/split-view/split-view.module').then( m => m.SplitViewPageModule)
   },
   {
+    path: 'cards',
+    loadChildren: () => import('./pages/cards/cards.module').then( m => m.CardsPageModule)
+  },
+  {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
-
-
 
 ];
 
