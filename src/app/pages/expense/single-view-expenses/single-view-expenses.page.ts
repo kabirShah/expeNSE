@@ -6,6 +6,8 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { File } from "@ionic-native/file/ngx";
 import { Router } from '@angular/router';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-view-expenses',
@@ -43,7 +45,32 @@ export class SingleViewExpensesPage implements OnInit {
     this.loadManualExpenses();
   }
 
+ // PDF Export Function
+ exportToPDF() {
+  const doc = new jsPDF();
 
+  // PDF Title
+  doc.text('Expense Report', 105, 10, { align: 'center' });
+
+  // Table Data
+  const tableData = this.manualExpenses.map((expense, index) => [
+    index + 1,
+    expense.description,
+    expense.amount,
+    new Date(expense.date).toLocaleDateString(),
+    expense.category,
+  ]);
+
+  // Add Table to PDF
+  autoTable(doc, {
+    head: [['#', 'Description', 'Amount (₹)', 'Date', 'Category']],
+    body: tableData,
+    startY: 20,
+  });
+
+    // Save PDF
+    doc.save('Expense_Report.pdf');
+  }
   editExpense(id:string) {
     this.router.navigate(['/edit-expense',id]);
   }
