@@ -22,7 +22,9 @@ export class MultiViewPage implements OnInit {
   async loadAutoExpenses() {
     this.autoExpenses = await this.db.getAllAutoExpenses();
   }
-
+  async editAutoExpense(id: string){
+    await this.router.navigate(['/multi-view-expense/multi-expense/:id']);
+  }
   async deleteAutoExpense(id: string) {
     await this.db.deleteAutoExpense(id);
     this.loadAutoExpenses();

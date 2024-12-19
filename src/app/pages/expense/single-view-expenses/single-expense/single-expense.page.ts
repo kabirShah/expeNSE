@@ -29,7 +29,6 @@ export class SingleExpensePage implements OnInit {
 
   ngOnInit() {
     this.createForm();
-
     this.expenseId = this.route.snapshot.paramMap.get('id');
     console.log(this.expenseId);
     if(this.expenseId){
@@ -69,13 +68,18 @@ export class SingleExpensePage implements OnInit {
     console.log(expense);
     try {
       if (this.expenseId) {
-      console.log(this.expenseId);
-      expense._id = this.expenseId;
-      await this.db.updateManualExpense(expense);
-      console.log("Expense Updates");
-      }else{
-        await this.db.addManualExpense(expense);
+        const existingExpense = await this.db.getExpense('expenses', this.expenseId);
+        if(existingExpense){
+          expense._id = existingExpense._id;
+          expense._rev = existingExpense._rev;
+          await this.db.updateManualExpense(expense);
+          this.navCtrl.navigateBack('/single-view-expenses');
+          console.log("Expense Updates");
+        }else{
+          await this.db.addManualExpense(expense);
+        this.navCtrl.navigateBack('/single-view-expenses');
         console.log('Expense added manually successfully');
+        }     
       }
       this.expenseForm.reset();
       this.navCtrl.navigateBack('/single-view-expenses'); 

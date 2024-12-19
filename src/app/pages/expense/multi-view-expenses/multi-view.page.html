@@ -20,6 +20,9 @@
       <p>Description: {{ expense.description }}</p>
       <p>Date: {{ expense.date | date:'medium' }}</p>
       <p>Paid By: {{ expense.paidBy }}</p>
+      <ion-button color="primary" (click)="editAutoExpense(expense._id)">
+        Edit
+      </ion-button>
       <ion-button color="danger" (click)="deleteAutoExpense(expense._id)">
         Delete
       </ion-button>

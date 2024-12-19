@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: MultiViewPage
+  },
+  {
+    path:'multi-expense/:id',
+    loadChildren:() => import('./multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule)
   }
 ];
 

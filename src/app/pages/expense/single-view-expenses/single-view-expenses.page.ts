@@ -98,7 +98,7 @@ export class SingleViewExpensesPage implements OnInit {
     fileReader.readAsDataURL(pdfOutput);
   }
   editExpense(id:string) {
-    this.router.navigate(['/single-expense',id]);
+    this.router.navigate(['/single-view-expenses/single-expense',id]);
   }
  
   navigateToAddExpense(){

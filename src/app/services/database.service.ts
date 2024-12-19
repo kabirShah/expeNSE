@@ -20,6 +20,9 @@ export class DatabaseService {
   async getExpense(databaseName: string, id: string){
     return await this.manualDb.get(id); 
   }
+  async getAutoExpense(databaseName:string, id:string){
+    return await this.autoDb.get(id);
+  }
   // Manual Expense CRUD
   addManualExpense(expense: Expense) {
     return this.manualDb.post(expense);
@@ -44,27 +47,11 @@ export class DatabaseService {
   }
   async updateManualExpense(expense: any) {
     try {
-      // Fetch all expenses from localStorage
-      const expenses = await this.getAllManualExpenses();
-  
-      // Find expense index
-      const index = expenses.findIndex((exp) => exp._id === expense._id);
-  
-      if (index !== -1) {
-        // Update the found expense
-        expenses[index] = { ...expenses[index], ...expense }; 
-  
-        // Save back to localStorage
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-        console.log('Expense updated successfully');
-        return Promise.resolve(true);
-      } else {
-        console.error('Expense not found for update');
-        return Promise.reject('Expense not found');
-      }
+      const response = await this.manualDb.put(expense);  // Make sure _id and _rev are present
+      return response;
     } catch (error) {
-      console.error('Error updating expense:', error);
-      return Promise.reject(error);
+      console.error("Error updating expense:", error);
+      throw error;
     }
   }
 
@@ -98,5 +85,14 @@ export class DatabaseService {
   // Retrieve all credits
   async getAllCredits() {
     return Promise.resolve(this.credits);
+  }
+  async updateAutoExpense(expense: any) {
+    try {
+      const response = await this.autoDb.put(expense); // Ensure _id and _rev exist
+      return response;
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      throw error;
+    }
   }
 }

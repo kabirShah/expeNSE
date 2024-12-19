@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: SingleViewExpensesPage
+  },
+  {
+    path: 'single-expense/:id',
+    loadChildren: () => import('./single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   }
 ];
 
