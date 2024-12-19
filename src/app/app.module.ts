@@ -16,6 +16,7 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { HttpClient } from '@angular/common/http';
 import { File } from "@ionic-native/file/ngx";
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -29,6 +30,7 @@ import { File } from "@ionic-native/file/ngx";
     HttpClient,
     DatabaseService,
     File,
+    SocialSharing,
     provideFirestore(() => getFirestore()), // Provide Firestore
     provideFirebaseApp(() => initializeApp(environment.firebase)), // Initialize Firebase
     provideAuth(() => getAuth()), // Provide Firebase Auth

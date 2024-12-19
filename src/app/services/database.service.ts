@@ -43,17 +43,29 @@ export class DatabaseService {
     });
   }
   async updateManualExpense(expense: any) {
-    const expenses = await this.getAllManualExpenses();
+    try {
+      // Fetch all expenses from localStorage
+      const expenses = await this.getAllManualExpenses();
   
-    const index = expenses.findIndex((exp) => exp._id === expense._id);
+      // Find expense index
+      const index = expenses.findIndex((exp) => exp._id === expense._id);
   
-    if (index !== -1) {
-      expenses[index] = expense;
-      localStorage.setItem('expenses', JSON.stringify(expenses));
-      return Promise.resolve(true);
+      if (index !== -1) {
+        // Update the found expense
+        expenses[index] = { ...expenses[index], ...expense }; 
+  
+        // Save back to localStorage
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+        console.log('Expense updated successfully');
+        return Promise.resolve(true);
+      } else {
+        console.error('Expense not found for update');
+        return Promise.reject('Expense not found');
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      return Promise.reject(error);
     }
-  
-    return Promise.reject('Expense not found');
   }
 
   deleteAutoExpense(id: string) {

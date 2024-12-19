@@ -20,7 +20,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {
-    path: 'edit-expense/:id',
+    path: 'single-expense/:id',
     loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {

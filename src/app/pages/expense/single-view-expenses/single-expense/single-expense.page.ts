@@ -55,7 +55,8 @@ export class SingleExpensePage implements OnInit {
       description: ['', [Validators.required, Validators.minLength(3)]],
       amount: [0, [Validators.required, Validators.min(1)]],
       notes: [''],
-      _id: ['']
+      _id: [''],
+      _rev:['']
     });
   }
 
@@ -69,9 +70,9 @@ export class SingleExpensePage implements OnInit {
     try {
       if (this.expenseId) {
       console.log(this.expenseId);
+      expense._id = this.expenseId;
       await this.db.updateManualExpense(expense);
       console.log("Expense Updates");
-      this.navCtrl.navigateBack('/single-view-expenses');
       }else{
         await this.db.addManualExpense(expense);
         console.log('Expense added manually successfully');
