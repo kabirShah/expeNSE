@@ -44,8 +44,30 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
   async deleteExpense(id: string, rev: string) {
-    await this.db.deleteManualExpense(id,rev);
-    this.loadManualExpenses();
+    const alert = await this.alertController.create({
+      header: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this record?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Delete action canceled');
+          }
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            // Proceed with deletion
+            await this.db.deleteManualExpense(id, rev);
+            this.loadManualExpenses();
+            console.log('Record deleted');
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
   }
 
  // PDF Export Function

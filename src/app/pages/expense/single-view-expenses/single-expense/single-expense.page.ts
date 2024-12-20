@@ -63,6 +63,7 @@ export class SingleExpensePage implements OnInit {
   async saveExpense() {
     if (this.expenseForm.invalid) {
       console.error('Form is invalid');
+      await this.showToast('Please enter a valid expense!','danger');
       return;
     }
     
@@ -75,13 +76,16 @@ export class SingleExpensePage implements OnInit {
           expense._id = existingExpense._id;
           expense._rev = existingExpense._rev;
           await this.db.updateManualExpense(expense);
+          await this.showToast('Expense Updated Successfully','success');
           console.log("Expense Updated");
         } else {
+          await this.showToast('Expense not found','danger');
           console.error("Expense not found");
         }
       } else {
         delete expense._rev;
         await this.db.addManualExpense(expense);
+        await this.showToast('Expense Added Successfully','success');
         console.log('Expense added successfully');
       }
       this.expenseForm.reset();
@@ -92,11 +96,12 @@ export class SingleExpensePage implements OnInit {
   }
   
 
-  async showToast(message: string) {
+  async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
       position: 'bottom',
+      color
     });
     await toast.present();
   }

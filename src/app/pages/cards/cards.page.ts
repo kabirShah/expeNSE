@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
+import { CardService } from 'src/app/services/card.service';
 
 @Component({
   selector: 'app-cards',
@@ -8,9 +10,17 @@ import { Router } from '@angular/router';
 })
 export class CardsPage implements OnInit {
 
-  constructor(private router:Router) { }
+  creditCards: any[] = [];
+  constructor(private router:Router, 
+    private cardService: CardService,
+    private navCtrl: NavController
+  ) {   }
 
   ngOnInit() {
+    this.loadCards();
+  }
+  async loadCards() {
+    this.creditCards = await this.cardService.getAllCards('credit');
   }
   async navigateToAddCreditCard(){
     await this.router.navigateByUrl('/cards/credit/add-credit');
