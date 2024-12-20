@@ -43,7 +43,7 @@ export class HomePage implements OnInit{
     const autoExpenses = await this.db.getAllAutoExpenses(); // Replace this with your database fetch method
     const manualExpenses = await this.db.getAllManualExpenses();
     this.totalAutoExpense = autoExpenses.reduce((sum,expense)=>sum+expense.amount,0);
-    this.totalManualExpense = manualExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    this.totalManualExpense = manualExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
     this.grandTotalExpense = this.totalManualExpense + this.totalAutoExpense;
     console.log("Grand total: "+this.grandTotalExpense);
     //Calculate debits and credits
@@ -65,7 +65,7 @@ export class HomePage implements OnInit{
    }
    async calculateTotalDebits() {
     const expenses = await this.db.getAllExpenses(); // Mock method
-    return expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    return expenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
   }
 
    async loadExpenses() {
@@ -90,10 +90,10 @@ export class HomePage implements OnInit{
   
 
     // Calculate the total for the current month
-    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
 
     // Update current month name
-    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
 
     this.currentMonth = this.getMonthName(today.getMonth());
   

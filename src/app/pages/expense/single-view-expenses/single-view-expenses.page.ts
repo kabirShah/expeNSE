@@ -44,7 +44,7 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
   async deleteExpense(id: string, rev: string) {
-    await this.db.deleteManualExpense('expenses',id,rev);
+    await this.db.deleteManualExpense(id,rev);
     this.loadManualExpenses();
   }
 

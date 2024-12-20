@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NavController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from '../../../../services/database.service';
 
@@ -24,7 +24,8 @@ export class SingleExpensePage implements OnInit {
     private navCtrl: NavController,
     private db: DatabaseService,
     private router: Router,
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private toastCtrl: ToastController
   ) {}
 
   ngOnInit() {
@@ -37,9 +38,9 @@ export class SingleExpensePage implements OnInit {
   }
   async loadExpense(id:string){
     try{
-      const doc = await this.db.getExpense('expenses', id);
-      if (doc) {
-        this.expenseForm.patchValue(doc);
+      const expense  = await this.db.getExpense(id);
+      if (expense ) {
+        this.expenseForm.patchValue(expense );
       }
     } catch (error){
       console.error(' Error Loading Expenses ',error);
@@ -64,27 +65,39 @@ export class SingleExpensePage implements OnInit {
       console.error('Form is invalid');
       return;
     }
+    
     const expense = this.expenseForm.value;
-    console.log(expense);
     try {
       if (this.expenseId) {
-        const existingExpense = await this.db.getExpense('expenses', this.expenseId);
-        if(existingExpense){
+        const existingExpense = await this.db.getExpense(this.expenseId);
+        
+        if (existingExpense) {  // Type Guard Check
           expense._id = existingExpense._id;
           expense._rev = existingExpense._rev;
           await this.db.updateManualExpense(expense);
-          this.navCtrl.navigateBack('/single-view-expenses');
-          console.log("Expense Updates");
-        }else{
-          await this.db.addManualExpense(expense);
-        this.navCtrl.navigateBack('/single-view-expenses');
-        console.log('Expense added manually successfully');
-        }     
+          console.log("Expense Updated");
+        } else {
+          console.error("Expense not found");
+        }
+      } else {
+        delete expense._rev;
+        await this.db.addManualExpense(expense);
+        console.log('Expense added successfully');
       }
       this.expenseForm.reset();
-      this.navCtrl.navigateBack('/single-view-expenses'); 
+      this.navCtrl.navigateBack('/single-view-expenses');
     } catch (error) {
       console.error('Error saving expense', error);
     }
+  }
+  
+
+  async showToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

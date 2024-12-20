@@ -6,8 +6,8 @@ import { Expense, ExpenseCategory, TransactionType } from '../models/expense.mod
   providedIn: 'root',
 })
 export class DatabaseService {
-  private manualDb: any; // For View Expenses
-  private autoDb: any; // For View Drops
+  private manualDb: PouchDB.Database<Expense>;
+  private autoDb: PouchDB.Database<Expense>;
   private credits: any[] = [];
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
@@ -17,46 +17,89 @@ export class DatabaseService {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
   }
-  async getExpense(databaseName: string, id: string){
-    return await this.manualDb.get(id); 
+  private handleError(error: any): never {
+    console.error('Database Error:', error);
+    throw error;
+  }
+
+  async getExpense(id: string): Promise<Expense | undefined> {
+    try {
+      return await this.manualDb.get(id);
+    } catch (error) {
+      if (error === 404) return undefined;
+      this.handleError(error);
+    }
   }
   async getAutoExpense(databaseName:string, id:string){
     return await this.autoDb.get(id);
   }
   // Manual Expense CRUD
-  addManualExpense(expense: Expense) {
-    return this.manualDb.post(expense);
-  }
-  getAllManualExpenses() {
-    return this.manualDb.allDocs({ include_docs: true }).then((result) => {
-      return result.rows.map((row) => row.doc);
-    });
-  }
-  async deleteManualExpense(databaseName:string, id: string, rev:string) {
-    return await this.manualDb.remove(id,rev);
-  }
-
-  // Auto Expense CRUD
-  addAutoExpense(expense: Expense) {
-    return this.autoDb.post(expense);
-  }
-  getAllAutoExpenses() {
-    return this.autoDb.allDocs({ include_docs: true }).then((result) => {
-      return result.rows.map((row) => row.doc);
-    });
-  }
-  async updateManualExpense(expense: any) {
+  async addManualExpense(expense: Expense) {
     try {
-      const response = await this.manualDb.put(expense);  // Make sure _id and _rev are present
+      expense._id = expense._id || new Date().toISOString();
+      const response = await this.manualDb.put(expense);
       return response;
     } catch (error) {
-      console.error("Error updating expense:", error);
-      throw error;
+      this.handleError(error);
+    }
+  }
+  async getAllManualExpenses(): Promise<Expense[]> {
+    try {
+      const result = await this.manualDb.allDocs({ include_docs: true });
+      return result.rows.map((row) => row.doc as Expense);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async deleteManualExpense(id: string, rev: string) {
+    try {
+      const response = await this.manualDb.remove(id, rev);
+      return response;
+    } catch (error) {
+      this.handleError(error);
     }
   }
 
-  deleteAutoExpense(id: string) {
-    return this.autoDb.get(id).then((doc) => this.autoDb.remove(doc));
+  // Auto Expense CRUD
+  async addAutoExpense(expense: Expense) {
+    try {
+      expense._id = expense._id || new Date().toISOString();
+      const response = await this.autoDb.put(expense);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async getAllAutoExpenses(): Promise<Expense[]> {
+    try {
+      const result = await this.autoDb.allDocs({ include_docs: true });
+      return result.rows.map((row) => row.doc as Expense);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async updateManualExpense(expense: Expense) {
+    try {
+      
+    if (!expense._id || !expense._rev) {
+      throw new Error('Expense must have a valid _id and _rev for updates');
+    }
+      const response = await this.manualDb.put(expense);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async deleteAutoExpense(id: string) {
+    try {
+      const doc = await this.autoDb.get(id);
+      const response = await this.autoDb.remove(doc);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
   }
   async getAllExpenses() {
     const result = await this.manualDb.allDocs({
