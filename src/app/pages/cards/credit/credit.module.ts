@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { CreditPageRoutingModule } from './credit-routing.module';
 
 import { CreditPage } from './credit.page';
+import { CardService } from 'src/app/services/card.service';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { CreditPage } from './credit.page';
     IonicModule,
     CreditPageRoutingModule
   ],
+  providers:[CardService],
   declarations: [CreditPage]
 })
 export class CreditPageModule {}

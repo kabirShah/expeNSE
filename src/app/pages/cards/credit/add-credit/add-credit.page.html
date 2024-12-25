@@ -5,14 +5,28 @@
           <ion-icon name="chevron-back" size="medium"></ion-icon>
         </ion-button>
       </ion-buttons>
-    <ion-title>add-credit</ion-title>
+    <ion-title>Add Credit</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">add-credit</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <form  [formGroup]="createCreditForm"  (ngSubmit)="addCard()">
+    <ion-item>
+      <ion-label position="stacked">Card Number</ion-label>
+      <ion-input type="number" formControlName="cardNumber" name="cardNumber" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Cardholder Name</ion-label>
+      <ion-input formControlName="cardHolderName" name="cardHolderName" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Expiry Date (MM/YY)</ion-label>
+      <ion-input  formControlName="expiryDate" name="expiryDate" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Credit Limit</ion-label>
+      <ion-input type="number" formControlName="creditLimit" name="creditLimit"></ion-input>
+    </ion-item>
+    <ion-button expand="block" type="submit">Add Card</ion-button>
+  </form>
 </ion-content>

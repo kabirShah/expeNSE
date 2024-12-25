@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Card } from '../models/card.model';
+import { CreditCard } from '../models/credit-card.model';
+import { DebitCard } from '../models/debit-card.model';
 
 @Injectable({
   providedIn: 'root'
@@ -9,68 +10,85 @@ export class CardService {
   private debitDb: any;
 
   constructor() { 
-    this.creditDb = new PouchDB('credit_cards');
-    this.debitDb = new PouchDB('debit_cards');
+    this.creditDb = new PouchDB('creditCards');
+    this.debitDb = new PouchDB('debitCards');
   }
-  // Add Card
-  async addCard(card: Card, type: 'credit' | 'debit'): Promise<any> {
-    const db = type === 'credit' ? this.creditDb : this.debitDb;
+  private handleError(error: any): never {
+    console.error('Database Error:', error);
+    throw error;
+  }
 
+  async getCards(id:string): Promise<CreditCard | undefined>{
     try {
-      // Convert Card model to object and post to DB
-      const result = await db.post(card.toObject()); // toObject() returns the plain object
-      return result;
+      return await this.creditDb.get(id);
     } catch (error) {
-      console.error('Error adding card:', error);
-      throw new Error('Failed to add card');
+      if (error === 404) return undefined;
+      this.handleError(error);
     }
   }
-
-  // Get All Cards
-  async getAllCards(type: 'credit' | 'debit'): Promise<any[]> {
-    const db = type === 'credit' ? this.creditDb : this.debitDb;
-
-    try {
-      const result = await db.allDocs({ include_docs: true });
-      return result.rows.map(row => row.doc);
-    } catch (error) {
-      console.error('Error fetching cards:', error);
-      throw new Error('Failed to fetch cards');
-    }
-  }
-
-  // Update Card
-  async updateCard(card: Card, type: 'credit' | 'debit'): Promise<any> {
-    const db = type === 'credit' ? this.creditDb : this.debitDb;
-
-    try {
-      if (!card._id || !card._rev) {
-        throw new Error('Invalid card data: _id and _rev are required for update');
+   async updateCards(cards: CreditCard) {
+      try {
+        
+      if (!cards._id || !cards._rev) {
+        throw new Error('Expense must have a valid _id and _rev for updates');
       }
-
-      const result = await db.put(card.toObject()); // toObject() returns the plain object
-      return result;
-    } catch (error) {
-      console.error('Error updating card:', error);
-      throw new Error('Failed to update card');
-    }
-  }
-
-  // Delete Card
-  async deleteCard(id: string, rev: string, type: 'credit' | 'debit'): Promise<any> {
-    const db = type === 'credit' ? this.creditDb : this.debitDb;
-
-    try {
-      if (!id || !rev) {
-        throw new Error('Card ID and revision are required for deletion');
+        const response = await this.creditDb.put(cards);
+        return response;
+      } catch (error) {
+        this.handleError(error);
       }
-
-      const result = await db.remove(id, rev);
-      return result;
-    } catch (error) {
-      console.error('Error deleting card:', error);
-      throw new Error('Failed to delete card');
     }
+    async addCreditCard(card: CreditCard) {
+        try {
+          card._id = card._id || new Date().toISOString();
+          const response = await this.creditDb.put(card);
+          return response;
+        } catch (error) {
+          this.handleError(error);
+       }
+  }
+  getCreditCardsByUser(userId: string) {
+    return this.creditDb.allDocs({ include_docs: true }).then((result) =>
+      result.rows
+        .map((row) => row.doc)
+        .filter((card: CreditCard) => card.userId === userId)
+    );
   }
 
+  updateCreditCard(card: CreditCard) {
+    return this.creditDb.put(card); // Requires _id and _rev
+  }
+
+  deleteCreditCard(id: string, rev: string) {
+    return this.creditDb.remove(id, rev);
+  }
+
+  // Debit Card CRUD Operations
+  addDebitCard(card: DebitCard) {
+    return this.debitDb.post(card);
+  }
+
+  getDebitCardsByUser(userId: string) {
+    return this.debitDb.allDocs({ include_docs: true }).then((result) =>
+      result.rows
+        .map((row) => row.doc)
+        .filter((card: DebitCard) => card.userId === userId)
+    );
+  }
+
+  updateDebitCard(card: DebitCard) {
+    return this.debitDb.put(card); // Requires _id and _rev
+  }
+
+  deleteDebitCard(id: string, rev: string) {
+    return this.debitDb.remove(id, rev);
+  }
+  async getCreditCardById(id: string): Promise<CreditCard> {
+    try {
+      return await this.creditDb.get(id);
+    } catch (error) {
+      console.error('Error fetching card by ID:', error);
+      throw error;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
+import { CreditCard } from '../models/credit-card.model';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,7 @@ import { Expense, ExpenseCategory, TransactionType } from '../models/expense.mod
 export class DatabaseService {
   private manualDb: PouchDB.Database<Expense>;
   private autoDb: PouchDB.Database<Expense>;
+  private creditDb: any;
   private credits: any[] = [];
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
@@ -16,12 +18,41 @@ export class DatabaseService {
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
+    this.creditDb = new PouchDB('creditCards');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
     throw error;
   }
-
+ async getCards(id:string): Promise<CreditCard | undefined>{
+    try {
+      return await this.creditDb.get(id);
+    } catch (error) {
+      if (error === 404) return undefined;
+      this.handleError(error);
+    }
+  }
+   async updateCards(cards: CreditCard) {
+      try {
+        
+      if (!cards._id || !cards._rev) {
+        throw new Error('Expense must have a valid _id and _rev for updates');
+      }
+        const response = await this.creditDb.put(cards);
+        return response;
+      } catch (error) {
+        this.handleError(error);
+      }
+    }
+    async addCreditCard(card: CreditCard) {
+        try {
+          card._id = card._id || new Date().toISOString();
+          const response = await this.creditDb.put(card);
+          return response;
+        } catch (error) {
+          this.handleError(error);
+       }
+  }
   async getExpense(id: string): Promise<Expense | undefined> {
     try {
       return await this.manualDb.get(id);

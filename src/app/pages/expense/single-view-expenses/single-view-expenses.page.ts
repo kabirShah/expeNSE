@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, AlertController } from '@ionic/angular';
+import { NavController, AlertController, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
-import { Expense } from '../../../models/expense.model';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { File } from "@ionic-native/file/ngx";
 import { Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-view-expenses',
@@ -27,6 +26,7 @@ export class SingleViewExpensesPage implements OnInit {
     private file:File,
     private alertController: AlertController,
     private router: Router,
+    private platform: Platform,
     private socialSharing: SocialSharing) {
   }
 
@@ -71,7 +71,7 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
  // PDF Export Function
- exportToPDF() {
+ async exportToPDF(manualExpenses: any[], autoExpenses: any[]) {
   const doc = new jsPDF();
 
     doc.text('Expense Report', 105, 10, { align: 'center' });
@@ -96,28 +96,49 @@ export class SingleViewExpensesPage implements OnInit {
     // Save PDF
     const pdfOutput = doc.output('blob');
     const fileName = 'Expense_Report.pdf';
+    if (this.platform.is('cordova') || this.platform.is('capacitor')) {
+      // Save PDF to device
+      await this.savePDFToDevice(pdfOutput, fileName);
+    } else {
+      // Browser Download (Fallback for Web)
+      doc.save(fileName);
+    }
+  }
+  async savePDFToDevice(pdfBlob: Blob, fileName: string){
+    const arrayBuffer = await pdfBlob.arrayBuffer();
+    const base64Data = btoa(
+      String.fromCharCode(...new Uint8Array(arrayBuffer))
+    );
 
-    // Save File to Device
-    const fileReader = new FileReader();
-    fileReader.onloadend = async () => {
-      const fileURL = fileReader.result as string; // Type assertion
-      if (fileURL) {
-        try {
-          // Share through WhatsApp
-          await this.socialSharing.shareViaWhatsApp(
-            'Here is my Expense Report!',
-            fileURL, // Ensures correct type
-            ''
-          );
-          console.log('Shared successfully!');
-        } catch (error) {
-          console.error('Error sharing file:', error);
-        }
-      } else {
-        console.error('File URL is null or undefined');
-      }
-    };
-    fileReader.readAsDataURL(pdfOutput);
+    try {
+      const filePath = `Documents/${fileName}`;
+      const result = await Filesystem.writeFile({
+        path: filePath,
+        data: base64Data,
+        directory: Directory.Documents,
+        recursive: true,
+      });
+
+      console.log('PDF saved at:', result.uri);
+
+      // Share the PDF
+      await this.sharePDF(result.uri, fileName);
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+    }
+  }
+  private async sharePDF(filePath: string, fileName: string) {
+    try {
+      await Share.share({
+        title: 'Expense Report',
+        text: 'Here is my Expense Report!',
+        url: filePath,
+        dialogTitle: 'Share Expense Report',
+      });
+      console.log('PDF shared successfully!');
+    } catch (error) {
+      console.error('Error sharing PDF:', error);
+    }
   }
   editExpense(id:string) {
     this.router.navigate(['/single-view-expenses/single-expense',id]);

@@ -17,6 +17,7 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { HttpClient } from '@angular/common/http';
 import { File } from "@ionic-native/file/ngx";
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { CardService } from './services/card.service';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -29,6 +30,7 @@ import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
   providers: [
     HttpClient,
     DatabaseService,
+    CardService,
     File,
     SocialSharing,
     provideFirestore(() => getFirestore()), // Provide Firestore
