@@ -71,7 +71,7 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
  // PDF Export Function
- async exportToPDF(manualExpenses: any[], autoExpenses: any[]) {
+ async exportToPDF() {
   const doc = new jsPDF();
 
     doc.text('Expense Report', 105, 10, { align: 'center' });
