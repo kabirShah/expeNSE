@@ -12,7 +12,7 @@ export class DatabaseService {
   private autoDb: PouchDB.Database<Expense>;
   private creditDb: any;
   private credits: any[] = [];
-  private balanceDb: PouchDB.Database<any>;
+  private balanceDb: any;
   private debitDb: any;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
@@ -85,6 +85,14 @@ export class DatabaseService {
       const result = await this.manualDb.allDocs({ include_docs: true });
       return result.rows.map((row) => row.doc as Expense);
     } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async getAllBalance(): Promise <Balance[]>{
+    try{
+      const result = await this.balanceDb.allDocs({include_docs:true});
+      return result.rows.map((row)=>row.doc as Balance);
+    } catch(error){
       this.handleError(error);
     }
   }
@@ -171,24 +179,13 @@ export class DatabaseService {
       throw error;
     }
   }
-  async saveBalance(balance: { _id?: string, _rev?: string, balance: number }) {
+  async saveBalance(balance: Balance) {
     try {
-      if (!balance._id) {
-        balance._id = 'userBalance'; // Use a default ID if none exists
-      }
-      
-      // If _rev exists (update), fetch the latest _rev for update purposes
-      if (balance._rev) {
-        const existingBalance = await this.balanceDb.get(balance._id);
-        balance._rev = existingBalance._rev; // Get the latest revision for update
-      }
-  
-      // Save or update the balance to the database
-      await this.balanceDb.put(balance);
-      console.log('Balance saved successfully!');
+      balance._id = balance._id || new Date().toISOString();
+      const response = await this.balanceDb.put(balance);
+      return response;
     } catch (error) {
-      console.error('Error saving balance:', error);
-      throw error; // Re-throw the error for the component to handle
+      this.handleError(error);
     }
   }
   async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number } | null> {

@@ -29,8 +29,8 @@
     <ion-card-header>
       <ion-card-title>Your Total Current Balance</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
-      <h2>₹{{ userBalance }}</h2>
+    <ion-card-content *ngFor="let bal of userBalance">
+      <h2>₹{{ bal.balance }}</h2>
     </ion-card-content>
       <ion-buttons>
         <ion-button color="primary" (click)="addBalance()">

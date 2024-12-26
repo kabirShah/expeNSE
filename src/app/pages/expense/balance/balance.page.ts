@@ -54,7 +54,6 @@ export class BalancePage  {
   createForm() {
     this.balanceForm = this.fb.group({
       _id: [''],
-      _rev: [''],
       balance: ['', Validators.required],
     });
   }
@@ -64,14 +63,9 @@ export class BalancePage  {
     const balance = this.balanceForm.value;
     console.log(balance);
     
-    try {
-      // Ensure the balance object has the required structure before saving
+    // Ensure the balance object has the required structure before saving
       await this.db.saveBalance(balance); // Use the saveBalance method from DatabaseService
       await this.showToast('Balance Added/Updated Successfully', 'success');
-    } catch (error) {
-      console.error('Error saving balance:', error);
-      await this.showToast('Error saving balance', 'danger');
-    }
   }
   
   // Show toast messages
