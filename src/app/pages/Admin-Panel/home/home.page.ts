@@ -126,13 +126,8 @@ export class HomePage implements OnInit{
   navigateToSplitView(){
     this.router.navigate(['/split-view']);
   }
-  exportToExcel() {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);
-    const workbook: XLSX.WorkBook = {
-      Sheets: { 'Expenses': worksheet },
-      SheetNames: ['Expenses']
-    };
-    XLSX.writeFile(workbook, 'expenses.xlsx');
+  addBalance(){
+    this.router.navigateByUrl('/balance');
   }
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;

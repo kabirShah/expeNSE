@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
 import { CreditCard } from '../models/credit-card.model';
+import { Balance } from '../models/balance.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,8 @@ export class DatabaseService {
   private autoDb: PouchDB.Database<Expense>;
   private creditDb: any;
   private credits: any[] = [];
+  private balanceDb: PouchDB.Database<any>;
+  private debitDb: any;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
@@ -19,6 +22,9 @@ export class DatabaseService {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
     this.creditDb = new PouchDB('creditCards');
+    this.debitDb = new PouchDB('debitCards');
+    this.balanceDb = new PouchDB('balanceDB');
+
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -140,10 +146,6 @@ export class DatabaseService {
     return result.rows.map(row => row.doc);
   }
   // Balance Management
-  async getUserBalance(): Promise<number | null> {
-      const balanceDoc = await this.manualDb.get('userBalance');
-      return balanceDoc ? balanceDoc.amount : null;
-  }
   async setUserBalance(balance: number) {
       const balanceDoc = await this.manualDb.get('userBalance');
       await this.manualDb.put({
@@ -169,4 +171,37 @@ export class DatabaseService {
       throw error;
     }
   }
+  async saveBalance(balance: { _id?: string, _rev?: string, balance: number }) {
+    try {
+      if (!balance._id) {
+        balance._id = 'userBalance'; // Use a default ID if none exists
+      }
+      
+      // If _rev exists (update), fetch the latest _rev for update purposes
+      if (balance._rev) {
+        const existingBalance = await this.balanceDb.get(balance._id);
+        balance._rev = existingBalance._rev; // Get the latest revision for update
+      }
+  
+      // Save or update the balance to the database
+      await this.balanceDb.put(balance);
+      console.log('Balance saved successfully!');
+    } catch (error) {
+      console.error('Error saving balance:', error);
+      throw error; // Re-throw the error for the component to handle
+    }
+  }
+  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number } | null> {
+    try {
+      const balanceDoc = await this.balanceDb.get('userBalance');
+      return balanceDoc || null; // Return the full document or null if not found
+    } catch (error) {
+      if (error === 404) {
+        return null; // Return null if the document is not found
+      }
+      throw error; // Handle other errors
+    }
+  }
+  
+  
 }

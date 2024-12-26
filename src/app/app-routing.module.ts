@@ -16,16 +16,20 @@ const routes: Routes = [
     loadChildren: () => import('./pages/setting/registration/registration.module').then(m => m.RegistrationPageModule)
   },
   {
+    path:'home',
+    loadChildren:()=>import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
+  },
+  {
+    path:'balance',
+    loadChildren: () => import('./pages/expense/balance/balance.module').then( m => m.BalancePageModule)
+  },
+  {
     path: 'single-expense',
     loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule)
   },
   {
     path: 'single-view-expenses',
     loadChildren: () => import('./pages/expense/single-view-expenses/single-view-expenses.module').then(m => m.SingleViewExpensesPageModule)
-  },
-  {
-    path:'home',
-    loadChildren:()=>import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
   },
   {
     path: 'multi-expense',
@@ -63,7 +67,6 @@ const routes: Routes = [
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
-
 ];
 
 
