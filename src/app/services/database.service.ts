@@ -169,4 +169,24 @@ export class DatabaseService {
       throw error;
     }
   }
+  async saveManualExpenses(expenses: Expense[]) {
+    try {
+      const savePromises = expenses.map((expense) => {
+        // If _id and _rev exist, update, else add as new expense
+        if (expense._id && expense._rev) {
+          return this.updateManualExpense(expense);
+        } else {
+          return this.addManualExpense(expense);
+        }
+      });
+  
+      // Wait for all save/update operations to complete
+      await Promise.all(savePromises);
+      console.log('Expenses saved successfully');
+    } catch (error) {
+      console.error('Error saving expenses:', error);
+      this.handleError(error);
+    }
+  }
+  
 }

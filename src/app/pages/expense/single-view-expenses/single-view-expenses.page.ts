@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController, Platform } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
+import { Router } from '@angular/router';
+
+//Share, PDF and File
+
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { File } from "@ionic-native/file/ngx";
-import { Router } from '@angular/router';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { Share } from '@capacitor/share';
+import * as pdfjsLib from 'pdfjs-dist';
 
 @Component({
   selector: 'app-view-expenses',
@@ -19,6 +23,10 @@ export class SingleViewExpensesPage implements OnInit {
   arr:any[]=[];
   expenses: any[] = [];
   data: any[] = [];
+  filteredExpenses: any[] = [];
+  searchTerm: string = '';
+  selectedMonth: string = 'all';
+
 
   constructor(
     private navCtrl: NavController,
@@ -34,15 +42,32 @@ export class SingleViewExpensesPage implements OnInit {
     this.loadManualExpenses();
   }
 
-  ionViewWillEnter() {
-    this.loadManualExpenses();
-  }
-
   async loadManualExpenses() {
     // Retrieve the expenses array from localStorage
     this.manualExpenses = await this.db.getAllManualExpenses();
+    this.applyFilters();
   }
+  async applyFilters(){
+    this.filteredExpenses = this.manualExpenses.filter((expense) => {
+      let matchesSearch = true;
+      let matchesMonth = true;
 
+      // Apply Search Filter
+      if (this.searchTerm) {
+        const searchLower = this.searchTerm.toLowerCase();
+        matchesSearch = expense.description.toLowerCase().includes(searchLower) || 
+                        expense.category.toLowerCase().includes(searchLower);
+      }
+
+      // Apply Month Filter
+      if (this.selectedMonth && this.selectedMonth !== 'all') {
+        const expenseMonth = new Date(expense.date).toLocaleString('default', { month: 'long' });
+        matchesMonth = expenseMonth === this.selectedMonth;
+      }
+
+      return matchesSearch && matchesMonth;
+    });
+  }
   async deleteExpense(id: string, rev: string) {
     const alert = await this.alertController.create({
       header: 'Confirm Deletion',
@@ -140,6 +165,11 @@ export class SingleViewExpensesPage implements OnInit {
       console.error('Error sharing PDF:', error);
     }
   }
+  async importPDF() {
+    console.log("Upcoming");
+  }
+
+  
   editExpense(id:string) {
     this.router.navigate(['/single-view-expenses/single-expense',id]);
   }

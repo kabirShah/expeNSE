@@ -16,4 +16,18 @@
     font-size: 1.2rem;
     margin: 0;
   }
+  .transparent-searchbar {
+    --background: transparent;
+    --border-color: transparent;
+    --box-shadow: none;
+  
+    .searchbar-input {
+      background-color: transparent;
+      color: #000;  /* Change text color if needed */
+    }
+  
+    .searchbar-input::placeholder {
+      color: #000;  /* Adjust placeholder text color if needed */
+    }
+  }
   

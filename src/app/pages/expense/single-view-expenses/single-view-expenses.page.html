@@ -1,22 +1,66 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header color="light">
+  <ion-toolbar color="light">
     <ion-buttons slot="start">
-      <ion-button href="/home" color="light">
-          <ion-icon name="chevron-back" size="medium"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-title>Single Expense</ion-title>
-      <ion-buttons slot="end">
-        <ion-button expand="block" color="success" (click)="exportToPDF()">
-          Export as PDF
-        </ion-button>
-      </ion-buttons>
+      <ion-button href="/home" color="primary">
+        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Single Expense</ion-title>
+    <ion-buttons slot="end">
+      <ion-button expand="block" color="primary" (click)="exportToPDF()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+      <ion-button expand="block" color="primary" (click)="importPDF()">
+        <ion-icon name="cloud-download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Toolbar with Searchbar and Select in a single row -->
+  <ion-toolbar color="light">
+    <ion-row class="ion-align-items-center">
+      <ion-col size="10" size-md="4">
+        <ion-searchbar
+          labelPlacement="floating"
+          [(ngModel)]="searchTerm"
+          placeholder="Search"
+          (ionInput)="applyFilters()"
+          debounce="500"
+          class="transparent-searchbar"
+        ></ion-searchbar>
+      </ion-col>
+
+      <ion-col size="2" size-md="3">
+        <ion-select
+          [(ngModel)]="selectedMonth"
+          (ionChange)="applyFilters()"
+          placeholder="Filter by Month"
+        >
+          <ion-select-option value="all">All</ion-select-option>
+          <ion-select-option value="January">January</ion-select-option>
+          <ion-select-option value="February">February</ion-select-option>
+          <ion-select-option value="March">March</ion-select-option>
+          <ion-select-option value="April">April</ion-select-option>
+          <ion-select-option value="May">May</ion-select-option>
+          <ion-select-option value="June">June</ion-select-option>
+          <ion-select-option value="July">July</ion-select-option>
+          <ion-select-option value="August">August</ion-select-option>
+          <ion-select-option value="September">September</ion-select-option>
+          <ion-select-option value="October">October</ion-select-option>
+          <ion-select-option value="November">November</ion-select-option>
+          <ion-select-option value="December">December</ion-select-option>
+        </ion-select>
+      </ion-col>
+    </ion-row>
   </ion-toolbar>
 </ion-header>
 
+
+
 <ion-content class="ion-padding">
-  <ion-list *ngIf="manualExpenses.length; else noData">
-    <ion-item *ngFor="let expense of manualExpenses">
+  <!-- Month Filter -->
+  <ion-list *ngIf="filteredExpenses.length; else noData">
+    <ion-item *ngFor="let expense of filteredExpenses">
       <ion-label>
         <h2>{{ expense.description }}</h2>
         <p>
@@ -25,13 +69,13 @@
           Category: {{ expense.category }}
         </p>
       </ion-label>
-      <ion-button slot="end" color="primary" (click)="editExpense(expense._id)">Edit</ion-button>
-      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id,expense._rev)">Delete</ion-button>
+      <ion-button slot="end" color="primary" (click)="editExpense(expense._id)"><ion-icon name="pencil-outline"></ion-icon></ion-button>
+      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id,expense._rev)"><ion-icon name="trash-outline"></ion-icon></ion-button>
     </ion-item>
   </ion-list>
 
   <ng-template #noData>
-    <ion-label>No expenses found.</ion-label>
+    <ion-label class="noexp">No expenses found.</ion-label>
   </ng-template>
 </ion-content>
 

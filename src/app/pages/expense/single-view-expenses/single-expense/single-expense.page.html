@@ -32,7 +32,7 @@
     <ion-item>
       <ion-label>Category</ion-label>
       <ion-select formControlName="category">
-        <ion-select-option *ngFor="let category of expenseCategories" [value]="category">{{ category }}</ion-select-option>
+        <ion-select-option labelPlacement="stacked" *ngFor="let category of expenseCategories" [value]="category">{{ category }}</ion-select-option>
       </ion-select>
     </ion-item>
 
@@ -40,20 +40,20 @@
     <ion-item>
       <ion-label>Transaction Type</ion-label>
       <ion-select formControlName="transactionType">
-        <ion-select-option *ngFor="let type of transactionTypes" [value]="type">{{ type }}</ion-select-option>
+        <ion-select-option labelPlacement="stacked" *ngFor="let type of transactionTypes" [value]="type">{{ type }}</ion-select-option>
       </ion-select>
     </ion-item>
 
     <!-- Amount Input -->
     <ion-item>
-      <ion-label position="floating">Amount</ion-label>
-      <ion-input type="number" formControlName="amount"></ion-input>
+      <ion-label >Amount</ion-label>
+      <ion-input labelPlacement="stacked" type="number" formControlName="amount"></ion-input>
     </ion-item>
 
     <!-- Description Input -->
     <ion-item>
-      <ion-label position="floating">Description</ion-label>
-      <ion-input formControlName="description"></ion-input>
+      <ion-label >Description</ion-label>
+      <ion-input labelPlacement="stacked" formControlName="description"></ion-input>
     </ion-item>
 
     <ion-button expand="block" type="submit" [disabled]="expenseForm.invalid">{{ expenseId ? 'Update Expense' : 'Save Expense' }}</ion-button>
