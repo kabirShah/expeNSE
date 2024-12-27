@@ -39,7 +39,6 @@ export class AnalyticsPage implements AfterViewInit {
   async ngAfterViewInit() {
     await this.loadExpenses();
     this.initFilters();
-    this.updateCharts();
     this.filterExpenses();
     this.createManualChart();
     this.createAutoChart();
@@ -52,25 +51,20 @@ export class AnalyticsPage implements AfterViewInit {
     this.selectedMonth = this.getMonthName(currentMonthIndex);
   }
   applyFilters() {
-    const selectedMonthIndex = this.getMonthNameIndex(this.selectedMonth);
-    const startOfMonth = new Date(this.selectedYear, selectedMonthIndex, 1).toISOString();
-    const endOfMonth = new Date(this.selectedYear, selectedMonthIndex + 1, 0).toISOString();
+    const startOfMonth = new Date(this.selectedYear, this.getMonthNameIndex(this.selectedMonth), 1).toISOString();
+    const endOfMonth = new Date(this.selectedYear, this.getMonthNameIndex(this.selectedMonth) + 1, 0).toISOString();
   
-    this.filteredManualExpenses = this.manualExpenses.filter((expense) => {
-      const isInMonth = this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth);
-      const isInCategory = this.selectedCategory === 'All' || expense.category === this.selectedCategory;
-      return isInMonth && isInCategory;
-    });
+    this.filteredManualExpenses = this.filterExpensesByDateAndCategory(this.manualExpenses, startOfMonth, endOfMonth);
+    this.filteredAutoExpenses = this.filterExpensesByDateAndCategory(this.autoExpenses, startOfMonth, endOfMonth);
   
-    this.filteredAutoExpenses = this.autoExpenses.filter((expense) => {
-      const isInMonth = this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth);
-      const isInCategory = this.selectedCategory === 'All' || expense.category === this.selectedCategory;
-      return isInMonth && isInCategory;
-    });
-  
-    // Refresh the charts
-    this.createManualChart();
-    this.createAutoChart();
+    this.createManualChart(); // Redraw chart
+    this.createAutoChart();   // Redraw chart
+  }
+  filterExpensesByDateAndCategory(expenses: any[], start: string, end: string) {
+    return expenses.filter(expense => 
+      this.isExpenseInDateRange(expense.date, start, end) &&
+      (this.selectedCategory === 'All' || expense.category === this.selectedCategory)
+    );
   }
   isExpenseInMonth(expenseDate: string, month: string, year: number): boolean {
     const expenseDateObj = new Date(expenseDate);
@@ -112,9 +106,14 @@ export class AnalyticsPage implements AfterViewInit {
   }
 
   async loadExpenses(){
-    this.manualExpenses = await this.db.getAllManualExpenses();
-    this.filteredManualExpenses = [...this.manualExpenses];
-    this.autoExpenses = await this.db.getAllAutoExpenses();
+    try {
+      this.manualExpenses = await this.db.getAllManualExpenses();
+      console.log('Manual Expenses:', this.manualExpenses);
+      this.autoExpenses = await this.db.getAllAutoExpenses();
+      console.log('Auto Expenses:', this.autoExpenses);
+    } catch (error) {
+      console.error('Error loading expenses:', error);
+    }
   }
   createManualChart() {
     const groupedExpenses = this.groupExpensesByCategory(this.filteredManualExpenses);
@@ -179,36 +178,6 @@ export class AnalyticsPage implements AfterViewInit {
   isExpenseInDateRange(date: string, start: string, end: string): boolean {
     const expenseDate = new Date(date).getTime();
     return expenseDate >= new Date(start).getTime() && expenseDate <= new Date(end).getTime();
-  }
-
-  updateCharts() {
-    const categories = this.filteredManualExpenses.map((expense) => expense.category);
-    const amounts = this.filteredManualExpenses.map((expense) => expense.amount);
-    HighCharts.chart('manualcontainer', {
-      chart: {
-        type: 'column',
-      },
-      title: {
-        text: 'Expenses by Category',
-      },
-      xAxis: {
-        categories: categories,
-        title: {
-          text: 'Categories',
-        },
-      },
-      yAxis: {
-        title: {
-          text: 'Total Amount',
-        },
-      },
-      series: [
-        {
-          name: 'Expenses',
-          data: amounts,
-        },
-      ] as HighCharts.SeriesColumnOptions[],
-    });
   }
 
   getSelectedMonthName(): string {

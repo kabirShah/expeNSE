@@ -8,29 +8,14 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- Filter Section -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Filter Expenses</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label>Month</ion-label>
-        <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
-          <ion-select-option *ngFor="let month of months" [value]="month.value">{{ month.name }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-      <ion-item>
-        <ion-label>Category</ion-label>
-        <ion-select [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
-          <ion-select-option *ngFor="let category of categories">{{ category }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- Chart Section -->
-   <div id="manualcontainer" style="width:100%; height:400px;"></div>
+  <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
+    <ion-select-option *ngFor="let month of months" [value]="month.value">{{ month.name }}</ion-select-option>
+  </ion-select>
+  
+  <ion-select [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
+    <ion-select-option *ngFor="let category of categories" [value]="category">{{ category }}</ion-select-option>
+  </ion-select>
+  
   <div id="manualExpensesContainer" style="width: 100%; height: 400px;"></div>
   <div id="autoExpensesContainer" style="width: 100%; height: 400px;"></div>
 
