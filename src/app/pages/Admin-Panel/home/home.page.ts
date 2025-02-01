@@ -23,7 +23,7 @@ export class HomePage implements OnInit{
   grandTotalExpense: number = 0;
   debitTotal: number = 0;
   creditTotal: number = 0;
-  userBalance: number = 0;
+  userBalance: any;
   isCreditAdded: boolean = false;
   totalSplitExpense: number = 0;
   constructor(
@@ -31,12 +31,14 @@ export class HomePage implements OnInit{
     private db: DatabaseService,
     private alertCtrl: AlertController) {}
 
-    async ngOnInit() {
-      await this.calculateTotalExpense();
-    }
-
-  ionViewWillEnter() {
+  async ngOnInit() {
+    await this.loadBalance();
     this.loadExpenses();
+    await this.calculateTotalExpense();
+  }
+
+  async loadBalance(){
+    this.userBalance = await this.db.getAllBalance();
   }
 
   async calculateTotalExpense(){
@@ -126,13 +128,11 @@ export class HomePage implements OnInit{
   navigateToSplitView(){
     this.router.navigate(['/split-view']);
   }
-  exportToExcel() {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.expenses);
-    const workbook: XLSX.WorkBook = {
-      Sheets: { 'Expenses': worksheet },
-      SheetNames: ['Expenses']
-    };
-    XLSX.writeFile(workbook, 'expenses.xlsx');
+  navigateToCameraView(){
+    this.router.navigate(['/scan']);
+  }
+  addBalance(){
+    this.router.navigateByUrl('/balance');
   }
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;

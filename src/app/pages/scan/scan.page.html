@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button>
+        <ion-icon></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Invoice</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+
+  <!-- Display Extracted Invoices -->
+  <ion-list>
+    <ion-item *ngFor="let invoice of invoices">
+      <ion-thumbnail slot="start">
+        <img [src]="invoice.imageUrl" alt="Invoice">
+      </ion-thumbnail>
+      
+      <!-- Display Extracted Invoice Data -->
+      <ion-label>
+        <h2>{{ invoice.storeName }}</h2>
+        <p>Date: {{ invoice.date | date:'mediumDate' }}</p>
+        <p><strong>Total: ₹{{ invoice.total | number: '1.2-2' }}</strong></p>
+        <p><strong>Tax: ₹{{ invoice.taxAmount | number: '1.2-2' }}</strong></p>
+
+        <!-- List of Items -->
+        <ion-list>
+          <ion-item *ngFor="let item of invoice.items">
+            {{ item.description }} - ₹{{ item.price | number:'1.2-2' }} (Qty: {{ item.quantity }})
+          </ion-item>
+        </ion-list>
+      </ion-label>
+      
+      <ion-button color="danger" (click)="deleteInvoice(invoice._id ?? '')">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
+    </ion-item>
+    </ion-list>
+    
+</ion-content>
+<ion-footer>
+    <!-- Capture/Upload Buttons -->
+    <ion-button expand="full" (click)="captureInvoice()">
+      <ion-icon name="camera"></ion-icon>
+      Capture Invoice
+    </ion-button>
+    <ion-button expand="full" (click)="pickFromGallery()">
+      <ion-icon name="images"></ion-icon>
+      Upload from Gallery
+    </ion-button>
+</ion-footer>

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
 import { CreditCard } from '../models/credit-card.model';
+import { Balance } from '../models/balance.model';
+import { Invoice } from '../models/invoice.model';
 
 @Injectable({
   providedIn: 'root',
@@ -9,16 +11,23 @@ import { CreditCard } from '../models/credit-card.model';
 export class DatabaseService {
   private manualDb: PouchDB.Database<Expense>;
   private autoDb: PouchDB.Database<Expense>;
+  private scanDb: PouchDB.Database<Invoice>;
   private creditDb: any;
   private credits: any[] = [];
+  private balanceDb: any;
+  private debitDb: any;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
-  
+
+
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
     this.creditDb = new PouchDB('creditCards');
+    this.debitDb = new PouchDB('debitCards');
+    this.balanceDb = new PouchDB('balanceDB');
+    this.scanDb = new PouchDB('scanned_invoices');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -82,6 +91,14 @@ export class DatabaseService {
       this.handleError(error);
     }
   }
+  async getAllBalance(): Promise <Balance[]>{
+    try{
+      const result = await this.balanceDb.allDocs({include_docs:true});
+      return result.rows.map((row)=>row.doc as Balance);
+    } catch(error){
+      this.handleError(error);
+    }
+  }
   async deleteManualExpense(id: string, rev: string) {
     try {
       const response = await this.manualDb.remove(id, rev);
@@ -140,10 +157,6 @@ export class DatabaseService {
     return result.rows.map(row => row.doc);
   }
   // Balance Management
-  async getUserBalance(): Promise<number | null> {
-      const balanceDoc = await this.manualDb.get('userBalance');
-      return balanceDoc ? balanceDoc.amount : null;
-  }
   async setUserBalance(balance: number) {
       const balanceDoc = await this.manualDb.get('userBalance');
       await this.manualDb.put({
@@ -167,6 +180,53 @@ export class DatabaseService {
     } catch (error) {
       console.error('Error updating expense:', error);
       throw error;
+    }
+  }
+  async saveBalance(balance: Balance) {
+    try {
+      balance._id = balance._id || new Date().toISOString();
+      const response = await this.balanceDb.put(balance);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number } | null> {
+    try {
+      const balanceDoc = await this.balanceDb.get('userBalance');
+      return balanceDoc || null; // Return the full document or null if not found
+    } catch (error) {
+      if (error === 404) {
+        return null; // Return null if the document is not found
+      }
+      throw error; // Handle other errors
+    }
+  }
+  async saveInvoice(invoice: Invoice) {
+    invoice._id = new Date().toISOString(); // Unique ID
+    try {
+      await this.scanDb.put(invoice);
+      console.log('Invoice saved:', invoice);
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+    }
+  }
+  async getInvoices(): Promise<Invoice[]> {
+    try {
+      const result = await this.scanDb.allDocs({ include_docs: true });
+      return result.rows.map(row => row.doc as Invoice);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      return [];
+    }
+  }  
+  async deleteInvoice(invoiceId: string) {
+    try {
+      const doc = await this.scanDb.get(invoiceId); // Fetch invoice by ID
+      await this.scanDb.remove(doc); // Remove invoice from PouchDB
+      console.log('Invoice deleted:', invoiceId);
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
     }
   }
   async saveManualExpenses(expenses: Expense[]) {

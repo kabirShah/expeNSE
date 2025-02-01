@@ -15,43 +15,79 @@
   </div>
 
   <!-- Expense Overview Cards -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Transactions Summary</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
+  <ion-list>
+    <ion-item>
+      <ion-label>Transactions Summary</ion-label>
+      <ion-badge color="primary">
+        <ion-icon name="stats-chart"></ion-icon>
+      </ion-badge>
+    </ion-item>
+    <ion-item>
       <p>💸 Total Debits: ₹{{ debitTotal }} of {{currentMonth}}</p>
-      <p>💰 Total Credits: ₹{{ creditTotal }} of {{currentMonth}}</p>
-    </ion-card-content>
-  </ion-card>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Your Total Current Balance</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <h2>₹{{ userBalance }}</h2>
-    </ion-card-content>
-  </ion-card>
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Your expense for {{currentMonth}}</ion-card-title>
-      <ion-card-content>Grand Total: ₹{{ grandTotalExpense }}</ion-card-content>
-    </ion-card-header>
-  </ion-card>
-  <ion-card color="secondary" (click)="navigateToViewExpenses()">
-    <ion-card-header>
-      <ion-card-title>Expense Single {{ currentMonth }}</ion-card-title>
-      </ion-card-header>
-    <ion-card-content><h3>₹{{ totalManualExpense }}</h3></ion-card-content>
-  </ion-card>
-
-  <ion-card color="secondary" (click)="navigateToMultiView()">
-    <ion-card-header><ion-card-title>Expense Multi {{ currentMonth }}</ion-card-title></ion-card-header>
-    <ion-card-content><h3>₹{{ totalAutoExpense }}</h3></ion-card-content>
-  </ion-card>
-  <ion-card color="secondary" (click)="navigateToSplitView()">
-    <ion-card-header><ion-card-title>Split Expense {{ currentMonth }}</ion-card-title></ion-card-header>
-    <ion-card-content><h3>₹{{ totalSplitExpense }}</h3></ion-card-content>
-  </ion-card>
+      <p>💰 Total Credits: ₹{{ creditTotal }} of {{currentMonth}}</p> 
+    </ion-item>
+  </ion-list>
+  
+  <ion-list>
+    <ion-item>
+      <ion-label>Your Total Current Balance</ion-label>
+      <ion-badge color="primary">
+        <ion-icon name="wallet"></ion-icon>
+      </ion-badge>
+    </ion-item>
+    <ion-item *ngFor="let bal of userBalance">
+      <h2>₹{{ bal.balance }}</h2> 
+    </ion-item>
+    <ion-item>
+      <ion-buttons>
+        <ion-button color="primary" (click)="addBalance()">
+          Add Balance
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+  
+  <ion-list>
+    <ion-item>
+      <ion-label>Your expense for {{currentMonth}}</ion-label>
+      <ion-badge color="primary">
+        <ion-icon name="calendar"></ion-icon>
+      </ion-badge>
+    </ion-item>
+    <ion-item>
+      <p>Grand Total: ₹{{ grandTotalExpense }}</p>
+    </ion-item>
+  </ion-list>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="3"> 
+        <ion-card color="secondary" (click)="navigateToViewExpenses()">
+          <ion-card-header class="ion-text-center">
+            <ion-icon name="list" size="large"></ion-icon> 
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col size="3"> 
+        <ion-card color="secondary" (click)="navigateToMultiView()">
+          <ion-card-header class="ion-text-center">
+            <ion-icon name="add-circle" size="large"></ion-icon> 
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col size="3"> 
+        <ion-card color="secondary" (click)="navigateToSplitView()">
+          <ion-card-header class="ion-text-center">
+            <ion-icon name="people" size="large"></ion-icon> 
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+      <ion-col size="3"> 
+        <ion-card color="secondary" (click)="navigateToCameraView()">
+          <ion-card-header class="ion-text-center">
+            <ion-icon name="camera" size="large"></ion-icon> 
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
