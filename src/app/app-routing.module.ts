@@ -64,9 +64,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/cards/cards.module').then( m => m.CardsPageModule)
   },
   {
+    path: 'scan',
+    loadChildren: () => import('./pages/scan/scan.module').then( m => m.ScanPageModule)
+  },
+  {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
+
 ];
 
 

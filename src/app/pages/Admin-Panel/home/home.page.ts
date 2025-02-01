@@ -128,6 +128,9 @@ export class HomePage implements OnInit{
   navigateToSplitView(){
     this.router.navigate(['/split-view']);
   }
+  navigateToCameraView(){
+    this.router.navigate(['/scan']);
+  }
   addBalance(){
     this.router.navigateByUrl('/balance');
   }

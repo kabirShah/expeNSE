@@ -3,6 +3,7 @@ import PouchDB from 'pouchdb';
 import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
 import { CreditCard } from '../models/credit-card.model';
 import { Balance } from '../models/balance.model';
+import { Invoice } from '../models/invoice.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { Balance } from '../models/balance.model';
 export class DatabaseService {
   private manualDb: PouchDB.Database<Expense>;
   private autoDb: PouchDB.Database<Expense>;
+  private scanDb: PouchDB.Database<Invoice>;
   private creditDb: any;
   private credits: any[] = [];
   private balanceDb: any;
@@ -17,14 +19,15 @@ export class DatabaseService {
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
-  
+
+
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
     this.creditDb = new PouchDB('creditCards');
     this.debitDb = new PouchDB('debitCards');
     this.balanceDb = new PouchDB('balanceDB');
-
+    this.scanDb = new PouchDB('scanned_invoices');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -199,6 +202,31 @@ export class DatabaseService {
       throw error; // Handle other errors
     }
   }
-  
-  
+  async saveInvoice(invoice: Invoice) {
+    invoice._id = new Date().toISOString(); // Unique ID
+    try {
+      await this.scanDb.put(invoice);
+      console.log('Invoice saved:', invoice);
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+    }
+  }
+  async getInvoices(): Promise<Invoice[]> {
+    try {
+      const result = await this.scanDb.allDocs({ include_docs: true });
+      return result.rows.map(row => row.doc as Invoice);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      return [];
+    }
+  }  
+  async deleteInvoice(invoiceId: string) {
+    try {
+      const doc = await this.scanDb.get(invoiceId); // Fetch invoice by ID
+      await this.scanDb.remove(doc); // Remove invoice from PouchDB
+      console.log('Invoice deleted:', invoiceId);
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+    }
+  }
 }
