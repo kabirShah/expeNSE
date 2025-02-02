@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { DatabaseService } from 'src/app/services/database.service';
 import * as XLSX from 'xlsx';
@@ -26,12 +26,13 @@ export class HomePage implements OnInit{
   userBalance: any;
   isCreditAdded: boolean = false;
   totalSplitExpense: number = 0;
+ 
   constructor(
     private router: Router,
     private db: DatabaseService,
     private alertCtrl: AlertController) {}
 
-  async ngOnInit() {
+    async ngOnInit() {
     await this.loadBalance();
     this.loadExpenses();
     await this.calculateTotalExpense();
@@ -142,10 +143,10 @@ export class HomePage implements OnInit{
       // Add logic to process the file as needed
     }
   }
-  // signOut(){
-  //   console.log("Signout")
-  //   this.authService.signOut().then(()=>{
-  //     this.router.navigate(['login']);
-  //   })
-  // }
+  signOut(){
+    console.log("Signout")
+    // this.authService.signOut().then(()=>{
+    //   this.router.navigate(['login']);
+    // })
+  }
 }

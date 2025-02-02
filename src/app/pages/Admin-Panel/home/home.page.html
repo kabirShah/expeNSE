@@ -58,36 +58,23 @@
       <p>Grand Total: ₹{{ grandTotalExpense }}</p>
     </ion-item>
   </ion-list>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="3"> 
-        <ion-card color="secondary" (click)="navigateToViewExpenses()">
-          <ion-card-header class="ion-text-center">
-            <ion-icon name="list" size="large"></ion-icon> 
-          </ion-card-header>
-        </ion-card>
-      </ion-col>
-      <ion-col size="3"> 
-        <ion-card color="secondary" (click)="navigateToMultiView()">
-          <ion-card-header class="ion-text-center">
-            <ion-icon name="add-circle" size="large"></ion-icon> 
-          </ion-card-header>
-        </ion-card>
-      </ion-col>
-      <ion-col size="3"> 
-        <ion-card color="secondary" (click)="navigateToSplitView()">
-          <ion-card-header class="ion-text-center">
-            <ion-icon name="people" size="large"></ion-icon> 
-          </ion-card-header>
-        </ion-card>
-      </ion-col>
-      <ion-col size="3"> 
-        <ion-card color="secondary" (click)="navigateToCameraView()">
-          <ion-card-header class="ion-text-center">
-            <ion-icon name="camera" size="large"></ion-icon> 
-          </ion-card-header>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button>
+      <ion-icon name="chevron-up-circle"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button (click)="navigateToViewExpenses()">
+        <ion-icon name="list"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="navigateToMultiView()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="navigateToSplitView()">
+        <ion-icon name="people"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="navigateToCameraView()">
+        <ion-icon name="camera"></ion-icon>
+      </ion-fab-button>  
+    </ion-fab-list>
+  </ion-fab>
 </ion-content>

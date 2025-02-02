@@ -23,9 +23,9 @@ import { CardService } from './services/card.service';
   declarations: [AppComponent, MenuComponent],
   imports: [
     BrowserModule, 
-    IonicModule.forRoot(), 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
+    IonicModule.forRoot()
   ],
   providers: [
     HttpClient,
