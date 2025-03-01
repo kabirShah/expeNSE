@@ -4,35 +4,37 @@
 
 // Define Color Palette
 :root {
-    --ion-color-primary: #3880ff; // Primary color
-    --ion-color-secondary: #3dc2ff; // Secondary color
-    --ion-color-tertiary: #5260ff;
-    --ion-color-success: #2dd36f;
-    --ion-color-warning: #ffc409;
-    --ion-color-danger: #eb445a;
-    --ion-color-light: #f4f5f8;
-    --ion-color-medium: #92949c;
-    --ion-color-dark: #222428;
-  }
+  --ion-color-primary: #3880ff;
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-tertiary: #5260ff;
+  --ion-color-success: #2dd36f;
+  --ion-color-warning: #ffc409;
+  --ion-color-danger: #eb445a;
+  --ion-color-light: #f4f5f8;
+  --ion-color-medium: #92949c;
+  --ion-color-dark: #222428;
+  --ion-background-color: #ffffff;
+  --ion-text-color: #000000;
+}
   
-  // Define Dark Mode Colors (Optional)
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ion-background-color: #121212;
-      --ion-text-color: #ffffff;
-      --ion-color-primary: #bb86fc;
-      --ion-color-secondary: #03dac6;
-    }
-  }
-  // Dark Mode in src/theme/variables.scss
+/* System Dark Mode (Auto) */
 @media (prefers-color-scheme: dark) {
-    :root {
-      --ion-background-color: #121212;
-      --ion-text-color: #ffffff;
-      --ion-color-primary: #bb86fc;
-      --ion-color-secondary: #03dac6;
-      --ion-color-light: #333;
-      --ion-color-dark: #f5f5f5;
-    }
+  :root {
+    --ion-background-color: #121212;
+    --ion-text-color: #ffffff;
+    --ion-color-primary: #bb86fc;
+    --ion-color-secondary: #03dac6;
+    --ion-color-light: #333;
+    --ion-color-dark: #f5f5f5;
   }
-  
+}
+
+/* Manual Dark Mode Toggle */
+.dark-theme {
+  --ion-background-color: #121212;
+  --ion-text-color: #ffffff;
+  --ion-color-primary: #bb86fc;
+  --ion-color-secondary: #03dac6;
+  --ion-color-light: #333;
+  --ion-color-dark: #f5f5f5;
+}  

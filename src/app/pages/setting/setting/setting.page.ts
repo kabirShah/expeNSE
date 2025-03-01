@@ -7,11 +7,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./setting.page.scss'],
 })
 export class SettingPage {
+  isDarkMode = false;
 
   notificationsEnabled: boolean = true; // Default value
   selectedTheme: string = 'light'; // Default theme
 
-  constructor(private router:Router) {}
+  constructor(private router:Router) {
+    this.isDarkMode = localStorage.getItem('dark-mode') === 'true';
+  }
   
   updateProfile() {
     // Logic to update profile information
@@ -38,4 +41,11 @@ export class SettingPage {
     // Logic to view terms of service
     console.log('View Terms of Service clicked');
   }
+
+  toggleDarkMode(event: any) {
+    const enabled = event.detail.checked;
+    document.body.classList.toggle('dark-theme', enabled);
+    localStorage.setItem('dark-mode', String(enabled));
+  }
+
 }

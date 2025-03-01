@@ -17,13 +17,10 @@
     </ion-item>
 
     <ion-item>
-      <ion-label>Theme</ion-label>
-      <ion-select [(ngModel)]="selectedTheme">
-        <ion-select-option value="light">Light</ion-select-option>
-        <ion-select-option value="dark">Dark</ion-select-option>
-      </ion-select>
+      <ion-label>Dark Mode</ion-label>
+      <ion-toggle (ionChange)="toggleDarkMode($event)"></ion-toggle>
     </ion-item>
-    
+        
     <ion-item>
       <ion-label>Account Management</ion-label>
       <ion-button expand="full" (click)="manageAccount()">Manage</ion-button>
