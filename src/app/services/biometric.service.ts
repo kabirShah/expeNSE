@@ -12,30 +12,29 @@ export class BiometricService {
 
   }
   
-  verifyIdentity() {
-    NativeBiometric.isAvailable().then((isAvailable) => {
-      if (isAvailable) {
-        NativeBiometric.verifyIdentity({
-          reason: 'For easy log in',
-          title: 'Log in',
-          subtitle: 'Authenticate',
-          description: 'Please authenticate to proceed',
-          maxAttempts: 2,
-          useFallback:true,
-        }).then((result) => {
-          alert("Biometric authentication successful");
-          this.router.navigateByUrl('/home');
-          console.log(result);
-        }).catch((error) => {
-          console.error('Error verifying identity:', error);
-        });
-      } else {
-        alert('Biometric authentication is not available on this device.');
+  async verifyIdentity(): Promise<boolean> {
+    try {
+      const isAvailable = await NativeBiometric.isAvailable();
+      if (!isAvailable) {
+        throw new Error('Biometric authentication is not available on this device.');
       }
-    }).catch((e) => {
-      console.error(e);
-      alert('Authentication failed');
-    });
+
+      await NativeBiometric.verifyIdentity({
+        reason: 'For easy login',
+        title: 'Paisa',
+        subtitle: 'Authenticate',
+        description: 'Please authenticate to proceed',
+        maxAttempts: 2,
+        useFallback: true,
+      });
+
+      console.log('Biometric authentication successful:');
+      return true;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      console.error('Error verifying identity:', errorMessage);
+      throw new Error(errorMessage);
+    }
   }
 
 }

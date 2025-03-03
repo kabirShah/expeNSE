@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { Platform } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { BiometricService } from './services/biometric.service';
 import { Router } from '@angular/router';
 
@@ -12,7 +12,8 @@ import { Router } from '@angular/router';
 export class AppComponent {
   constructor(private platform: Platform,
     private biometricService: BiometricService,
-    private router: Router
+    private router: Router,
+    private alertCtrl: AlertController
   ) {
     this.initializeApp();
   }
@@ -33,12 +34,22 @@ export class AppComponent {
   }
   async authenticate() {
     try {
-      const result = await this.biometricService.verifyIdentity();
-      console.log('Authentication successful', result);
-      this.router.navigateByUrl('/home');
-    } catch (error) {
-      console.error('Authentication failed', error);
+      const isAuthenticated = await this.biometricService.verifyIdentity();
+      if (isAuthenticated) {
+        this.router.navigateByUrl('/home');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      this.showErrorAlert(errorMessage);
     }
+  }
+  async showErrorAlert(message: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Authentication Failed',
+      message: message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
 }
