@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: ScanPage
+  },  {
+    path: 'receipt-preview',
+    loadChildren: () => import('./receipt-preview/receipt-preview.module').then( m => m.ReceiptPreviewPageModule)
   }
+
 
 ];
 

@@ -248,5 +248,16 @@ export class DatabaseService {
       this.handleError(error);
     }
   }
+  async addReceipt(receipt: any){
+    return await this.scanDb.put({...receipt, _id: receipt.id});
+  }
+  async getAllReceipts(){
+    const result = await this.scanDb.allDocs({ include_docs: true });
+    return result.rows.map((row: any) => row.doc);
+  }
+  async deleteReceipt(id: string){
+    const doc = await this.scanDb.get(id);
+    return await this.scanDb.remove(doc);
+  }
   
 }

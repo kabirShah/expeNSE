@@ -4,7 +4,8 @@ import { DatabaseService } from 'src/app/services/database.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Router } from '@angular/router';
 import Tesseract from 'tesseract.js';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { ReceiptPreviewPage } from './receipt-preview/receipt-preview.page';
 
 @Component({
   selector: 'app-scan',
@@ -17,15 +18,23 @@ export class ScanPage implements OnInit{
   totalAmountPaid: number = 0; // Extracted Total Amount
   invoices: Invoice[] = []; // List of invoices/receipts
   isLoading: boolean = false; // Loading indicator
+  
+  receipts: any[] = []; // Stores list of receipts
+  newReceipt: any = { imageUrl: '', price: '' }; // Temp receipt data
 
   constructor(
     private db: DatabaseService,
     private router:Router,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController) {}
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController) {
+
+  }
+
   ngOnInit() {
     this.fetchInvoices();
   }
+
   async captureInvoice() {
     const image = await Camera.getPhoto({
       quality: 90,
@@ -36,15 +45,32 @@ export class ScanPage implements OnInit{
     await this.saveInvoice(image?.dataUrl ?? '');
     console.log('Invoice saved successfully');
   }
-  
+   async captureImage() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        source: CameraSource.Camera,
+        resultType: CameraResultType.Base64,
+      });
+
+      this.newReceipt.imageUrl = `data:image/jpeg;base64,${image.base64String}`;
+    } catch (error) {
+      console.error('Error capturing image:', error);
+    }
+  }
+
   async pickFromGallery(){
-    const image = await Camera.getPhoto({
-      quality:90,
-      allowEditing:false,
-      resultType:CameraResultType.DataUrl,
-      source:CameraSource.Photos,
-    });
-    await this.saveInvoice(image?.dataUrl ?? '');
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        source: CameraSource.Photos,
+        resultType: CameraResultType.Base64,
+      });
+
+      this.newReceipt.imageUrl = `data:image/jpeg;base64,${image.base64String}`;
+    } catch (error) {
+      console.error('Error picking image:', error);
+    }
   }
   async saveInvoice(imageUrl: string) {
     this.isLoading = true; // Show loading state
@@ -160,6 +186,43 @@ extractInvoiceDetails(text: string): { date: string; total: number; items: any[]
     });
   
     await alert.present();
+  }
+  async saveReceipt() {
+    if (!this.newReceipt.imageUrl || !this.newReceipt.price) {
+      alert('Please select an image and enter a price.');
+      return;
+    }
+
+    const receiptData = {
+      id: new Date().toISOString(),
+      imageUrl: this.newReceipt.imageUrl,
+      price: this.newReceipt.price,
+    };
+
+    await this.db.addReceipt(receiptData);
+    this.loadReceipts(); // Reload list
+    this.newReceipt = { imageUrl: '', price: '' }; // Reset form
+  }
+
+  async loadReceipts() {
+    this.receipts = await this.db.getAllReceipts();
+  }
+
+  async deleteReceipt(id: string) {
+    await this.db.deleteReceipt(id);
+    this.loadReceipts();
+  }
+
+  ionViewWillEnter() {
+    this.loadReceipts();
+  }
+
+  async openPreview(imageUrl: string) {
+    const modal = await this.modalCtrl.create({
+      component: ReceiptPreviewPage,
+      componentProps: { imageUrl },
+    });
+    await modal.present();
   }
 
 }
