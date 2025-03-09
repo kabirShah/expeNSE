@@ -193,14 +193,15 @@ export class DatabaseService {
   }
 
   async getAllBalances(): Promise<Balance[]> {
-    try {
-      const result = await this.balanceDb.allDocs({ include_docs: true });
-      return result.rows.map(row => row.doc as Balance);
-    } catch (error) {
-      console.error('Error fetching balances:', error);
-      return [];
-    }
+    const result = await this.balanceDb.allDocs({ include_docs: true });
+    return result.rows.map(row => ({
+    id: row.doc._id ?? '',
+    amount: row.doc.amount,
+    source: row.doc.source,
+    dateAdded: row.doc.dateAdded
+    }));
   }
+
   async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
     try {
       const newBalance = {
@@ -286,6 +287,41 @@ export class DatabaseService {
   async deleteReceipt(id: string){
     const doc = await this.scanDb.get(id);
     return await this.scanDb.remove(doc);
+  }
+  async updateBalance(id: string, amount: number, source: string) {
+    if (!id) throw new Error('Invalid ID');
+  
+    try {
+      const doc = await this.balanceDb.get(id);
+      doc.amount = amount;
+      doc.source = source;
+      await this.balanceDb.put(doc);
+      console.log('Balance updated successfully');
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      throw error;
+    }
+  }
+  async getBalanceById(id: string): Promise<Balance | null> {
+    try {
+      const balance = await this.balanceDb.get(id);
+      return balance;
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      return null;
+    }
+  }
+  
+  
+  async deleteBalance(id: string) {
+    try {
+      const doc = await this.balanceDb.get(id);
+      await this.balanceDb.remove(doc);
+      console.log('Balance deleted successfully');
+    } catch (error) {
+      console.error('Error deleting balance:', error);
+      throw error;
+    }
   }
   
 }

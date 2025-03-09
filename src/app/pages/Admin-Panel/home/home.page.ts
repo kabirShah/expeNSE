@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Balance } from 'src/app/models/balance.model';
 
@@ -28,7 +28,8 @@ export class HomePage implements OnInit {
   constructor(
     private router: Router,
     private db: DatabaseService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController
   ) {}
 
   async ngOnInit() {
@@ -52,7 +53,7 @@ export class HomePage implements OnInit {
     try {
       const balanceDocs: Balance[] = await this.db.getAllBalances();
       if (balanceDocs.length > 0) {
-        this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.balance || 0), 0);
+        this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
         this.userBalance = this.totalBalance - this.totalMonthExpense;
         this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()); // Sort by date
       } else {
@@ -65,8 +66,6 @@ export class HomePage implements OnInit {
     }
   }
   
-  
-
   async loadExpenses() {
     const manualExpenses = await this.db.getAllManualExpenses();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -107,5 +106,97 @@ export class HomePage implements OnInit {
 
   navigateTo(path: string) {
     this.router.navigate([path]);
+  }
+  
+  async editBalance(balance: Balance) {
+    if (!balance._id) {
+      this.showToast('Error: Invalid Balance ID');
+      return;
+    }
+  
+    const alert = await this.alertCtrl.create({
+      header: 'Edit Balance',
+      inputs: [
+        {
+          name: 'amount',
+          type: 'number',
+          value: balance.amount,
+          placeholder: 'Enter new amount',
+        },
+        {
+          name: 'source',
+          type: 'text',
+          value: balance.source,
+          placeholder: 'Enter new source',
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Save',
+          handler: async (data) => {
+            if (data.amount && data.source && balance._id) {
+              try {
+                console.log('Updating Balance:', balance._id, data.amount, data.source);
+                await this.db.updateBalance(balance._id, data.amount, data.source);
+                await this.loadBalance();
+                this.showToast('Balance updated successfully!');
+              } catch (error) {
+                console.error('Error updating balance:', error);
+                this.showToast('Error updating balance!');
+              }
+            } else {
+              this.showToast('Amount and Source are required!');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+  
+  async deleteBalance(balanceId?: string) {
+    if (!balanceId) {
+      this.showToast('Error: Invalid Balance ID');
+      return;
+    }
+  
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm Delete',
+      message: 'Are you sure you want to delete this balance?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            try {
+              console.log('Deleting Balance with ID:', balanceId);
+              await this.db.deleteBalance(balanceId);
+              await this.loadBalance(); 
+              this.showToast('Balance deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting balance:', error);
+              this.showToast('Error deleting balance!');
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+  
+  async showToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'top',
+    });
+    toast.present();
   }
 }

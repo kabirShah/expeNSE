@@ -11,6 +11,7 @@ import { DatabaseService } from 'src/app/services/database.service';
 export class BalancePage implements OnInit {
   balanceForm!: FormGroup;
   BalanceId: string | null = null;
+  balanceId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -57,16 +58,46 @@ export class BalancePage implements OnInit {
 
   // Save balance (Add or Update)
   async saveBalance() {
-    if (this.balanceForm.valid) {
-      const balanceData = {
-        ...this.balanceForm.value,
-        dateAdded: new Date().toISOString(),  // ✅ Auto-capture date in ISO format
-      };
-
-      await this.db.addBalance(balanceData);
-      console.log('Balance saved:', balanceData);
+    if (this.balanceForm.invalid) {
+      console.error('Form is invalid');
+      await this.showToast('Please enter a valid balance!', 'danger');
+      return;
+    }
+  
+    const balance = this.balanceForm.value;
+  
+    try {
+      if (this.balanceId) {
+        const existingBalance = await this.db.getBalanceById(this.balanceId);
+  
+        if (existingBalance && existingBalance._id) {  // ✅ Ensure balance exists
+          await this.db.updateBalance(existingBalance._id, balance.amount, balance.source);
+          await this.showToast('Balance Updated Successfully', 'success');
+          console.log("Balance Updated");
+        } else {
+          await this.showToast('Balance not found', 'danger');
+          console.error("Balance not found");
+        }
+      } else {
+        await this.db.addBalance({
+          amount: balance.amount,
+          source: balance.source,
+          dateAdded: new Date().toISOString(),
+        });
+  
+        await this.showToast('Balance Added Successfully', 'success');
+        console.log('Balance added successfully');
+      }
+  
+      this.balanceForm.reset();
+      this.navCtrl.navigateBack('/home'); // Adjust as needed
+    } catch (error) {
+      console.error('Error saving balance', error);
     }
   }
+  
+  
+  
 
   // Show toast messages
   async showToast(message: string, color: string) {

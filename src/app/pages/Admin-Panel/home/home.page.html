@@ -11,76 +11,64 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <!-- Welcome Section -->
   <div class="welcome-section">
     <h2>Welcome, Jay</h2>
     <p>Track and manage your expenses effortlessly.</p>
   </div>
 
+  <!-- Expense Summary Card -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Expense Summary</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>📅 Today Expense: ₹{{ totalTodayExpense }}</p>
-      <p>📆 Month Expense ({{ currentMonth }}): ₹{{ totalMonthExpense }}</p>
-      <p>📅 Year Expense ({{ currentYear }}): ₹{{ totalYearExpense }}</p>
+      <p>📅 <strong>Today Expense:</strong> ₹{{ totalTodayExpense }}</p>
+      <p>📆 <strong>Month Expense ({{ currentMonth }}):</strong> ₹{{ totalMonthExpense }}</p>
+      <p>📅 <strong>Year Expense ({{ currentYear }}):</strong> ₹{{ totalYearExpense }}</p>
     </ion-card-content>
   </ion-card>
 
+  <!-- Saving Summary Card -->
   <ion-card>
     <ion-card-header>
       <ion-card-title>Saving Summary</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>💰 Monthly Saving: ₹{{ monthSaving }}</p>
-      <p>🏦 Yearly Saving: ₹{{ yearSaving }}</p>
+      <p>💰 <strong>Monthly Saving:</strong> ₹{{ monthSaving }}</p>
+      <p>🏦 <strong>Yearly Saving:</strong> ₹{{ yearSaving }}</p>
     </ion-card-content>
   </ion-card>
 
-  <ion-list>
-    <ion-item>
-      <ion-label>Your Total Current Balance</ion-label>
-      <ion-badge color="primary">
-        <ion-icon name="wallet"></ion-icon>
-      </ion-badge>
-    </ion-item>
-    <ion-item>
-      <h2>₹{{ userBalance }}</h2>
-    </ion-item>
-    <ion-item>
-      <ion-buttons>
-        <ion-button color="primary" (click)="navigateTo('/balance')">
-          Add Balance
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-  </ion-list>
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Total Balance</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <h2>₹{{ totalBalance }}</h2>
-      </ion-card-content>
-    </ion-card>
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Balance History</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list>
-          <ion-item *ngFor="let balance of balances">
-            <ion-label>
-              <p>📅 {{ balance.dateAdded | date: 'dd MMM yyyy' }}</p>  
-              <p>💰 Amount: ₹{{ balance.balance }}</p>  <!-- ✅ Add this line -->
-              <p>🔹 {{ balance.source }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-      
+  <!-- Balance History Card -->
+  <ion-card>
+    <ion-card-header class="balance-header">
+      <ion-card-title>Balance History</ion-card-title>
+    </ion-card-header>    
+    <ion-card-content>
+      <h2>₹{{ totalBalance }}</h2>
+      <ion-list>
+        <ion-item *ngFor="let balance of balances">
+          <ion-label>
+            <p>📅 {{ balance.dateAdded | date: 'dd MMM yyyy, h:mm a' }}</p>
+            <p>💰 <strong>Amount:</strong> ₹{{ balance.amount }}</p>
+            <p>🔹 <strong>{{ balance.source }}</strong></p>
+          </ion-label>
+          <ion-buttons slot="end">
+            <ion-button color="warning" (click)="editBalance(balance)">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button color="danger" (click)="balance._id ? deleteBalance(balance._id) : null">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>                        
+          </ion-buttons>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
+  <!-- Floating Action Button -->
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button>
       <ion-icon name="chevron-up-circle"></ion-icon>
@@ -98,6 +86,10 @@
       <ion-fab-button (click)="navigateTo('/scan')">
         <ion-icon name="camera"></ion-icon>
       </ion-fab-button>  
+      <ion-fab-button (click)="navigateTo('/balance')">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </ion-fab-button>
     </ion-fab-list>
   </ion-fab>
+
 </ion-content>
