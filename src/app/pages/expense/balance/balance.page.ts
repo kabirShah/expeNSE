@@ -4,12 +4,11 @@ import { NavController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 
-
 @Component({
   selector: 'app-balance',
   templateUrl: './balance.page.html',
 })
-export class BalancePage  {
+export class BalancePage implements OnInit {
   balanceForm!: FormGroup;
   BalanceId: string | null = null;
 
@@ -25,49 +24,50 @@ export class BalancePage  {
   ngOnInit() {
     this.createForm();
     this.BalanceId = this.route.snapshot.paramMap.get('id');
-    console.log(this.BalanceId);
     if (this.BalanceId) {
       this.loadBalance(this.BalanceId);
     }
   }
 
-  // Loading balance details (for update)
+  // Load balance details (for updating)
   async loadBalance(id: string) {
     try {
       const balanceDoc = await this.db.getUserBalance();
       if (balanceDoc) {
         this.balanceForm.setValue({
-          _id: balanceDoc._id,  // Set the document ID
-          _rev: balanceDoc._rev || '',  // Set the revision for updates (if available)
-          balance: balanceDoc.balance,  // Set the balance amount
+          _id: balanceDoc._id,
+          _rev: balanceDoc._rev || '',
+          balance: balanceDoc.balance,
+          source: balanceDoc.source || '', // Load source if available
         });
       }
     } catch (error) {
       console.error('Error loading balance:', error);
-      // Handle any error if balance is not found
     }
   }
-  
-  
 
-  // Create the form for balance input
+  // Create form with balance and source fields
   createForm() {
     this.balanceForm = this.fb.group({
       _id: [''],
       balance: ['', Validators.required],
+      source: ['', Validators.required], // New field for balance source
     });
   }
 
   // Save balance (Add or Update)
   async saveBalance() {
-    const balance = this.balanceForm.value;
-    console.log(balance);
-    
-    // Ensure the balance object has the required structure before saving
-      await this.db.saveBalance(balance); // Use the saveBalance method from DatabaseService
-      await this.showToast('Balance Added/Updated Successfully', 'success');
+    if (this.balanceForm.valid) {
+      const balanceData = {
+        ...this.balanceForm.value,
+        dateAdded: new Date().toISOString(),  // ✅ Auto-capture date in ISO format
+      };
+
+      await this.db.addBalance(balanceData);
+      console.log('Balance saved:', balanceData);
+    }
   }
-  
+
   // Show toast messages
   async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({

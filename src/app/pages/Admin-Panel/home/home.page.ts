@@ -1,152 +1,111 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonicModule, AlertController } from '@ionic/angular';
-import { AuthService } from 'src/app/services/auth.service';
+import { AlertController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
-import * as XLSX from 'xlsx';
+import { Balance } from 'src/app/models/balance.model';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit{
-  email :any;
-  expenses: any[] = [];
-  data: any[] = [];
-  currentMonthExpenses: any[] = []; // Filtered expenses for the current month
-  monthlyLimit: number = 2000; // Default monthly limit (can be dynamic)
+export class HomePage implements OnInit {
+  email: any;
   currentMonth: string = '';
-  currentYear: number = new Date().getFullYear();  
-  totalManualExpense: number = 0; // Total manual monthly expenses
-  totalAutoExpense: number = 0; // Total auto monthly expenses
-  grandTotalExpense: number = 0;
-  debitTotal: number = 0;
+  currentYear: number = new Date().getFullYear();
+  
+  totalTodayExpense: number = 0;
+  totalMonthExpense: number = 0;
+  totalYearExpense: number = 0;
+  totalBalance: number = 0;
   creditTotal: number = 0;
-  userBalance: any;
-  isCreditAdded: boolean = false;
-  totalSplitExpense: number = 0;
- 
+  debitTotal: number = 0;
+  userBalance: number = 0;
+  monthSaving: number = 0;
+  yearSaving: number = 0;
+  balances: Balance[] = [];
+
   constructor(
     private router: Router,
     private db: DatabaseService,
-    private alertCtrl: AlertController) {}
+    private alertCtrl: AlertController
+  ) {}
 
-    async ngOnInit() {
-    await this.loadBalance();
-    this.loadExpenses();
-    await this.calculateTotalExpense();
-  }
-
-  async loadBalance(){
-    this.userBalance = await this.db.getAllBalance();
-  }
-
-  async calculateTotalExpense(){
-    const autoExpenses = await this.db.getAllAutoExpenses(); // Replace this with your database fetch method
-    const manualExpenses = await this.db.getAllManualExpenses();
-    this.totalAutoExpense = autoExpenses.reduce((sum,expense)=>sum+expense.amount,0);
-    this.totalManualExpense = manualExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-    this.grandTotalExpense = this.totalManualExpense + this.totalAutoExpense;
-    console.log("Grand total: "+this.grandTotalExpense);
-    //Calculate debits and credits
-    await this.calculateTotalCredits();
-    this.debitTotal = await this.calculateTotalDebits(); // Assuming expenses are debits
-    this.userBalance = this.creditTotal - this.debitTotal;
-
-    // if (this.userBalance <= 0) {
-    //   console.error('No sufficient credit available. Please add more!');
-    //   await this.askForCredit();
-    // } else {
-    //   console.log('Calculation successful! Current Balance:', this.userBalance);
-    // }
-   }
-
-   async calculateTotalCredits(){
-    const credits = await this.db.getAllCredits();
-    this.creditTotal = credits.reduce((sum, credit) => sum + credit.amount, 0);
-   }
-   async calculateTotalDebits() {
-    const expenses = await this.db.getAllExpenses(); // Mock method
-    return expenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-  }
-
-   async loadExpenses() {
-    const manualExpenses = await this.db.getAllManualExpenses();
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString();
-
-    // Retrieve the expenses array from localStorage
-    this.db.getAllManualExpenses().then((data) => {
-      this.expenses = data;
-    });
+  async ngOnInit() {
+    this.currentMonth = this.getMonthName(new Date().getMonth());
+    console.log('Current Month:', this.currentMonth);
     
-    const allExpenses = await this.db.getAllManualExpenses();
-    console.log("All Expenses"+allExpenses);
-
-    // Filter expenses for the current month
-   
-    this.currentMonthExpenses = manualExpenses.filter((expense) =>
-      this.isExpenseInDateRange(expense.date, startOfMonth, endOfMonth)
-    );
-  
-
-    // Calculate the total for the current month
-    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-
-    // Update current month name
-    this.totalManualExpense = this.currentMonthExpenses.reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-
-    this.currentMonth = this.getMonthName(today.getMonth());
-  
-    // Update balance after loading expenses
-    await this.calculateTotalExpense();
-  }
-
-  isExpenseInDateRange(date: string, start: string, end: string): boolean {
-    const expenseDate = new Date(date).getTime();
-    return expenseDate >= new Date(start).getTime() && expenseDate <= new Date(end).getTime();
+    await this.loadBalance();
+    await this.loadExpenses();
+    this.calculateSavings();
   }
 
   getMonthName(monthIndex: number): string {
-    const monthNames = [
+    const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    return monthNames[monthIndex];
+    return months[monthIndex] || 'Unknown';
   }
 
-
-  navigateToViewExpenses() {
-    this.router.navigate(['/single-view-expenses']);
-  }
-
- 
-  navigateToMultiView(){
-    this.router.navigate(['/multi-view-expense']);
-  }
-  navigateToSplitView(){
-    this.router.navigate(['/split-view']);
-  }
-  navigateToCameraView(){
-    this.router.navigate(['/scan']);
-  }
-  addBalance(){
-    this.router.navigateByUrl('/balance');
-  }
-  onFileChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input?.files?.length) {
-      const file = input.files[0];
-      console.log('Selected file:', file);
-      // Add logic to process the file as needed
+  async loadBalance() {
+    try {
+      const balanceDocs: Balance[] = await this.db.getAllBalances();
+      if (balanceDocs.length > 0) {
+        this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.balance || 0), 0);
+        this.userBalance = this.totalBalance - this.totalMonthExpense;
+        this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()); // Sort by date
+      } else {
+        this.totalBalance = 0;
+        this.userBalance = 0;
+        this.balances = [];
+      }
+    } catch (error) {
+      console.error('Error loading balance:', error);
     }
   }
-  signOut(){
-    console.log("Signout")
-    // this.authService.signOut().then(()=>{
-    //   this.router.navigate(['login']);
-    // })
+  
+  
+
+  async loadExpenses() {
+    const manualExpenses = await this.db.getAllManualExpenses();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    this.totalTodayExpense = this.sumExpenses(manualExpenses.filter(exp => exp.date.startsWith(todayStr)));
+    this.totalMonthExpense = this.sumExpenses(manualExpenses, 'month');
+    this.totalYearExpense = this.sumExpenses(manualExpenses, 'year');
+
+    await this.calculateCreditsAndDebits();
+  }
+
+  async calculateCreditsAndDebits() {
+    const credits = await this.db.getAllCredits();
+    const debits = await this.db.getAllExpenses();
+
+    this.creditTotal = this.sumExpenses(credits);
+    this.debitTotal = this.sumExpenses(debits);
+    this.userBalance = this.creditTotal - this.debitTotal;
+  }
+
+  sumExpenses(expenses: any[], filter?: 'month' | 'year'): number {
+    const now = new Date();
+    return expenses.reduce((sum, expense) => {
+      const date = new Date(expense.date);
+      if (!filter || 
+         (filter === 'month' && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) ||
+         (filter === 'year' && date.getFullYear() === now.getFullYear())) {
+        return sum + (expense?.amount || 0);
+      }
+      return sum;
+    }, 0);
+  }
+
+  calculateSavings() {
+    this.monthSaving = this.totalBalance - this.totalMonthExpense;
+    this.yearSaving = this.totalBalance - this.totalYearExpense;
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
   }
 }

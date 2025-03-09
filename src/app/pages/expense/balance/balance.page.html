@@ -5,17 +5,22 @@
         <ion-icon name="chevron-back" size="medium"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Add balance</ion-title>
+    <ion-title>Add Balance</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <form [formGroup]="balanceForm" (ngSubmit)="saveBalance()">
     <ion-item>
-      <ion-label position="floating">balance</ion-label>
+      <ion-label position="floating">Balance Amount</ion-label>
       <ion-input formControlName="balance" type="number"></ion-input>
     </ion-item>
 
-    <ion-button expand="block" type="submit" [disabled]="balanceForm.invalid">Save balance</ion-button>
+    <ion-item>
+      <ion-label position="floating">Balance Source</ion-label>
+      <ion-textarea formControlName="source" placeholder="E.g., Salary, Bonus, Gift, etc."></ion-textarea>
+    </ion-item>
+
+    <ion-button expand="block" type="submit" [disabled]="balanceForm.invalid">Save Balance</ion-button>
   </form>
 </ion-content>

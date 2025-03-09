@@ -1,10 +1,12 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-       <ion-menu-button></ion-menu-button> 
+      <ion-menu-button></ion-menu-button> 
     </ion-buttons>
     <ion-title>Expense Tracker</ion-title>
-    <!-- <ion-button slot="end" fill="clear" (click)="signOut()">Sign Out</ion-button> -->
+    <ion-buttons slot="end">
+      <ion-icon name="power-outline"></ion-icon>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -14,20 +16,27 @@
     <p>Track and manage your expenses effortlessly.</p>
   </div>
 
-  <!-- Expense Overview Cards -->
-  <ion-list>
-    <ion-item>
-      <ion-label>Transactions Summary</ion-label>
-      <ion-badge color="primary">
-        <ion-icon name="stats-chart"></ion-icon>
-      </ion-badge>
-    </ion-item>
-    <ion-item>
-      <p>💸 Total Debits: ₹{{ debitTotal }} of {{currentMonth}}</p>
-      <p>💰 Total Credits: ₹{{ creditTotal }} of {{currentMonth}}</p> 
-    </ion-item>
-  </ion-list>
-  
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Expense Summary</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>📅 Today Expense: ₹{{ totalTodayExpense }}</p>
+      <p>📆 Month Expense ({{ currentMonth }}): ₹{{ totalMonthExpense }}</p>
+      <p>📅 Year Expense ({{ currentYear }}): ₹{{ totalYearExpense }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Saving Summary</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>💰 Monthly Saving: ₹{{ monthSaving }}</p>
+      <p>🏦 Yearly Saving: ₹{{ yearSaving }}</p>
+    </ion-card-content>
+  </ion-card>
+
   <ion-list>
     <ion-item>
       <ion-label>Your Total Current Balance</ion-label>
@@ -35,44 +44,58 @@
         <ion-icon name="wallet"></ion-icon>
       </ion-badge>
     </ion-item>
-    <ion-item *ngFor="let bal of userBalance">
-      <h2>₹{{ bal.balance }}</h2> 
+    <ion-item>
+      <h2>₹{{ userBalance }}</h2>
     </ion-item>
     <ion-item>
       <ion-buttons>
-        <ion-button color="primary" (click)="addBalance()">
+        <ion-button color="primary" (click)="navigateTo('/balance')">
           Add Balance
         </ion-button>
       </ion-buttons>
     </ion-item>
   </ion-list>
-  
-  <ion-list>
-    <ion-item>
-      <ion-label>Your expense for {{currentMonth}}</ion-label>
-      <ion-badge color="primary">
-        <ion-icon name="calendar"></ion-icon>
-      </ion-badge>
-    </ion-item>
-    <ion-item>
-      <p>Grand Total: ₹{{ grandTotalExpense }}</p>
-    </ion-item>
-  </ion-list>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Total Balance</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h2>₹{{ totalBalance }}</h2>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Balance History</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let balance of balances">
+            <ion-label>
+              <p>📅 {{ balance.dateAdded | date: 'dd MMM yyyy' }}</p>  
+              <p>💰 Amount: ₹{{ balance.balance }}</p>  <!-- ✅ Add this line -->
+              <p>🔹 {{ balance.source }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+      
+
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button>
       <ion-icon name="chevron-up-circle"></ion-icon>
     </ion-fab-button>
     <ion-fab-list side="top">
-      <ion-fab-button (click)="navigateToViewExpenses()">
+      <ion-fab-button (click)="navigateTo('/single-view-expenses')">
         <ion-icon name="list"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button (click)="navigateToMultiView()">
+      <ion-fab-button (click)="navigateTo('/multi-view-expense')">
         <ion-icon name="add"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button (click)="navigateToSplitView()">
+      <ion-fab-button (click)="navigateTo('/split-view')">
         <ion-icon name="people"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button (click)="navigateToCameraView()">
+      <ion-fab-button (click)="navigateTo('/scan')">
         <ion-icon name="camera"></ion-icon>
       </ion-fab-button>  
     </ion-fab-list>

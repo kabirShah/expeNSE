@@ -191,7 +191,35 @@ export class DatabaseService {
       this.handleError(error);
     }
   }
-  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number } | null> {
+
+  async getAllBalances(): Promise<Balance[]> {
+    try {
+      const result = await this.balanceDb.allDocs({ include_docs: true });
+      return result.rows.map(row => row.doc as Balance);
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+      return [];
+    }
+  }
+  async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
+    try {
+      const newBalance = {
+        amount: balanceData.amount,
+        source: balanceData.source,
+        dateAdded: balanceData.dateAdded,
+      };
+      await this.balanceDb.put({
+        _id: new Date().toISOString(), // Unique ID
+        ...newBalance,
+      });
+      console.log('Balance added successfully:', newBalance);
+    } catch (error) {
+      console.error('Error adding balance:', error);
+    }
+  }
+  
+  
+  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number, source: string } | null> {
     try {
       const balanceDoc = await this.balanceDb.get('userBalance');
       return balanceDoc || null; // Return the full document or null if not found
