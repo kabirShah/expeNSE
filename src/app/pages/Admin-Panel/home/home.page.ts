@@ -138,11 +138,18 @@ export class HomePage implements OnInit {
         {
           text: 'Save',
           handler: async (data) => {
-            if (data.amount && data.source && balance._id) {
+            if (data.amount && data.source) {
               try {
                 console.log('Updating Balance:', balance._id, data.amount, data.source);
-                await this.db.updateBalance(balance._id, data.amount, data.source);
-                await this.loadBalance();
+                await this.db.updateBalance({
+                  _id: balance._id,
+                  _rev: balance._rev, // Ensure _rev is passed
+                  amount: data.amount,
+                  source: data.source,
+                  dateAdded: balance.dateAdded
+                });
+  
+                await this.loadBalance(); // Refresh UI
                 this.showToast('Balance updated successfully!');
               } catch (error) {
                 console.error('Error updating balance:', error);
@@ -157,6 +164,7 @@ export class HomePage implements OnInit {
     });
     await alert.present();
   }
+  
   
   async deleteBalance(balanceId?: string) {
     if (!balanceId) {
@@ -178,7 +186,7 @@ export class HomePage implements OnInit {
             try {
               console.log('Deleting Balance with ID:', balanceId);
               await this.db.deleteBalance(balanceId);
-              await this.loadBalance(); 
+              await this.loadBalance(); // 🔥 Refresh UI to reflect deletion
               this.showToast('Balance deleted successfully!');
             } catch (error) {
               console.error('Error deleting balance:', error);
@@ -190,6 +198,7 @@ export class HomePage implements OnInit {
     });
     await alert.present();
   }
+  
   
   async showToast(message: string) {
     const toast = await this.toastCtrl.create({

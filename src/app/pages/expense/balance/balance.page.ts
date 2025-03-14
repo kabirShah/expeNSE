@@ -24,21 +24,21 @@ export class BalancePage implements OnInit {
 
   ngOnInit() {
     this.createForm();
-    this.BalanceId = this.route.snapshot.paramMap.get('id');
-    if (this.BalanceId) {
-      this.loadBalance(this.BalanceId);
+    this.balanceId = this.route.snapshot.paramMap.get('id');
+    if (this.balanceId) {
+      this.loadBalance(this.balanceId);
     }
   }
 
   // Load balance details (for updating)
   async loadBalance(id: string) {
     try {
-      const balanceDoc = await this.db.getUserBalance();
+      const balanceDoc = await this.db.getBalanceById(id);
       if (balanceDoc) {
-        this.balanceForm.setValue({
+        this.balanceForm.patchValue({
           _id: balanceDoc._id,
           _rev: balanceDoc._rev || '',
-          balance: balanceDoc.balance,
+          amount: balanceDoc.amount,
           source: balanceDoc.source || '', // Load source if available
         });
       }
@@ -51,7 +51,8 @@ export class BalancePage implements OnInit {
   createForm() {
     this.balanceForm = this.fb.group({
       _id: [''],
-      balance: ['', Validators.required],
+      _rev:[''],
+      amount: ['', Validators.required, Validators.min(1)],
       source: ['', Validators.required], // New field for balance source
     });
   }
@@ -63,15 +64,18 @@ export class BalancePage implements OnInit {
       await this.showToast('Please enter a valid balance!', 'danger');
       return;
     }
-  
-    const balance = this.balanceForm.value;
-  
+
+    const balanceData = this.balanceForm.value;
+
     try {
       if (this.balanceId) {
         const existingBalance = await this.db.getBalanceById(this.balanceId);
-  
-        if (existingBalance && existingBalance._id) {  // ✅ Ensure balance exists
-          await this.db.updateBalance(existingBalance._id, balance.amount, balance.source);
+
+        if (existingBalance && existingBalance._id) {
+          balanceData._id = existingBalance._id;
+          balanceData._rev = existingBalance._rev;
+
+          await this.db.updateBalance(balanceData); // 🔥 Pass full object
           await this.showToast('Balance Updated Successfully', 'success');
           console.log("Balance Updated");
         } else {
@@ -79,22 +83,23 @@ export class BalancePage implements OnInit {
           console.error("Balance not found");
         }
       } else {
+        delete balanceData._rev; // 🔥 Ensure clean insert
         await this.db.addBalance({
-          amount: balance.amount,
-          source: balance.source,
+          ...balanceData,
           dateAdded: new Date().toISOString(),
         });
-  
+
         await this.showToast('Balance Added Successfully', 'success');
         console.log('Balance added successfully');
       }
-  
+
       this.balanceForm.reset();
-      this.navCtrl.navigateBack('/home'); // Adjust as needed
+      this.navCtrl.navigateBack('/home'); // 🔥 Redirect correctly
     } catch (error) {
       console.error('Error saving balance', error);
     }
   }
+
   
   
   

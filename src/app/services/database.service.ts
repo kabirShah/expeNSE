@@ -182,55 +182,8 @@ export class DatabaseService {
       throw error;
     }
   }
-  async saveBalance(balance: Balance) {
-    try {
-      balance._id = balance._id || new Date().toISOString();
-      const response = await this.balanceDb.put(balance);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
 
-  async getAllBalances(): Promise<Balance[]> {
-    const result = await this.balanceDb.allDocs({ include_docs: true });
-    return result.rows.map(row => ({
-    id: row.doc._id ?? '',
-    amount: row.doc.amount,
-    source: row.doc.source,
-    dateAdded: row.doc.dateAdded
-    }));
-  }
 
-  async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
-    try {
-      const newBalance = {
-        amount: balanceData.amount,
-        source: balanceData.source,
-        dateAdded: balanceData.dateAdded,
-      };
-      await this.balanceDb.put({
-        _id: new Date().toISOString(), // Unique ID
-        ...newBalance,
-      });
-      console.log('Balance added successfully:', newBalance);
-    } catch (error) {
-      console.error('Error adding balance:', error);
-    }
-  }
-  
-  
-  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number, source: string } | null> {
-    try {
-      const balanceDoc = await this.balanceDb.get('userBalance');
-      return balanceDoc || null; // Return the full document or null if not found
-    } catch (error) {
-      if (error === 404) {
-        return null; // Return null if the document is not found
-      }
-      throw error; // Handle other errors
-    }
-  }
   async saveInvoice(invoice: Invoice) {
     invoice._id = new Date().toISOString(); // Unique ID
     try {
@@ -288,29 +241,27 @@ export class DatabaseService {
     const doc = await this.scanDb.get(id);
     return await this.scanDb.remove(doc);
   }
-  async updateBalance(id: string, amount: number, source: string) {
-    if (!id) throw new Error('Invalid ID');
-  
+  async updateBalance(balance: Balance) {
     try {
-      const doc = await this.balanceDb.get(id);
-      doc.amount = amount;
-      doc.source = source;
-      await this.balanceDb.put(doc);
-      console.log('Balance updated successfully');
+      if (!balance._id || !balance._rev) {
+        throw new Error("Balance ID and revision (_rev) are required for update");
+      }
+      const response = await this.balanceDb.put(balance);
+      return response;
     } catch (error) {
-      console.error('Error updating balance:', error);
-      throw error;
+      this.handleError(error);
     }
   }
   async getBalanceById(id: string): Promise<Balance | null> {
     try {
       const balance = await this.balanceDb.get(id);
-      return balance;
+      return balance;  // ✅ Return balance instead of a non-existent variable
     } catch (error) {
       console.error('Error fetching balance:', error);
       return null;
     }
-  }
+ }
+ 
   
   
   async deleteBalance(id: string) {
@@ -323,5 +274,54 @@ export class DatabaseService {
       throw error;
     }
   }
+  async saveBalance(balance: Balance) {
+    try {
+      balance._id = balance._id || new Date().toISOString();
+      const response = await this.balanceDb.put(balance);
+      return response;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getAllBalances(): Promise<Balance[]> {
+    const result = await this.balanceDb.allDocs({ include_docs: true });
+    return result.rows.map(row => ({
+    id: row.doc._id ?? '',
+    amount: row.doc.amount,
+    source: row.doc.source,
+    dateAdded: row.doc.dateAdded
+    }));
+  }
+
+  async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
+    try {
+      const newBalance: Balance = {
+        _id: new Date().toISOString(),
+        amount: balanceData.amount,
+        source: balanceData.source,
+        dateAdded: balanceData.dateAdded,
+      };
+      await this.balanceDb.put({
+        _id: new Date().toISOString(), // Unique ID
+        ...newBalance,
+      });
+      console.log('Balance added successfully:', newBalance);
+    } catch (error) {
+      console.error('Error adding balance:', error);
+    }
+  }
   
+  
+  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number, source: string } | null> {
+    try {
+      const balanceDoc = await this.balanceDb.get('userBalance');
+      return balanceDoc || null; // Return the full document or null if not found
+    } catch (error) {
+      if (error === 404) {
+        return null; // Return null if the document is not found
+      }
+      throw error; // Handle other errors
+    }
+  }
 }
