@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-registration',
-  templateUrl: './registration.page.html',
-  styleUrls: ['./registration.page.scss'],
+    selector: 'app-registration',
+    templateUrl: './registration.page.html',
+    styleUrls: ['./registration.page.scss'],
+    standalone: false
 })
 export class RegistrationPage implements OnInit {
   @ViewChild('dobPicker') dobPicker!: IonDatetime;

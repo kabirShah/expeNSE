@@ -5,8 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
-  selector: 'app-balance',
-  templateUrl: './balance.page.html',
+    selector: 'app-balance',
+    templateUrl: './balance.page.html',
+    standalone: false
 })
 export class BalancePage implements OnInit {
   balanceForm!: FormGroup;

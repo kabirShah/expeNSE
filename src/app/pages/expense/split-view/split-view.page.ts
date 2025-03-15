@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-split-view',
-  templateUrl: './split-view.page.html',
-  styleUrls: ['./split-view.page.scss'],
+    selector: 'app-split-view',
+    templateUrl: './split-view.page.html',
+    styleUrls: ['./split-view.page.scss'],
+    standalone: false
 })
 export class SplitViewPage implements OnInit {
 

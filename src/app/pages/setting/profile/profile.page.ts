@@ -4,9 +4,10 @@ import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.page.html',
-  styleUrls: ['./profile.page.scss'],
+    selector: 'app-profile',
+    templateUrl: './profile.page.html',
+    styleUrls: ['./profile.page.scss'],
+    standalone: false
 })
 export class ProfilePage implements OnInit {
   user: any = null; // Holds the user data

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-split',
-  templateUrl: './split.page.html',
-  styleUrls: ['./split.page.scss'],
+    selector: 'app-split',
+    templateUrl: './split.page.html',
+    styleUrls: ['./split.page.scss'],
+    standalone: false
 })
 export class SplitPage implements OnInit {
 

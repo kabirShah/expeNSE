@@ -5,8 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatabaseService } from '../../../../services/database.service';
 
 @Component({
-  selector: 'app-single-expense',
-  templateUrl: './single-expense.page.html',
+    selector: 'app-single-expense',
+    templateUrl: './single-expense.page.html',
+    standalone: false
 })
 export class SingleExpensePage implements OnInit {
   expenseForm!: FormGroup;

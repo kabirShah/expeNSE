@@ -7,9 +7,10 @@ import { CardService } from '../../../../services/card.service';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
-  selector: 'app-add-credit',
-  templateUrl: './add-credit.page.html',
-  styleUrls: ['./add-credit.page.scss'],
+    selector: 'app-add-credit',
+    templateUrl: './add-credit.page.html',
+    styleUrls: ['./add-credit.page.scss'],
+    standalone: false
 })
 export class AddCreditPage implements OnInit{
   createCreditForm!: FormGroup;

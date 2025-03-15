@@ -4,9 +4,10 @@ import { NavController } from '@ionic/angular';
 import { CardService } from 'src/app/services/card.service';
 
 @Component({
-  selector: 'app-cards',
-  templateUrl: './cards.page.html',
-  styleUrls: ['./cards.page.scss'],
+    selector: 'app-cards',
+    templateUrl: './cards.page.html',
+    styleUrls: ['./cards.page.scss'],
+    standalone: false
 })
 export class CardsPage implements OnInit {
 

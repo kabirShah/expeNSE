@@ -8,9 +8,10 @@ import { AlertController, ModalController, ToastController } from '@ionic/angula
 import { ReceiptPreviewPage } from './receipt-preview/receipt-preview.page';
 
 @Component({
-  selector: 'app-scan',
-  templateUrl: './scan.page.html',
-  styleUrls: ['./scan.page.scss'],
+    selector: 'app-scan',
+    templateUrl: './scan.page.html',
+    styleUrls: ['./scan.page.scss'],
+    standalone: false
 })
 export class ScanPage implements OnInit{
   capturedImage: string | null = null; // Image URL

@@ -6,9 +6,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
-  selector: 'app-multi-expense',
-  templateUrl: './multi-expense.page.html',
-  styleUrls: ['./multi-expense.page.scss'],
+    selector: 'app-multi-expense',
+    templateUrl: './multi-expense.page.html',
+    styleUrls: ['./multi-expense.page.scss'],
+    standalone: false
 })
 export class MultiExpensePage implements OnInit{
   multiForm!: FormGroup;

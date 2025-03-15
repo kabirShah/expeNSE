@@ -14,8 +14,9 @@ import { Share } from '@capacitor/share';
 import * as pdfjsLib from 'pdfjs-dist';
 
 @Component({
-  selector: 'app-view-expenses',
-  templateUrl: './single-view-expenses.page.html',
+    selector: 'app-view-expenses',
+    templateUrl: './single-view-expenses.page.html',
+    standalone: false
 })
 export class SingleViewExpensesPage implements OnInit {
   manualExpenses: any[] = [];

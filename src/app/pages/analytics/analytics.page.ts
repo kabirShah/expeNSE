@@ -5,9 +5,10 @@ import * as HighCharts from 'highcharts';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
-  selector: 'app-analytics',
-  templateUrl: './analytics.page.html',
-  styleUrls: ['./analytics.page.scss'],
+    selector: 'app-analytics',
+    templateUrl: './analytics.page.html',
+    styleUrls: ['./analytics.page.scss'],
+    standalone: false
 })
 export class AnalyticsPage implements AfterViewInit {
   manualExpenses: any[] = [];

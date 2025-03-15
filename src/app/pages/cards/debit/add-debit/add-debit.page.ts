@@ -4,9 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-add-debit',
-  templateUrl: './add-debit.page.html',
-  styleUrls: ['./add-debit.page.scss'],
+    selector: 'app-add-debit',
+    templateUrl: './add-debit.page.html',
+    styleUrls: ['./add-debit.page.scss'],
+    standalone: false
 })
 export class AddDebitPage implements OnInit {
   

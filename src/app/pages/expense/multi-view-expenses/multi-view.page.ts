@@ -4,9 +4,10 @@ import { Expense } from 'src/app/models/expense.model';
 import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
-  selector: 'app-multi-view',
-  templateUrl: './multi-view.page.html',
-  styleUrls: ['./multi-view.page.scss'],
+    selector: 'app-multi-view',
+    templateUrl: './multi-view.page.html',
+    styleUrls: ['./multi-view.page.scss'],
+    standalone: false
 })
 export class MultiViewPage implements OnInit {
 
