@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { AlertController, Platform } from '@ionic/angular';
 import { BiometricService } from './services/biometric.service';
 import { Router } from '@angular/router';
+import { MenuService } from './services/menu.service';
 
 @Component({
   selector: 'app-root',
@@ -11,16 +12,16 @@ import { Router } from '@angular/router';
 })
 export class AppComponent {
   constructor(private platform: Platform,
-    private biometricService: BiometricService,
     private router: Router,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private menuService: MenuService
   ) {
     this.initializeApp();
   }
   initializeApp(){
     this.platform.ready().then(() => {
-      this.authenticate();
       this.loadDarkMode();
+      this.checkLoginStatus();
     });
   }
   loadDarkMode() {
@@ -32,17 +33,15 @@ export class AppComponent {
     document.body.classList.toggle('dark-theme', enabled);
     localStorage.setItem('dark-mode', String(enabled));
   }
-  async authenticate() {
-    try {
-      const isAuthenticated = await this.biometricService.verifyIdentity();
-      if (isAuthenticated) {
-        this.router.navigateByUrl('/home');
-      }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      this.showErrorAlert(errorMessage);
+  async checkLoginStatus() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+      this.router.navigateByUrl('/home');  // Redirect to Home if already logged in
+    } else {
+      this.router.navigateByUrl('/login'); // Redirect to Login if not logged in
     }
   }
+  
   async showErrorAlert(message: string) {
     const alert = await this.alertCtrl.create({
       header: 'Authentication Failed',
@@ -50,6 +49,9 @@ export class AppComponent {
       buttons: ['OK'],
     });
     await alert.present();
+  }
+  closeMenu(){
+    this.menuService.closeMenu();
   }
 
 }

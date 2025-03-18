@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Balance } from 'src/app/models/balance.model';
+import { MenuService } from 'src/app/services/menu.service';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +30,8 @@ export class HomePage implements OnInit {
     private router: Router,
     private db: DatabaseService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private menuService: MenuService
   ) {}
 
   async ngOnInit() {
@@ -199,7 +201,39 @@ export class HomePage implements OnInit {
     await alert.present();
   }
   
+  openMenu() {
+    this.menuService.openMenu();
+  }
+
+  closeMenu() {
+    this.menuService.closeMenu();
+  }
+
+  toggleMenu() {
+    this.menuService.toggleMenu();
+  }
+  async logout() {
+    const alert = await this.alertCtrl.create({
+      header: 'Logout Confirmation',
+      message: 'Are you sure you want to logout?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Logout',
+          handler: () => {
+            localStorage.removeItem('isLoggedIn'); // Clear login status
+            this.router.navigateByUrl('/login');   // Redirect to Login Page
+          }
+        }
+      ]
+    });
   
+    await alert.present();
+  }
+
   async showToast(message: string) {
     const toast = await this.toastCtrl.create({
       message,
