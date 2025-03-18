@@ -12,22 +12,21 @@ export class DatabaseService {
   private manualDb: PouchDB.Database<Expense>;
   private autoDb: PouchDB.Database<Expense>;
   private scanDb: PouchDB.Database<Invoice>;
-  private creditDb: any;
   private credits: any[] = [];
   private balanceDb: any;
   private debitDb: any;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
-
+  private creditDb: PouchDB.Database<CreditCard>;
 
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
-    this.creditDb = new PouchDB('creditCards');
     this.debitDb = new PouchDB('debitCards');
     this.balanceDb = new PouchDB('balanceDB');
     this.scanDb = new PouchDB('scanned_invoices');
+    this.creditDb = new PouchDB('creditCards');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -53,15 +52,7 @@ export class DatabaseService {
         this.handleError(error);
       }
     }
-    async addCreditCard(card: CreditCard) {
-        try {
-          card._id = card._id || new Date().toISOString();
-          const response = await this.creditDb.put(card);
-          return response;
-        } catch (error) {
-          this.handleError(error);
-       }
-  }
+
   async getExpense(id: string): Promise<Expense | undefined> {
     try {
       return await this.manualDb.get(id);
@@ -322,6 +313,85 @@ export class DatabaseService {
         return null; // Return null if the document is not found
       }
       throw error; // Handle other errors
+    }
+  }
+
+  // ✅ Add a new Credit Card with validation
+  async addCreditCard(card: CreditCard): Promise<boolean> {
+    try {
+      // Ensure card number is unique
+      const existingCards = await this.getAllCreditCards();
+      if (existingCards.some((c) => c.cardNumber === card.cardNumber)) {
+        throw new Error('A card with this number already exists.');
+      }
+
+      // Assign unique ID and timestamp
+      card._id = new Date().toISOString();
+      card.createdAt = new Date().toISOString();
+
+      await this.creditDb.put(card);
+      return true;
+    } catch (error) {
+      this.handleError(error);
+      return false;
+    }
+  }
+
+  // ✅ Get a specific Credit Card by ID
+  async getCreditCard(id: string): Promise<CreditCard | null> {
+    try {
+      return await this.creditDb.get(id);
+    } catch (error) {
+      if (error) return null;
+      this.handleError(error);
+      return null;
+    }
+  }
+
+  // ✅ Get all Credit Cards
+  async getAllCreditCards(): Promise<CreditCard[]> {
+    try {
+      const result = await this.creditDb.allDocs({ include_docs: true });
+      return result.rows.map((row) => row.doc as CreditCard);
+    } catch (error) {
+      this.handleError(error);
+      return [];
+    }
+  }
+
+  // ✅ Update a Credit Card safely
+  async updateCreditCard(card: CreditCard): Promise<boolean> {
+    try {
+      if (!card._id) throw new Error('Invalid card ID.');
+
+      const existingCard = await this.getCreditCard(card._id);
+      if (!existingCard) throw new Error('Card not found.');
+
+      // Preserve the latest revision ID (_rev)
+      card._rev = existingCard._rev;
+
+      await this.creditDb.put(card);
+      return true;
+    } catch (error) {
+      this.handleError(error);
+      return false;
+    }
+  }
+
+  // ✅ Delete a Credit Card safely
+  async deleteCreditCard(id: string): Promise<boolean> {
+    try {
+      const card = await this.getCreditCard(id);
+  
+      if (!card || !card._id || !card._rev) {
+        throw new Error('Invalid card details. Cannot delete.');
+      }
+  
+      await this.creditDb.remove(card._id, card._rev);
+      return true;
+    } catch (error) {
+      this.handleError(error);
+      return false;
     }
   }
 }

@@ -1,32 +1,51 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button href="/cards/credit" color="light">
-          <ion-icon name="chevron-back" size="medium"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+      <ion-back-button defaultHref="/cards/credit" color="light"></ion-back-button>
+    </ion-buttons>
     <ion-title>Add Credit</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form  [formGroup]="createCreditForm"  (ngSubmit)="addCard()">
+  <form [formGroup]="createCreditForm" (ngSubmit)="addCard()">
+    
+    <!-- Card Number -->
     <ion-item>
       <ion-label position="stacked">Card Number</ion-label>
-      <ion-input type="number" formControlName="cardNumber" name="cardNumber" required></ion-input>
+      <ion-input type="text" formControlName="cardNumber" name="cardNumber" required 
+                 inputmode="numeric" maxlength="16"></ion-input>
     </ion-item>
+    <ion-text color="danger" *ngIf="createCreditForm.controls['cardNumber'].invalid && createCreditForm.controls['cardNumber'].touched">
+      Card number must be 16 digits.
+    </ion-text>
+
+    <!-- Cardholder Name -->
     <ion-item>
       <ion-label position="stacked">Cardholder Name</ion-label>
       <ion-input formControlName="cardHolderName" name="cardHolderName" required></ion-input>
     </ion-item>
+    <ion-text color="danger" *ngIf="createCreditForm.controls['cardHolderName'].invalid && createCreditForm.controls['cardHolderName'].touched">
+      Cardholder name is required.
+    </ion-text>
+
+    <!-- Expiry Date -->
     <ion-item>
       <ion-label position="stacked">Expiry Date (MM/YY)</ion-label>
-      <ion-input  formControlName="expiryDate" name="expiryDate" required></ion-input>
+      <ion-input formControlName="expiryDate" name="expiryDate" required pattern="^(0[1-9]|1[0-2])\/([0-9]{2})$" placeholder="MM/YY"></ion-input>
     </ion-item>
+    <ion-text color="danger" *ngIf="createCreditForm.controls['expiryDate'].invalid && createCreditForm.controls['expiryDate'].touched">
+      Enter expiry date in MM/YY format.
+    </ion-text>
+
+    <!-- Credit Limit -->
     <ion-item>
       <ion-label position="stacked">Credit Limit</ion-label>
       <ion-input type="number" formControlName="creditLimit" name="creditLimit"></ion-input>
     </ion-item>
-    <ion-button expand="block" type="submit">Add Card</ion-button>
+
+    <!-- Submit Button -->
+    <ion-button expand="block" type="submit" [disabled]="createCreditForm.invalid">Add Card</ion-button>
+  
   </form>
 </ion-content>

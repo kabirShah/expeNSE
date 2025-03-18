@@ -8,4 +8,5 @@ export interface CreditCard {
   cvv?: string; // Optional, for security purposes (usually not stored)
   creditLimit?: number; // Optional: Credit limit for the card
   billingCycle?: string; // Optional: Monthly billing cycle
+  createdAt: string;
 }

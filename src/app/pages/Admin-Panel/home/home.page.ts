@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { DatabaseService } from 'src/app/services/database.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
@@ -25,12 +25,13 @@ export class HomePage implements OnInit {
   monthSaving: number = 0;
   yearSaving: number = 0;
   balances: Balance[] = [];
-
+  activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
   constructor(
     private router: Router,
     private db: DatabaseService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
+    private navCtrl: NavController,
     private menuService: MenuService
   ) {}
 
@@ -106,9 +107,9 @@ export class HomePage implements OnInit {
     this.yearSaving = this.totalBalance - this.totalYearExpense;
   }
 
-  navigateTo(path: string) {
-    this.router.navigate([path]);
-  }
+  // navigateTo(path: string) {
+  //   this.router.navigate([path]);
+  // }
   
   async editBalance(balance: Balance) {
     if (!balance._id) {
@@ -211,6 +212,27 @@ export class HomePage implements OnInit {
 
   toggleMenu() {
     this.menuService.toggleMenu();
+  }
+  navigateTo(route: string) {
+    this.navCtrl.navigateRoot(route);
+    this.activeTab = this.getTabName(route);
+  }
+  
+  getTabName(route: string): string {
+    switch (route) {
+      case '/single-view-expenses':
+        return 'expenses';
+      case '/multi-view-expense':
+        return 'add';
+      case '/split-view':
+        return 'split';
+      case '/scan':
+        return 'scan';
+      case '/balance':
+        return 'balance';
+      default:
+        return 'expenses';
+    }
   }
   async logout() {
     const alert = await this.alertCtrl.create({

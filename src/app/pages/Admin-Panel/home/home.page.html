@@ -11,7 +11,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-
   <!-- Welcome Section -->
   <div class="welcome-section">
     <h2>Welcome, Jay</h2>
@@ -43,7 +42,7 @@
 
   <!-- Balance History Card -->
   <ion-card>
-    <ion-card-header class="balance-header">
+    <ion-card-header>
       <ion-card-title>Balance History</ion-card-title>
     </ion-card-header>    
     <ion-card-content>
@@ -67,29 +66,38 @@
       </ion-list>
     </ion-card-content>
   </ion-card>
-
-  <!-- Floating Action Button -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button>
-      <ion-icon name="chevron-up-circle"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-list side="top">
-      <ion-fab-button (click)="navigateTo('/single-view-expenses')">
-        <ion-icon name="list"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-button (click)="navigateTo('/multi-view-expense')">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-button (click)="navigateTo('/split-view')">
-        <ion-icon name="people"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-button (click)="navigateTo('/scan')">
-        <ion-icon name="camera"></ion-icon>
-      </ion-fab-button>  
-      <ion-fab-button (click)="navigateTo('/balance')">
-        <ion-icon name="wallet-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab-list>
-  </ion-fab>
-
 </ion-content>
+
+<!-- Bottom Navigation Bar -->
+<ion-footer>
+  <ion-toolbar>
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button (click)="navigateTo('/single-view-expenses')" [class.active]="activeTab === 'expenses'">
+          <ion-icon name="list-outline"></ion-icon>
+          <ion-label>Expenses</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button (click)="navigateTo('/multi-view-expense')" [class.active]="activeTab === 'add'">
+          <ion-icon name="add-circle-outline"></ion-icon>
+          <ion-label>Add Expense</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button (click)="navigateTo('/split-view')" [class.active]="activeTab === 'split'">
+          <ion-icon name="people-outline"></ion-icon>
+          <ion-label>Split</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button (click)="navigateTo('/scan')" [class.active]="activeTab === 'scan'">
+          <ion-icon name="camera-outline"></ion-icon>
+          <ion-label>Scan</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button (click)="navigateTo('/balance')" [class.active]="activeTab === 'balance'">
+          <ion-icon name="wallet-outline"></ion-icon>
+          <ion-label>Balance</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </ion-toolbar>
+</ion-footer>
