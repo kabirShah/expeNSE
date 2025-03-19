@@ -4,6 +4,7 @@ import { Expense, ExpenseCategory, TransactionType } from '../models/expense.mod
 import { CreditCard } from '../models/credit-card.model';
 import { Balance } from '../models/balance.model';
 import { Invoice } from '../models/invoice.model';
+import { DebitCard } from '../models/debit-card.model';
 
 @Injectable({
   providedIn: 'root',
@@ -394,4 +395,82 @@ export class DatabaseService {
       return false;
     }
   }
+    // ✅ Add a new DebitCard Card with validation
+    async addDebitCard(card: DebitCard): Promise<boolean> {
+      try {
+        // Ensure card number is unique
+        const existingCards = await this.getAllDebitCards();
+        if (existingCards.some((c) => c.cardNumber === card.cardNumber)) {
+          throw new Error('A card with this number already exists.');
+        }
+  
+        // Assign unique ID and timestamp
+        card._id = new Date().toISOString();
+        card.createdAt = new Date().toISOString();
+  
+        await this.debitDb.put(card);
+        return true;
+      } catch (error) {
+        this.handleError(error);
+        return false;
+      }
+    }
+  
+    // ✅ Get a specific DebitCard Card by ID
+    async getDebitCard(id: string): Promise<DebitCard | null> {
+      try {
+        return await this.debitDb.get(id);
+      } catch (error) {
+        if (error) return null;
+        this.handleError(error);
+        return null;
+      }
+    }
+  
+    // ✅ Get all DebitCard Cards
+    async getAllDebitCards(): Promise<DebitCard[]> {
+      try {
+        const result = await this.debitDb.allDocs({ include_docs: true });
+        return result.rows.map((row) => row.doc as DebitCard);
+      } catch (error) {
+        this.handleError(error);
+        return [];
+      }
+    }
+  
+    // ✅ Update a Debit Card safely
+    async updateDebitCard(card: DebitCard): Promise<boolean> {
+      try {
+        if (!card._id) throw new Error('Invalid card ID.');
+  
+        const existingCard = await this.getDebitCard(card._id);
+        if (!existingCard) throw new Error('Card not found.');
+  
+        // Preserve the latest revision ID (_rev)
+        card._rev = existingCard._rev;
+  
+        await this.debitDb.put(card);
+        return true;
+      } catch (error) {
+        this.handleError(error);
+        return false;
+      }
+    }
+  
+    // ✅ Delete a Debit Card safely
+    async deleteDebitCard(id: string): Promise<boolean> {
+      try {
+        const card = await this.getDebitCard(id);
+    
+        if (!card || !card._id || !card._rev) {
+          throw new Error('Invalid card details. Cannot delete.');
+        }
+    
+        await this.debitDb.remove(card._id, card._rev);
+        return true;
+      } catch (error) {
+        this.handleError(error);
+        return false;
+      }
+    }
 }

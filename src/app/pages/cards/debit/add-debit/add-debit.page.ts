@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { NavController, ToastController } from '@ionic/angular';
+import { DebitCard } from 'src/app/models/debit-card.model';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-add-debit',
@@ -9,62 +11,91 @@ import { ToastController } from '@ionic/angular';
   styleUrls: ['./add-debit.page.scss'],
 })
 export class AddDebitPage implements OnInit {
-  
-  adddebitForm!: FormGroup;
+  createdebitForm!: FormGroup;
+  debitCardId: string | null = null;
+  debitCard: DebitCard | null = null;
 
   constructor(
-    // private cardDb: CardService,
+    private db: DatabaseService,
     private toastCtrl: ToastController,
+    private navCtrl: NavController,
     private route: ActivatedRoute,
-    private router: Router,
-    private fb:FormBuilder
-  ) {
-    this.adddebitForm = this.fb.group({
-      userId: '12345', // Replace with dynamic user ID
-      cardNumber: '',
-      cardHolderName: '',
-      expiryDate: '',
-      debitLimit: 0,
-    });
-  }
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit() {
-    const cardId = this.route.snapshot.paramMap.get('id');
-    this.loadCard(cardId);
+    this.createdebitForm = this.fb.group({
+      userId: ['12345'], // Replace with dynamic user ID
+      cardNumber: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(19)]],
+      cardHolderName: ['', Validators.required],
+      expiryDate: ['', Validators.required],
+      debitLimit: [0, Validators.min(0)],
+    });
+
+    this.debitCardId = this.route.snapshot.paramMap.get('id');
+    if (this.debitCardId) {
+      this.loadCard(this.debitCardId);
+    }
   }
-  async loadCard(cardId: string| null) {
-    // if(cardId!== null){
-    //   try {
-    //     this.card = await this.cardDb.getdebitCardById(cardId);
-    //   } catch (error) {
-    //     this.showToast('Failed to load card details.');
-    //     console.error(error);
-    //   }
-    // }else{
-    //   console.log("Card ID is null");
-    // }
-    
+
+  async loadCard(cardId: string | null) {
+    if (cardId !== null) {
+      try {
+        const card = await this.db.getDebitCard(cardId);
+        this.debitCard = card ?? null; // Ensure null is assigned if undefined
+      } catch (error) {
+        this.showToast('Failed to load card details.', 'danger');
+        console.error(error);
+        this.debitCard = null; // Handle error case by setting to null
+      }
+    } else {
+      console.log('Card ID is null');
+      this.debitCard = null;
+    }
   }
+  
+  
+
   async addCard() {
-    const cardDetails = this.adddebitForm.value;
+    if (this.createdebitForm.invalid) {
+      console.error('Form is invalid');
+      await this.showToast('Please fill in all required fields!', 'danger');
+      return;
+    }
+
+    const cardDetails = this.createdebitForm.value;
     try {
-      console.log(cardDetails);
-      this.router.navigateByUrl('/cards/debit');
-      // await this.cardDb.adddebitCard(this.card);
-      this.showToast('debit card added successfully!');
+      if (this.debitCardId) {
+        // Update existing card
+        if (this.debitCard) {
+          cardDetails._id = this.debitCard._id;
+          cardDetails._rev = this.debitCard._rev;
+          await this.db.updateDebitCard(cardDetails);
+          await this.showToast('Debit Card Updated Successfully', 'success');
+        } else {
+          await this.showToast('Debit Card not found', 'danger');
+        }
+      } else {
+        // Add new card
+        await this.db.addDebitCard(cardDetails);
+        await this.showToast('Debit Card Added Successfully', 'success');
+      }
+
+      this.createdebitForm.reset();
+      this.navCtrl.navigateBack('/cards/debit');
     } catch (error) {
-      this.showToast('Failed to add debit card.');
+      this.showToast('Failed to add/update debit card.', 'danger');
       console.error(error);
     }
   }
 
-  private async showToast(message: string) {
+  private async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
       position: 'bottom',
+      color,
     });
     await toast.present();
   }
-
 }
