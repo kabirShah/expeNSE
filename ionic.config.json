@@ -1,10 +1,5 @@
 {
-  "name": "expenseManagerApp",
-  "integrations": {
-    "capacitor": {},
-    "cordova": {
-      "enabled": false
-    }
-  },
+  "name": "New Ionic App",
+  "integrations": {},
   "type": "angular"
 }

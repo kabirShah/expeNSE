@@ -1,46 +1,37 @@
 import { Injectable } from '@angular/core';
-import { SQLite, SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
+import PouchDB from 'pouchdb';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseService {
-  private dbInstance!: SQLiteObject; // Declare the database instance
+  private db: any;
+  private API_URL = 'http://127.0.0.1:8000/api/expenses';
 
-  constructor(private sqlite: SQLite) {
-    this.createDatabase(); // Call to create the database upon service initialization
+  constructor(private http: HttpClient) {
+    this.db = new PouchDB('expenses');
   }
 
-  // Method to create the SQLite database
-  private createDatabase() {
-    this.sqlite.create({
-      name: 'expense.db', // Name of the database
-      location: 'default', // Default location
-    }).then((db: SQLiteObject) => {
-      this.dbInstance = db; // Assign the database instance
-      this.initializeDatabase(); // Initialize tables
-    }).catch(error => {
-      console.error('Error creating database', error);
+  async addExpense(expense: any) {
+    const response: any = await firstValueFrom(this.http.post(this.API_URL, expense));
+    
+    return this.db.put({
+      _id: response.id.toString(), // Laravel ni Primary Key store kariye
+      ...response
     });
   }
 
-  // Initialize the database tables
-  private initializeDatabase() {
-    const query = `
-      CREATE TABLE IF NOT EXISTS expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        category TEXT,
-        transactionType TEXT,
-        description TEXT,
-        amount REAL,
-        notes TEXT
-      )
-    `;
-    this.dbInstance.executeSql(query, []).then(() => {
-      console.log('Table created successfully');
-    }).catch(error => {
-      console.error('Error creating table', error);
-    });
+  async getExpenses() {
+    const result = await this.db.allDocs({ include_docs: true });
+    return result.rows.map(row => row.doc);
+  }
+
+  async deleteExpense(id: string) {
+    await firstValueFrom(this.http.delete(`${this.API_URL}/${id}`));
+    
+    const doc = await this.db.get(id);
+    return this.db.remove(doc);
   }
 }

@@ -1,6 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -16,6 +18,8 @@ export class RegistrationPage implements OnInit {
 
   constructor(
     private auth: Auth,
+    private router:Router,
+    private http: HttpClient,
     private toastCtrl: ToastController,
     private loadingController: LoadingController,
     private fb: FormBuilder, private navCtrl: NavController) {}
@@ -65,21 +69,23 @@ export class RegistrationPage implements OnInit {
 
   // Registration logic
   async register() {
-    const loading = await this.loadingController.create();
+    if (this.regForm.invalid) return;
+
+    const loading = await this.loadingController.create({ message: 'Logging in...' });
     await loading.present();
-    if (this.regForm.valid) {
-      const {email, password } = this.regForm.value;
-      try{
-        await createUserWithEmailAndPassword(this.auth, email, password);
-        this.showToast("successfully login");
-      }catch (e){
-        this.showToast("error");
+  
+    this.http.post('http://127.0.0.1:8000/api/register', this.regForm.value).subscribe(
+      async (res: any) => {
+        await loading.dismiss();
+        localStorage.setItem('token', res.token);
+        this.showToast('Login successful!');
+        this.router.navigate(['/home']);
+      },
+      async (error) => {
+        await loading.dismiss();
+        this.showToast(error.error.message || 'Invalid email or password.');
       }
-      console.log('Form Data:', this.regForm.value);
-      this.navCtrl.navigateForward('/home');
-    } else {
-      console.log('Form is Invalid!', this.regForm);
-    }
+    );
   }
 
   // Open date picker
