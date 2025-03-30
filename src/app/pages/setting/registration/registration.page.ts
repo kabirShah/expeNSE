@@ -4,6 +4,7 @@ import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-registration',
@@ -15,14 +16,16 @@ export class RegistrationPage implements OnInit {
 
   regForm!: FormGroup; // Initialize properly
   isDatePickerOpen = false;
-
+  passwordType: string = 'password';
   constructor(
-    private auth: Auth,
     private router:Router,
-    private http: HttpClient,
     private toastCtrl: ToastController,
     private loadingController: LoadingController,
-    private fb: FormBuilder, private navCtrl: NavController) {}
+    private fb: FormBuilder, 
+    private navCtrl: NavController,
+    private authService: AuthService) {
+
+    }
 
   ngOnInit() {
     // Define FormGroup and validations
@@ -58,35 +61,56 @@ export class RegistrationPage implements OnInit {
   get errorControl() {
     return this.regForm.controls;
   }
-  async showToast(message: string) {
+   // Show Toast Notification
+   async showToast(message: string, color: 'success' | 'danger') {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
+      color,
       position: 'top',
     });
     await toast.present();
   }
-
+  togglePasswordVisibility() {
+    this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
+  }
+  
   // Registration logic
   async register() {
-    if (this.regForm.invalid) return;
-
-    const loading = await this.loadingController.create({ message: 'Logging in...' });
+    if (this.regForm.invalid) {
+      this.showToast('Please fill in all required fields.', 'danger');
+      return;
+    }
+  
+    const formData = {
+      first_name: this.regForm.value.firstName,  
+      last_name: this.regForm.value.lastName,  
+      email: this.regForm.value.email,  
+      phone: this.regForm.value.phone,  
+      dob: this.regForm.value.dob,  
+      gender: this.regForm.value.gender.charAt(0).toUpperCase() + this.regForm.value.gender.slice(1), // Ensure it's "Male" not "male"
+      password: this.regForm.value.password,
+      password_confirmation: this.regForm.value.password, // Fix password confirmation
+    };
+    console.log(formData);
+  
+    const loading = await this.loadingController.create({ message: 'Registering...' });
     await loading.present();
   
-    this.http.post('http://127.0.0.1:8000/api/register', this.regForm.value).subscribe(
-      async (res: any) => {
+    this.authService.register(formData).subscribe(
+      async (res) => {
         await loading.dismiss();
-        localStorage.setItem('token', res.token);
-        this.showToast('Login successful!');
+        console.log('Registration successful:', res);
+        this.showToast('Registration successful!', 'success');
         this.router.navigate(['/home']);
       },
-      async (error) => {
+      async (err) => {
         await loading.dismiss();
-        this.showToast(error.error.message || 'Invalid email or password.');
+        this.showToast('Error: ' + JSON.stringify(err.error), 'danger');
       }
     );
   }
+  
 
   // Open date picker
   openDatePicker() {

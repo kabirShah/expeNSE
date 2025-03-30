@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import firebase from 'firebase/compat/app';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable , throwError} from 'rxjs';
+import { Platform } from '@ionic/angular';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,56 +13,39 @@ import { Observable } from 'rxjs';
 
 export class AuthService {
   
-  private apiUrl = 'http://127.0.0.1:8000/api';
-
-  constructor(public auth: AngularFireAuth, private http: HttpClient) { 
+  private API_URL = 'http://127.0.0.1:8000/api';
+  user: any = null;
+  constructor(private http: HttpClient){  
 
   }
+  // Login User
+  loginLaravel(email: string, password:string) {
+    return this.http.post(`${this.API_URL}/login`,{ email, password});
+  }
   
+  // Register User with Laravel API
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+    return this.http.post(`${this.API_URL}/register`, userData).pipe(
+      catchError((error) => {
+        console.error('Laravel Registration Error:', error);
+        return throwError(error);
+      })
+    );
+  }
+  sendOtp(mobile: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/send-otp`, { mobile });
   }
 
-  login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials);
-  }
-
-  async registerUser(email:string, password:string){
-    return await this.auth.createUserWithEmailAndPassword(email,password);
-  }
-  async loginUser(email:string,password:string){
-    return await this.auth.signInWithEmailAndPassword(email,password);
-  }
-  async resetPassword(email:string){
-    return await this.auth.sendPasswordResetEmail(email);
-  }
-  async signOut(){
-    return await this.auth.signOut();
+  verifyOtp(mobile: string, otp: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/verify-otp`, { mobile, otp });
   }
   
-  async getProfile(){
-    return await this.auth.currentUser    
+  // Check if user is authenticated
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('auth_token'); // Returns true if token exists
   }
-  async loginWithGoogle() {
-    try {
-      const res = await this.auth.signInWithPopup(
-        new firebase.auth.GoogleAuthProvider()
-      );
-      return res;
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      return error;
-    }
-  }
-  async loginWithFacebook() {
-    try {
-      const res = await this.auth.signInWithPopup(
-        new firebase.auth.FacebookAuthProvider()
-      );
-      return res;
-    } catch (error) {
-      console.error('Facebook Sign-In Error:', error);
-      return error;
-    }
+
+  logout(): void {
+    localStorage.removeItem('auth_token');
   }
 }

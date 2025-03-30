@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 })
 export class SettingPage {
   isDarkMode = false;
+  savingsGoal: number = 0;
 
   notificationsEnabled: boolean = true; // Default value
   selectedTheme: string = 'light'; // Default theme
@@ -47,5 +48,7 @@ export class SettingPage {
     document.body.classList.toggle('dark-theme', enabled);
     localStorage.setItem('dark-mode', String(enabled));
   }
+  saveSavingsGoal(){
 
+  }
 }

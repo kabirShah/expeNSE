@@ -20,6 +20,7 @@ export class DatabaseService {
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
   private creditDb: PouchDB.Database<CreditCard>;
+  private splitDb: any;
 
   constructor() {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
@@ -28,6 +29,7 @@ export class DatabaseService {
     this.balanceDb = new PouchDB('balanceDB');
     this.scanDb = new PouchDB('scanned_invoices');
     this.creditDb = new PouchDB('creditCards');
+    this.splitDb = new PouchDB('split_expenses');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -473,4 +475,53 @@ export class DatabaseService {
         return false;
       }
     }
+     // ✅ Create Split Expense
+  async createSplitExpense(expense: any) {
+    try {
+      expense._id = new Date().toISOString(); // Unique ID based on timestamp
+      const result = await this.splitDb.put(expense);
+      console.log('Expense saved:', result);
+    } catch (error) {
+      console.error('Error saving expense:', error);
+    }
+  }
+
+  // ✅ Get All Split Expenses
+  async getSplitExpenses() {
+    try {
+      const result = await this.splitDb.allDocs({ include_docs: true });
+      return result.rows.map((row: any) => row.doc);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+      return [];
+    }
+  }
+
+  // ✅ Update Split Expense
+  async updateSplitExpense(expense: any) {
+    return await this.splitDb.put(expense);
+  }
+
+  // ✅ Delete Split Expense
+  async deleteSplitExpense(expenseId: string) {
+    try {
+      const doc = await this.splitDb.get(expenseId);
+      await this.splitDb.remove(doc);
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+    }
+  }
+
+  // ✅ Settle an Expense
+  async settleExpense(expenseId: string, payerId: string, receiverId: string, amount: number) {
+    const expense = await this.splitDb.get(expenseId);
+    const participant = expense.participants.find(p => p.user_id === receiverId);
+
+    if (participant) {
+      participant.amount_paid += amount;
+      participant.status = participant.amount_paid >= participant.amount_owed ? "settled" : "pending";
+      return await this.splitDb.put(expense);
+    }
+    return null;
+  }
 }
