@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Plugins } from '@capacitor/core';
+// import { Plugins } from '@capacitor/core';
 import { NativeBiometric } from 'capacitor-native-biometric';
 
 @Injectable({
