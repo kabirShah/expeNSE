@@ -1,65 +1,62 @@
-<ion-content [fullscreen]="true" class="login-content">
-  <div class="login-container">
-    <!-- Logo & Welcome Message -->
-    <div> Login </div>
+<ion-content class="login-content">
+  <div class="glass-card">
+    <h2>Pocket Money</h2>
+    <p class="tagline">Smart Expense Management</p>
 
-      <form [formGroup]="logForm" (ngSubmit)="login()">
-        <ion-card-content>
-          <!-- Email Input -->
-          <ion-item class="input-item">
-            <ion-icon name="mail-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Email</ion-label>
-            <ion-input type="email" formControlName="email" required></ion-input>
-          </ion-item>
+    <form [formGroup]="logForm" (ngSubmit)="login()">
+      <!-- Email -->
+      <ion-item class="custom-input">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-input type="email" formControlName="email" placeholder="Enter your email" required></ion-input>
+      </ion-item>
 
-          <!-- Password Input with Eye Icon -->
-          <ion-item class="input-item">
-            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-            <ion-label position="floating">Password</ion-label>
-            <ion-input [type]="passwordType" formControlName="password"  required></ion-input>
-            <ion-icon  [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'" slot="end" (click)="togglePasswordVisibility()"></ion-icon>
-          </ion-item>
+      <!-- Password -->
+      <ion-item class="custom-input">
+        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+        <ion-input [type]="passwordType" formControlName="password" placeholder="Enter password" required></ion-input>
+        <ion-icon 
+          [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'" 
+          slot="end" 
+          (click)="togglePasswordVisibility()">
+        </ion-icon>
+      </ion-item>
 
-
-          <!-- Remember Me & Forgot Password -->
-          <div class="remember-forgot">
-            <ion-checkbox formControlName="rememberMe"></ion-checkbox>
-            <ion-label>Remember Me</ion-label>
-            <a class="forgot-password" href="/forgot-password">Forgot Password?</a>
-          </div>
-
-          <!-- Login Button -->
-          <ion-button expand="block" type="submit" class="login-button" [disabled]="logForm.invalid">
-            <ion-icon name="log-in-outline" slot="start"></ion-icon>
-            Sign in
-          </ion-button>
-        </ion-card-content>
-      </form>
-
-      <!-- Social Login Buttons -->
-      <div class="social-login-buttons">
-        <ion-button expand="block" color="primary" (click)="loginWithFacebook()" class="facebook-button">
-          <ion-icon name="logo-facebook" slot="start"></ion-icon>
-          Login with Facebook
-        </ion-button>
-
-        <ion-button expand="block" color="danger" (click)="loginWithGoogle()" class="google-button">
-          <ion-icon name="logo-google" slot="start"></ion-icon>
-          Login with Google
-        </ion-button>
+      <!-- Remember Me + Forgot Password -->
+      <div class="login-options">
+        <ion-checkbox formControlName="rememberMe"></ion-checkbox>
+        <ion-label>Remember Me</ion-label>
+        <a href="/forgot-password">Forgot Password?</a>
       </div>
 
-      <!-- Biometric Login Button -->
-      <div class="biometric-container">
-        <ion-button class="biometric-button" fill="clear" (click)="loginWithBiometric()">
-          <ion-icon name="finger-print" size="large"></ion-icon>
-        </ion-button>
-        <p class="biometric-text">Tap to Login with Biometric</p>
-      </div>
+      <!-- Sign In Button -->
+      <ion-button expand="block" type="submit" class="signin-btn" [disabled]="logForm.invalid">
+        <ion-spinner *ngIf="isLoading"></ion-spinner>
+        <ion-icon *ngIf="!isLoading" name="log-in-outline"></ion-icon>
+        <span *ngIf="!isLoading">Sign In</span>
+      </ion-button>
+    </form>
 
-      <!-- Register Link -->
-      <p class="register-text">
-        New Member? <a [routerLink]="['/register']">Register</a>
-      </p>
+    <!-- Social Logins -->
+    <div class="social-login">
+      <ion-button expand="block" class="fb-btn" (click)="loginWithFacebook()">
+        <ion-icon name="logo-facebook"></ion-icon> Login with Facebook
+      </ion-button>
+      <ion-button expand="block" class="google-btn" (click)="loginWithGoogle()">
+        <ion-icon name="logo-google"></ion-icon> Login with Google
+      </ion-button>
+    </div>
+
+    <!-- Register -->
+    <p class="register-link">
+      New here? <a [routerLink]="['/register']">Create an Account</a>
+    </p>
+
+    <!-- Biometric Login -->
+    <div class="biometric-login">
+      <ion-button fill="clear" (click)="loginWithBiometric()">
+        <ion-icon name="finger-print" size="large"></ion-icon>
+      </ion-button>
+      <p>Sign in with Biometrics</p>
+    </div>
   </div>
 </ion-content>

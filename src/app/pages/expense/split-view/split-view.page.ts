@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { DatabaseService } from 'src/app/services/database.service';
 
 @Component({
   selector: 'app-split-view',
@@ -7,12 +8,25 @@ import { Router } from '@angular/router';
   styleUrls: ['./split-view.page.scss'],
 })
 export class SplitViewPage implements OnInit {
+  splitExpenses: any[] = [];
 
-  constructor(private router:Router) { }
+  constructor(private dbService: DatabaseService, private router: Router) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.loadExpenses();
   }
-  async addSplit(){
+
+  async loadExpenses() {
+    this.splitExpenses = await this.dbService.getSplitExpenses();
+    console.log('Loaded split expenses:', this.splitExpenses);
+  }
+
+  async deleteExpense(id: string) {
+    await this.dbService.deleteSplitExpense(id);
+    this.loadExpenses();
+  }
+
+  addSplit() {
     this.router.navigate(['/split']);
   }
 }

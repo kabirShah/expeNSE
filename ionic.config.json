@@ -6,5 +6,11 @@
       "enabled": false
     }
   },
-  "type": "angular"
+  "type": "angular",
+  "proxy": [
+    {
+      "path": "/api",
+      "proxyUrl": "http://192.168.121.180:8000/api"
+    }
+  ]
 }

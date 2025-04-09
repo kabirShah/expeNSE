@@ -53,5 +53,4 @@ export class AppComponent {
   closeMenu(){
     this.menuService.closeMenu();
   }
-
 }

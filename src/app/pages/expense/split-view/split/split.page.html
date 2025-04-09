@@ -1,13 +1,31 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>split</ion-title>
+    <ion-title>Add Split Expense</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">split</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label position="floating">Expense Title</ion-label>
+      <ion-input [(ngModel)]="title"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Total Amount</ion-label>
+      <ion-input type="number" [(ngModel)]="totalAmount"></ion-input>
+    </ion-item>
+
+    <ion-list-header>Participants</ion-list-header>
+    <ion-item *ngFor="let participant of participants; let i = index">
+      <ion-input placeholder="Name" [(ngModel)]="participant.name"></ion-input>
+      <ion-input type="number" placeholder="Amount" [(ngModel)]="participant.amount"></ion-input>
+      <ion-button color="danger" (click)="removeParticipant(i)" *ngIf="participants.length > 1">
+        Remove
+      </ion-button>
+    </ion-item>
+
+    <ion-button expand="full" color="medium" (click)="addParticipant()">Add Participant</ion-button>
+    <ion-button expand="full" color="success" (click)="saveSplitExpense()">Save Expense</ion-button>
+  </ion-list>
 </ion-content>

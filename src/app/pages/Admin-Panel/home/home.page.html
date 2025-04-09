@@ -11,12 +11,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- Welcome Section -->
-  <div class="welcome-section">
-    <h2>Welcome, Jay</h2>
-    <p>Track and manage your expenses effortlessly.</p>
-  </div>
-
   <!-- Expense Summary Card -->
   <ion-card>
     <ion-card-header>
@@ -26,6 +20,18 @@
       <p>📅 <strong>Today Expense:</strong> ₹{{ totalTodayExpense }}</p>
       <p>📆 <strong>Month Expense ({{ currentMonth }}):</strong> ₹{{ totalMonthExpense }}</p>
       <p>📅 <strong>Year Expense ({{ currentYear }}):</strong> ₹{{ totalYearExpense }}</p>
+     
+      <ion-button (click)="navigateTo('/single-view-expenses')" [class.active]="activeTab === 'expenses'">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>Expenses</ion-label>
+      </ion-button>
+
+      <ion-button (click)="navigateTo('/multi-view-expense')" [class.active]="activeTab === 'add'">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label>Add Expense</ion-label>
+      </ion-button>
+
+
     </ion-card-content>
   </ion-card>
 
@@ -62,40 +68,63 @@
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>                        
           </ion-buttons>
+
+    
         </ion-item>
       </ion-list>
+      <ion-button (click)="navigateTo('/balance')" [class.active]="activeTab === 'balance'">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <ion-label>Add Balance</ion-label>
+      </ion-button>
     </ion-card-content>
   </ion-card>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Split Summary</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>💰 <strong>Monthly split:</strong> ₹250</p>
+      <p>🏦 <strong>Yearly split:</strong> ₹ 2000</p>
+      <ion-button (click)="navigateTo('/split-view')" [class.active]="activeTab === 'split'">
+        <ion-icon name="people-outline"></ion-icon>
+        <ion-label>Split</ion-label>
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Scan Summary</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>💰 <strong>Monthly scan:</strong> ₹250</p>
+      <p>🏦 <strong>Yearly scan:</strong> ₹ 2000</p>
+      <ion-button (click)="navigateTo('/scan')" [class.active]="activeTab === 'scan'">
+        <ion-icon name="camera-outline"></ion-icon>
+        <ion-label>Scan</ion-label>
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
+
 
 <!-- Bottom Navigation Bar -->
 <ion-footer>
   <ion-toolbar>
     <ion-tabs>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button (click)="navigateTo('/single-view-expenses')" [class.active]="activeTab === 'expenses'">
-          <ion-icon name="list-outline"></ion-icon>
-          <ion-label>Expenses</ion-label>
+        <ion-tab-button (click)="navigateTo('/cards')" [class.active]="activeTab === 'cards'">
+          <ion-icon name="card-outline"></ion-icon>
+          <ion-label>Cards</ion-label>
         </ion-tab-button>
-
-        <ion-tab-button (click)="navigateTo('/multi-view-expense')" [class.active]="activeTab === 'add'">
-          <ion-icon name="add-circle-outline"></ion-icon>
-          <ion-label>Add Expense</ion-label>
+        <ion-tab-button (click)="navigateTo('/analytics')" [class.active]="activeTab === 'analytics'">
+          <ion-icon name="analytics-outline"></ion-icon>
+          <ion-label>Analytics</ion-label>
         </ion-tab-button>
-
-        <ion-tab-button (click)="navigateTo('/split-view')" [class.active]="activeTab === 'split'">
-          <ion-icon name="people-outline"></ion-icon>
-          <ion-label>Split</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button (click)="navigateTo('/scan')" [class.active]="activeTab === 'scan'">
-          <ion-icon name="camera-outline"></ion-icon>
-          <ion-label>Scan</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button (click)="navigateTo('/balance')" [class.active]="activeTab === 'balance'">
-          <ion-icon name="wallet-outline"></ion-icon>
-          <ion-label>Balance</ion-label>
+        <ion-tab-button (click)="navigateTo('/setting')" [class.active]="activeTab === 'setting'">
+          <ion-icon name="cog-outline"></ion-icon>
+          <ion-label>Setting</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

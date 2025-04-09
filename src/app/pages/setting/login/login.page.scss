@@ -1,183 +1,177 @@
-/* General Styling */
+/* 🔹 Background Styling */
 .login-content {
+  --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #007bff 30%, #0056b3 100%);
-  padding: 20px;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 5%;
 }
 
-.login-container {
-  width: 100%;
-  max-width: 400px;
-  background: #fff;
+/* 🔹 Glass Effect Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  padding: 30px;
   border-radius: 15px;
-  padding: 25px;
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
-  animation: fadeIn 0.8s ease-in-out;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Logo & Welcome Section */
-.header-container {
-  text-align: center;
+/* 🔹 Title & Tagline */
+h2 {
+  font-size: clamp(22px, 4vw, 28px);
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 5px;
+}
+
+.tagline {
+  font-size: clamp(14px, 3.5vw, 16px);
+  color: #555;
   margin-bottom: 20px;
 }
 
-.app-logo {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 10px;
-  animation: bounce 1s infinite alternate;
-}
-
-.welcome-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.subtitle {
-  font-size: 1rem;
-  color: #666;
-}
-
-/* Card Styling */
-.login-card {
-  padding: 20px;
+/* 🔹 Input Fields */
+.custom-input {
   border-radius: 12px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-  background: #fff;
-}
-
-/* Input Fields */
-.input-item {
-  border-radius: 10px;
-  --border-radius: 10px;
-  --background: #f8f9fa;
-  --inner-padding-end: 12px;
   margin-bottom: 15px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  background: white;
+  color: #222;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  transition: 0.3s;
+  width: 100%;
 }
 
-.input-item ion-icon {
-  color: #007bff;
+.custom-input ion-icon {
+  font-size: 20px;
+  color: #777;
 }
 
-/* Remember Me & Forgot Password */
-.remember-forgot {
+.custom-input:focus-within {
+  border-color: #007bff;
+  background: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+/* 🔹 Remember Me & Forgot Password */
+.login-options {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
-  margin: 10px 0;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #555;
 }
 
-.forgot-password {
+.forgot-password a {
   color: #007bff;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: bold;
+  transition: 0.3s;
 }
 
-.forgot-password:hover {
+.forgot-password a:hover {
   text-decoration: underline;
 }
 
-/* Login Button */
-.login-button {
-  margin-top: 15px;
-  font-size: 1rem;
-  border-radius: 10px;
-  font-weight: 600;
-  background: #007bff;
+/* 🔹 Sign In Button */
+.signin-btn {
+  background: linear-gradient(135deg, #007bff, #00bcd4);
   color: white;
-  transition: 0.3s ease-in-out;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  height: 50px;
+  transition: all 0.3s ease-in-out;
 }
 
-.login-button:hover {
-  background: #0056b3;
+.signin-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #0097a7);
+  transform: scale(1.02);
 }
 
-/* Social Login Buttons */
-.social-login-buttons {
+/* 🔹 Social Login Buttons */
+.social-login ion-button {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.facebook-button {
-  background: #3b5998;
-  color: white;
-}
-
-.google-button {
-  background: #db4437;
-  color: white;
-}
-
-/* Biometric Button */
-.biometric-container {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 20px;
-}
-
-.biometric-button {
-  width: 60px;
-  height: 60px;
-  background: #007bff;
-  color: white;
-  border-radius: 50%;
-  display: flex;
   justify-content: center;
+  gap: 8px;
+  font-size: clamp(14px, 3.5vw, 16px);
+  font-weight: bold;
+  border-radius: 12px;
+  height: clamp(45px, 5vw, 52px);
+  transition: 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.fb-btn {
+  background-color: #3b5998;
+  color: white;
+}
+
+.google-btn {
+  background-color: #DB4437;
+  color: white;
+}
+
+.fb-btn:hover, .google-btn:hover {
+  filter: brightness(1.2);
+  transform: scale(1.02);
+}
+
+/* 🔹 Biometric Login */
+.biometric-login {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: 0.3s ease-in-out;
-  cursor: pointer;
-}
-
-.biometric-button:hover {
-  background: #0056b3;
-  transform: scale(1.1);
-}
-
-.biometric-button ion-icon {
-  font-size: 30px;
-}
-
-.biometric-text {
-  font-size: 0.9rem;
-  margin-top: 8px;
-  color: #666;
-}
-
-/* Register Text */
-.register-text {
   margin-top: 15px;
-  font-size: 0.9rem;
-  font-weight: 500;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
+.biometric-login ion-icon {
+  font-size: clamp(40px, 6vw, 52px);
+  color: #007bff;
+  transition: 0.3s;
+  animation: pulse 1.5s infinite;
+}
+
+.biometric-login ion-icon:hover {
+  transform: scale(1.1);
+  color: #0097a7;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    box-shadow: 0 0 0 15px rgba(0, 123, 255, 0);
   }
 }
 
-@keyframes bounce {
-  from {
-    transform: translateY(0);
+/* 🔹 Responsive for Mobile */
+@media (max-width: 600px) {
+  .login-content {
+    padding: 8%;
   }
-  to {
-    transform: translateY(-5px);
+  .glass-card {
+    width: 95%;
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 400px) {
+  .glass-card {
+    width: 100%;
+    padding: 20px;
+  }
+  .custom-input, ion-button {
+    font-size: 14px;
   }
 }

@@ -10,7 +10,7 @@ import { IonicStorageModule } from '@ionic/storage-angular';
 import { DatabaseService } from './services/database.service';
 import { MenuComponent } from './libraries/menu/menu.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-
+import { provideHttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
@@ -28,6 +28,7 @@ import { CardService } from './services/card.service';
     IonicModule.forRoot()
   ],
   providers: [
+    provideHttpClient(),
     HttpClient,
     DatabaseService,
     CardService,
