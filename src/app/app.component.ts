@@ -14,7 +14,8 @@ export class AppComponent {
   constructor(private platform: Platform,
     private router: Router,
     private alertCtrl: AlertController,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private bio: BiometricService
   ) {
     this.initializeApp();
   }
@@ -35,10 +36,28 @@ export class AppComponent {
   }
   async checkLoginStatus() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (isLoggedIn) {
+    const isBiometricVerified = localStorage.getItem('isBiometricVerified') === 'true';
+    if (isLoggedIn ) {
       this.router.navigateByUrl('/home');  // Redirect to Home if already logged in
+    } else if(isLoggedIn && !isBiometricVerified){
+      const biometricPassed = await this.runBiometricOnce();
+      if (biometricPassed) {
+        localStorage.setItem('isBiometricVerified', 'true');
+        this.router.navigateByUrl('/home');
+      } else {
+        localStorage.clear();
+        this.router.navigateByUrl('/login');
+      }
     } else {
-      this.router.navigateByUrl('/login'); // Redirect to Login if not logged in
+      this.router.navigateByUrl('/login');
+    }
+  }
+  async runBiometricOnce(): Promise<boolean> {
+    try {
+      return await this.bio.verifyIdentity();
+    } catch (error) {
+      console.error('Biometric failed:', error);
+      return false;
     }
   }
   

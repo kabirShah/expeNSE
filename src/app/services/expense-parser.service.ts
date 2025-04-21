@@ -32,7 +32,7 @@ export class ExpenseParserService {
       expenses.push({
         date: new Date().toISOString(),
         category: this.detectCategory(description),
-        transactionType: this.detectTransactionType(transactionType),
+        transaction_type: this.detectTransactionType(transactionType),
         description: description.trim(),
         amount: parseFloat(amount),
         notes: '',

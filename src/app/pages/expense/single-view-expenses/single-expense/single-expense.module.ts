@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { SingleExpensePageRoutingModule } from './single-expense-routing.module';
 
 import { SingleExpensePage } from './single-expense.page';
+import { ExpenseService } from 'src/app/services/expense.service';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { SingleExpensePage } from './single-expense.page';
     IonicModule,
     SingleExpensePageRoutingModule
   ],
+  providers:[ExpenseService],
   declarations: [SingleExpensePage]
 })
 export class SingleExpensePageModule {}

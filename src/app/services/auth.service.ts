@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 
 export class AuthService {
 
-  private API_URL = 'http://192.168.121.180:8000/api';
+  private API_URL = 'http://127.0.0.1:8000/api';
 
   user: any = null;
   constructor(private http: HttpClient) { 

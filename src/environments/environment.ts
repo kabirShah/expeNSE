@@ -7,6 +7,7 @@ import { initializeApp } from "@angular/fire/app";
 
 export const environment = {
   production: false,
+  apiBaseUrl: "https://4076-2402-3a80-1ea1-c3b1-6151-a9b7-b4b5-43c0.ngrok-free.app/api",
   firebase:{
     apiKey: "AIzaSyCeshGn8GApQwxSOPk67bNAi8AUCoDzi6s",
     authDomain: "paisa-2a3e0.firebaseapp.com",

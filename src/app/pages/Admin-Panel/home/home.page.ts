@@ -246,8 +246,11 @@ export class HomePage implements OnInit {
         {
           text: 'Logout',
           handler: () => {
-            localStorage.removeItem('isLoggedIn'); // Clear login status
-            this.router.navigateByUrl('/login');   // Redirect to Login Page
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('isBiometricVerified');
+            localStorage.removeItem('auth_token');
+            this.router.navigateByUrl('/login');
+          
           }
         }
       ]

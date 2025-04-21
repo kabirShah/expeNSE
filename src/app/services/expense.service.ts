@@ -1,46 +1,34 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SQLite, SQLiteObject } from '@awesome-cordova-plugins/sqlite/ngx';
+import { Expense } from '../models/expense.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseService {
-  private dbInstance!: SQLiteObject; // Declare the database instance
 
-  constructor(private sqlite: SQLite) {
-    this.createDatabase(); // Call to create the database upon service initialization
+  private apiUrl = 'http://127.0.0.1:8000/api/expenses';
+
+  constructor(private http: HttpClient) {
+  }
+  getExpenses(userId: string)  {
+    return this.http.get<Expense[]>(`${this.apiUrl}?user_id=${userId}`);
   }
 
-  // Method to create the SQLite database
-  private createDatabase() {
-    this.sqlite.create({
-      name: 'expense.db', // Name of the database
-      location: 'default', // Default location
-    }).then((db: SQLiteObject) => {
-      this.dbInstance = db; // Assign the database instance
-      this.initializeDatabase(); // Initialize tables
-    }).catch(error => {
-      console.error('Error creating database', error);
-    });
+  getExpenseById(id: string) {
+    return this.http.get<Expense>(`${this.apiUrl}/${id}`);
   }
 
-  // Initialize the database tables
-  private initializeDatabase() {
-    const query = `
-      CREATE TABLE IF NOT EXISTS expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        category TEXT,
-        transactionType TEXT,
-        description TEXT,
-        amount REAL,
-        notes TEXT
-      )
-    `;
-    this.dbInstance.executeSql(query, []).then(() => {
-      console.log('Table created successfully');
-    }).catch(error => {
-      console.error('Error creating table', error);
-    });
+  createExpense(expense: Expense)  {
+    return this.http.post(this.apiUrl, expense);
+  }
+
+  updateExpense(id: string, expense: Expense)  {
+    return this.http.put(`${this.apiUrl}/${id}`, expense);
+  }
+
+  deleteExpense(id: string) {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
