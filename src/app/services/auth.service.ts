@@ -26,6 +26,7 @@ export class AuthService {
 
   async loginUser(email:string,password:string){
     // return await this.auth.signInWithEmailAndPassword(email,password);
+    
   }
   async resetPassword(email:string){
     // return await this.auth.sendPasswordResetEmail(email);

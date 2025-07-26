@@ -6,7 +6,6 @@
 
 <ion-content class="ion-padding">
   <form [formGroup]="regForm" (ngSubmit)="register()">
-    <ion-list>
       <!-- First Name -->
       <ion-item>
         <ion-input
@@ -109,8 +108,12 @@
       <ion-note color="danger" *ngIf="regForm.get('password')?.invalid && regForm.get('password')?.touched">
         Password must be at least 8 characters long, contain at least one uppercase letter, one number, and one special character.
       </ion-note>
-    </ion-list>
 
+      <ion-item>
+        <ion-label>Remember Me</ion-label>
+        <ion-checkbox formControlName="rememberMe"></ion-checkbox>  
+      </ion-item>
+  
     <!-- Submit Button -->
     <ion-button expand="block" type="submit" [disabled]="regForm.invalid">Register</ion-button>
   </form>

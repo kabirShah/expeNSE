@@ -59,45 +59,61 @@ export class LoginPage {
     this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
   }
 
-  async login() {
-    if (this.logForm.valid) {
-      const { email, password } = this.logForm.value;
-      this.isLoading = true; // ✅ Show loading state
-  
-      // ✅ Show Ionic Loading Spinner
-      const loading = await this.loadingController.create({
-        message: 'Logging in...',
-        spinner: 'crescent',
-        duration: 5000, // Auto-hide after 5s if request is stuck
-      });
-      await loading.present();
-  
-      try { 
-        this.authService.loginLaravel(email, password).subscribe({
-          next: async (res: any) => {
-            this.isLoading = false;
-            await loading.dismiss(); // ✅ Hide loading spinner
+async login() {
+  if (this.logForm.valid) {
+    const email = this.logForm.value.email!;
+    const password = this.logForm.value.password!;
+    const remember = this.logForm.value.rememberMe;
+    this.isLoading = true;
+
+    const loading = await this.loadingController.create({
+      message: 'Logging in...',
+      spinner: 'crescent',
+      duration: 5000,
+    });
+    await loading.present();
+
+    try {
+      this.authService.loginLaravel(email, password).subscribe({
+        next: async (res: any) => {
+          const now = new Date().getTime();
+          this.isLoading = false;
+          await loading.dismiss();
+
+          // ✅ Store token based on Remember Me choice
+          if (remember) {
             localStorage.setItem('auth_token', res.token);
-            this.showToast('Login successful!');
-            this.navCtrl.navigateForward('/home');
-          },
-          error: async (err) => {
-            this.isLoading = false;
-            await loading.dismiss(); // ✅ Hide loading spinner
-            console.error('❌ Laravel Login Error:', err);
-            this.showToast(err.error?.message || 'Invalid credentials.');
+            localStorage.setItem('rememberMe', '1y');
+            localStorage.setItem('loginTime', now.toString());
+            localStorage.setItem('user', JSON.stringify(res.user));
+          } else {
+            sessionStorage.setItem('auth_token', res.token);
+            localStorage.setItem('rememberMe', '1d');
+            localStorage.setItem('loginTime', now.toString());
+            localStorage.setItem('user', JSON.stringify(res.user)); //
           }
-        });
-      } catch (error) {
-        this.isLoading = false;
-        await loading.dismiss(); // ✅ Hide loading spinner
-        console.error('❌ Unexpected Error:', error);
-        this.showToast('Something went wrong. Please try again.');
-      }
-    } else {
-      this.showToast('Please fill out the form correctly.');
+
+          this.showToast('Login successful!');
+          this.navCtrl.navigateForward('/home');
+        },
+        error: async (err) => {
+          this.isLoading = false;
+          await loading.dismiss();
+          console.error('❌ Laravel Login Error:', err);
+          this.showToast(err.error?.message || 'Invalid credentials.');
+        }
+      });
+    } catch (error) {
+      this.isLoading = false;
+      await loading.dismiss();
+      console.error('❌ Unexpected Error:', error);
+      this.showToast('Something went wrong. Please try again.');
     }
+  } else {
+    this.showToast('Please fill out the form correctly.');
   }
+}
+
 
   loginWithFacebook() {
     this.navCtrl.navigateForward('/home');
