@@ -69,21 +69,30 @@ export class DatabaseService {
   // Manual Expense CRUD
   async addManualExpense(expense: Expense) {
     try {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) throw new Error('User not logged in');
       expense._id = expense._id || new Date().toISOString();
+      (expense as any).user_id = userId; // <-- Use user_id (snake_case)
       const response = await this.manualDb.put(expense);
       return response;
     } catch (error) {
       this.handleError(error);
     }
   }
+
   async getAllManualExpenses(): Promise<Expense[]> {
     try {
-      const result = await this.manualDb.allDocs({ include_docs: true });
-      return result.rows.map((row) => row.doc as Expense);
+    const userId = localStorage.getItem('user_id');
+    const result = await this.manualDb.allDocs({ include_docs: true });
+    return result.rows
+      .map((row) => row.doc as Expense)
+      .filter(exp => (exp as any).user_id === userId); // <-- Filter by user_id
     } catch (error) {
-      this.handleError(error);
+    this.handleError(error);
+      return [];
     }
   }
+
   async getAllBalance(): Promise <Balance[]>{
     try{
       const result = await this.balanceDb.allDocs({include_docs:true});
@@ -288,35 +297,55 @@ export class DatabaseService {
   }
 
   async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
-    try {
-      const newBalance: Balance = {
-        _id: new Date().toISOString(),
-        amount: balanceData.amount,
-        source: balanceData.source,
-        dateAdded: balanceData.dateAdded,
-      };
-      await this.balanceDb.put({
-        _id: new Date().toISOString(), // Unique ID
-        ...newBalance,
-      });
-      console.log('Balance added successfully:', newBalance);
-    } catch (error) {
-      console.error('Error adding balance:', error);
-    }
+  try {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) throw new Error('User not logged in');
+
+    const newBalance: Balance = {
+      _id: new Date().toISOString(),
+      amount: balanceData.amount,
+      source: balanceData.source,
+      dateAdded: balanceData.dateAdded,
+      userId: userId // ✅ Attach logged-in user's ID
+    };
+
+    await this.balanceDb.put(newBalance);
+    console.log('Balance added successfully:', newBalance);
+  } catch (error) {
+    console.error('Error adding balance:', error);
   }
+}
+
   
   
-  async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number, source: string } | null> {
-    try {
-      const balanceDoc = await this.balanceDb.get('userBalance');
-      return balanceDoc || null; // Return the full document or null if not found
-    } catch (error) {
-      if (error === 404) {
-        return null; // Return null if the document is not found
-      }
-      throw error; // Handle other errors
-    }
+  // async getUserBalance(): Promise<{ _id: string, _rev: string, balance: number, source: string } | null> {
+  //   try {
+  //     const balanceDoc = await this.balanceDb.get('userBalance');
+  //     return balanceDoc || null; // Return the full document or null if not found
+  //   } catch (error) {
+  //     if (error === 404) {
+  //       return null; // Return null if the document is not found
+  //     }
+  //     throw error; // Handle other errors
+  //   }
+  // }
+async getUserBalances(): Promise<Balance[]> {
+  try {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) throw new Error('User not logged in');
+
+    const result = await this.balanceDb.allDocs({ include_docs: true });
+
+    // Filter documents that belong to this user
+    return result.rows
+      .map(row => row.doc as Balance)
+      .filter(doc => doc.userId === userId);
+  } catch (error) {
+    console.error('Error fetching user balances:', error);
+    return [];
   }
+}
+
 
   // ✅ Add a new Credit Card with validation
   async addCreditCard(card: CreditCard): Promise<boolean> {
@@ -522,5 +551,10 @@ export class DatabaseService {
         return await this.splitDb.put(expense);
       }
       return null;
+    }
+    getUserId(): string {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) throw new Error('No user logged in');
+        return userId;
     }
 }

@@ -99,7 +99,7 @@ export class RegistrationPage implements OnInit {
     const loading = await this.loadingController.create({ message: 'Registering...' });
     await loading.present();
   
-    this.authService.register(formData).subscribe(
+    this.authService?.register(formData)?.subscribe(
       async (res) => {
         await loading.dismiss();
         await this.showToast('Registration successful!', 'success');

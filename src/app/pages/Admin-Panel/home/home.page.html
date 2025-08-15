@@ -11,6 +11,40 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <ion-grid class="quick-actions">
+  <ion-row>
+    <ion-col>
+      <ion-button expand="block" color="primary" (click)="navigateTo('/single-view-expenses')" class="quick-action-btn">
+        <ion-icon name="wallet-outline" slot="icon-only"></ion-icon>
+        <span class="quick-action-label">Expenses</span>
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="block" color="success" (click)="navigateTo('/balance')" class="quick-action-btn">
+        <ion-icon name="cash-outline" slot="icon-only"></ion-icon>
+        <span class="quick-action-label">Balance</span>
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="block" color="tertiary" (click)="navigateTo('/saving')" class="quick-action-btn">
+        <ion-icon name="trending-up-outline" slot="icon-only"></ion-icon>
+        <span class="quick-action-label">Saving</span>
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="block" color="warning" (click)="navigateTo('/split-view')" class="quick-action-btn">
+        <ion-icon name="git-branch-outline" slot="icon-only"></ion-icon>
+        <span class="quick-action-label">Split</span>
+      </ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="block" color="dark" (click)="navigateTo('/scan')" class="quick-action-btn">
+        <ion-icon name="scan-outline" slot="icon-only"></ion-icon>
+        <span class="quick-action-label">Scan</span>
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid>
   <!-- Expense Summary Card -->
   <ion-card>
     <ion-card-header>

@@ -4,4 +4,6 @@ export interface Balance {
   amount: number;
   source?: string;
   dateAdded:string;
+  userId: string;
 }
+ 

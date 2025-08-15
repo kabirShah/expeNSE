@@ -60,6 +60,11 @@ export class LoginPage {
   }
 
 async login() {
+  if (!navigator.onLine) {
+    this.showToast('No internet connection. Please connect and try again.');
+    return;
+  }
+
   if (this.logForm.valid) {
     const email = this.logForm.value.email!;
     const password = this.logForm.value.password!;
@@ -74,7 +79,7 @@ async login() {
     await loading.present();
 
     try {
-      this.authService.loginLaravel(email, password).subscribe({
+      this.authService?.loginLaravel(email, password)?.subscribe({
         next: async (res: any) => {
           const now = new Date().getTime();
           this.isLoading = false;

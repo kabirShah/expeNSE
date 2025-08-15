@@ -4,6 +4,7 @@ import { AlertController, Platform } from '@ionic/angular';
 import { BiometricService } from './services/biometric.service';
 import { Router } from '@angular/router';
 import { MenuService } from './services/menu.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { MenuService } from './services/menu.service';
 })
 export class AppComponent {
   constructor(private platform: Platform,
+    private authService: AuthService,
     private router: Router,
     private alertCtrl: AlertController,
     private menuService: MenuService,
@@ -20,6 +22,11 @@ export class AppComponent {
     this.initializeApp();
   }
   initializeApp(){
+    if (this.authService.isLoggedIn()) {
+    this.router.navigate(['/home']);
+  } else {
+    this.router.navigate(['/login']);
+  }
     this.platform.ready().then(() => {
       this.loadDarkMode();
       this.checkLoginStatus();

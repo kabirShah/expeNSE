@@ -54,7 +54,10 @@ export class HomePage implements OnInit {
 
   async loadBalance() {
     try {
+      const userId = localStorage.getItem('user_id'); // 🔑 get logged-in user ID
+      if (!userId) throw new Error('User ID not found');
       const balanceDocs: Balance[] = await this.db.getAllBalances();
+      const userBalances = balanceDocs.filter(b => b.userId === userId);
       if (balanceDocs.length > 0) {
         this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
         this.userBalance = this.totalBalance - this.totalMonthExpense;
@@ -149,7 +152,8 @@ export class HomePage implements OnInit {
                   _rev: balance._rev, // Ensure _rev is passed
                   amount: data.amount,
                   source: data.source,
-                  dateAdded: balance.dateAdded
+                  dateAdded: balance.dateAdded,
+                  userId: balance.userId
                 });
   
                 await this.loadBalance(); // Refresh UI
