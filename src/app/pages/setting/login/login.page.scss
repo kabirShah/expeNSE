@@ -1,51 +1,52 @@
-/* 🔹 Background Styling */
+/* 🔹 Fullscreen Background */
 .login-content {
-  --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
+   --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100vh;    /* Always full screen */
+  height: 100%;
+  width: 100%;
   padding: 5%;
+  box-sizing: border-box;
 }
 
-/* 🔹 Glass Effect Card */
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(15px);
-  padding: 30px;
-  border-radius: 15px;
+/* 🔹 Center Card */
+.login-card {
+ background: #fff;  /* Solid white instead of glass */
+  padding: 35px 30px;
+  border-radius: 18px;
   text-align: center;
   width: 100%;
   max-width: 450px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  // box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.5s ease-in-out;
+  margin: auto;   /* ✅ Keeps it centered always */
 }
 
 /* 🔹 Title & Tagline */
 h2 {
-  font-size: clamp(22px, 4vw, 28px);
+  font-size: 26px;
   font-weight: bold;
-  color: #222;
-  margin-bottom: 5px;
+  color: #111;
+  margin-bottom: 6px;
 }
 
 .tagline {
-  font-size: clamp(14px, 3.5vw, 16px);
-  color: #555;
-  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 18px;
 }
 
 /* 🔹 Input Fields */
 .custom-input {
-  border-radius: 12px;
-  margin-bottom: 15px;
-  background: white;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: #fafafa;
   color: #222;
-  padding: 12px 15px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
-  font-size: 16px;
-  transition: 0.3s;
-  width: 100%;
+  font-size: 15px;
 }
 
 .custom-input ion-icon {
@@ -55,45 +56,42 @@ h2 {
 
 .custom-input:focus-within {
   border-color: #007bff;
-  background: #f9f9f9;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+  background: #fff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
 }
 
-/* 🔹 Remember Me & Forgot Password */
+/* 🔹 Remember Me + Forgot Password */
 .login-options {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
-  font-size: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
   color: #555;
 }
 
 .forgot-password a {
   color: #007bff;
   text-decoration: none;
-  font-weight: bold;
-  transition: 0.3s;
+  font-weight: 500;
 }
-
 .forgot-password a:hover {
   text-decoration: underline;
 }
 
 /* 🔹 Sign In Button */
 .signin-btn {
-  background: linear-gradient(135deg, #007bff, #00bcd4);
+  background: linear-gradient(135deg, #017cff, #2ec5d8);
   color: white;
   font-size: 16px;
   font-weight: bold;
-  border-radius: 12px;
-  height: 50px;
-  transition: all 0.3s ease-in-out;
+  border-radius: 10px;
+  height: 48px;
+  margin-top: 5px;
+  transition: 0.25s;
 }
-
 .signin-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #0097a7);
-  transform: scale(1.02);
+  background: linear-gradient(135deg, #017cff, #2ec5d8);
 }
 
 /* 🔹 Social Login Buttons */
@@ -102,28 +100,55 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: clamp(14px, 3.5vw, 16px);
+  font-size: 14px;
   font-weight: bold;
-  border-radius: 12px;
-  height: clamp(45px, 5vw, 52px);
+  border-radius: 10px;
+  height: 45px;
   transition: 0.3s;
   width: 100%;
   margin-top: 10px;
 }
 
 .fb-btn {
-  background-color: #3b5998;
-  color: white;
+  --background: #0866ff;
+  --color: #fff;
+  --border-radius: 10px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --height: 45px;
+  --box-shadow: none;
+  font-weight: bold;
 }
 
 .google-btn {
-  background-color: #DB4437;
-  color: white;
+  --background: #fff;
+  --color: #000;
+  --border-radius: 10px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --height: 45px;
+  --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
 }
 
+
 .fb-btn:hover, .google-btn:hover {
-  filter: brightness(1.2);
-  transform: scale(1.02);
+  filter: brightness(1.15);
+}
+
+/* 🔹 Register */
+.register-link {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #444;
+}
+.register-link a {
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.register-link a:hover {
+  text-decoration: underline;
 }
 
 /* 🔹 Biometric Login */
@@ -131,47 +156,29 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 15px;
+  margin-top: 18px;
 }
 
 .biometric-login ion-icon {
-  font-size: clamp(40px, 6vw, 52px);
+  font-size: 46px;
   color: #007bff;
+  animation: pulse 1.6s infinite;
   transition: 0.3s;
-  animation: pulse 1.5s infinite;
 }
-
 .biometric-login ion-icon:hover {
   transform: scale(1.1);
   color: #0097a7;
 }
 
 @keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 15px rgba(0, 123, 255, 0);
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
-/* 🔹 Responsive for Mobile */
-@media (max-width: 600px) {
-  .login-content {
-    padding: 8%;
-  }
-  .glass-card {
-    width: 95%;
-    max-width: 380px;
-  }
-}
-
-@media (max-width: 400px) {
-  .glass-card {
-    width: 100%;
+/* 🔹 Responsive */
+@media (max-width: 480px) {
+  .login-card {
     padding: 20px;
-  }
-  .custom-input, ion-button {
-    font-size: 14px;
+    max-width: 100%;
   }
 }

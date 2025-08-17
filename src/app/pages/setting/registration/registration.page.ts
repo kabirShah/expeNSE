@@ -63,7 +63,7 @@ export class RegistrationPage implements OnInit {
     return this.regForm.controls;
   }
    // Show Toast Notification
-   async showToast(message: string, color: 'success' | 'danger') {
+   async showToast(message: string, color: 'success' | 'danger' | 'warning') {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
@@ -82,7 +82,12 @@ export class RegistrationPage implements OnInit {
       await this.showToast('Please fill in all required fields.', 'danger');
       return;
     }
-  
+   // Check internet before hitting server
+    if (!navigator.onLine) {
+      await this.showToast('No internet connection. Please try again later.', 'warning');
+      return;
+    }
+
     const formData = {
       first_name: this.regForm.value.firstName,
       last_name: this.regForm.value.lastName,
@@ -111,9 +116,33 @@ export class RegistrationPage implements OnInit {
       }
     );
   }
-  
-  
+  // ✅ Date of Birth - Age Validation
+  setMaxDate() {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 16); // Minimum 16 years old
+    this.maxDate = today.toISOString().split('T')[0];
+  }
 
+  ageValidator(minAge: number) {
+    return (control: any) => {
+      if (!control.value) return null;
+      const today = new Date();
+      const dob = new Date(control.value);
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age >= minAge ? null : { underAge: true };
+    };
+  }
+
+  
+  passwordMatchValidator(formGroup: FormGroup) {
+    const password = formGroup.get('password')?.value;
+    const confirmPassword = formGroup.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
   // Open date picker
   openDatePicker() {
     this.isDatePickerOpen = true;
@@ -125,5 +154,8 @@ export class RegistrationPage implements OnInit {
     this.regForm.patchValue({ dob: selectedDate });
     this.isDatePickerOpen = false;
   }
-  
+  goToLogin(){
+    this.router.navigateByUrl('/login', { replaceUrl: true });
+    // this.navCtrl.navigateForward('/login');
+  }
 }

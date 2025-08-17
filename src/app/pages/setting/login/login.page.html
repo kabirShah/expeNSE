@@ -1,7 +1,7 @@
 <ion-content class="login-content">
-  <div class="glass-card">
+  <div class="login-card">
     <h2>Pocket Money</h2>
-    <p class="tagline">Smart Expense Management</p>
+    <p class="tagline">Smart Way to budget</p>
 
     <form [formGroup]="logForm" (ngSubmit)="login()">
       <!-- Email -->
@@ -25,7 +25,9 @@
       <div class="login-options">
         <ion-checkbox formControlName="rememberMe"></ion-checkbox>
         <ion-label>Remember Me</ion-label>
-        <a href="/forgot-password">Forgot Password?</a>
+        <span class="forgot-password">
+          <a routerLink="/forgot-password">Forgot Password?</a>
+        </span>
       </div>
 
       <!-- Sign In Button -->
@@ -48,8 +50,11 @@
 
     <!-- Register -->
     <p class="register-link">
-      New here? <a [routerLink]="['/register']">Create an Account</a>
+      Don't have an account?
+      <ion-router-link routerLink="/register">Register</ion-router-link>
     </p>
+
+
 
     <!-- Biometric Login -->
     <div class="biometric-login">

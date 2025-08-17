@@ -1,0 +1,88 @@
+.login-content {
+   --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;    /* Always full screen */
+  height: 100%;
+  width: 100%;
+  padding: 5%;
+  box-sizing: border-box;
+}
+
+.register-card {
+  max-width: 450px;
+  margin: auto;
+  background: #fff;
+  border-radius: 16px;
+//   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 35px 30px;
+  text-align: center;
+  width: 100%;
+  // box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.5s ease-in-out;
+  margin: auto;   /* ✅ Keeps it centered always */
+}
+/* 🔹 Title & Tagline */
+h2 {
+  font-size: 26px;
+  font-weight: bold;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.tagline {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 18px;
+}
+/* 🔹 Input Fields */
+.custom-input {
+  border-radius: 10px;
+  margin-bottom: 12px;
+  background: #fafafa;
+  color: #222;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.custom-input ion-icon {
+  font-size: 20px;
+  color: #777;
+}
+
+.custom-input:focus-within {
+  border-color: #007bff;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+
+.logo-box {
+  text-align: center;
+  margin-bottom: 20px;
+
+  img {
+    width: 100px;
+    height: auto;
+  }
+}
+
+.register-btn {
+  margin-top: 20px;
+  border-radius: 12px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+
+  a {
+    color: var(--ion-color-primary);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+  }
+}

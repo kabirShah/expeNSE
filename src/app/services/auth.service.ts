@@ -29,7 +29,7 @@ export class AuthService {
           localStorage.setItem('user_id', response.user.id.toString());
           localStorage.setItem('user_name', response.user.name);
           localStorage.setItem('auth_token', response.token);
-          localStorage.setItem('token_timestamp', new Date().toISOString());
+          localStorage.setItem('loginTime',new Date().getTime().toString());
         }
       })
     );
