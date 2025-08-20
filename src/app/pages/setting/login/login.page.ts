@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { HttpClient } from '@angular/common/http';
+import { Auth, signInWithPopup, GoogleAuthProvider } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, NavController, ToastController } from '@ionic/angular';
 import { BiometricService } from '../../../services/biometric.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { setPersistence, browserLocalPersistence } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +14,7 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage {
+
   logForm!: FormGroup;
   passwordType: string = 'password';
   isLoading: boolean = false;
@@ -22,10 +25,11 @@ export class LoginPage {
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private router: Router,
-    private auth: Auth,
+    private auth : Auth,   
     private authService: AuthService,
     private toastCtrl: ToastController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private http: HttpClient
   ) {
     this.logForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -134,10 +138,38 @@ export class LoginPage {
     // Integrate Facebook login API logic here
   }
 
-  loginWithGoogle() {
-    console.log('Logging in with Google');
-    // Integrate Google login API logic here
+  async signInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(this.auth, provider);
+    if (result) {
+      console.log('Google Sign-In Result:', result.user);
+
+      const toast = await this.toastCtrl.create({
+        message: `Welcome ${result.user.displayName}`,
+        duration: 2000,
+        position: 'top',
+        color: 'success'
+      });
+      await toast.present();
+
+      // Save user info to localStorage
+      localStorage.setItem('googleuser', JSON.stringify(result.user));
+
+      // ✅ navigate to home
+      this.router.navigate(['/home']);
+    }
+  } catch (error) {
+    console.error('Google Login Error:', error);
+    const toast = await this.toastCtrl.create({
+      message: 'Google Sign-In failed. Please try again.',
+      duration: 2000,
+      position: 'top',
+      color: 'danger'
+    });
+    await toast.present();
   }
+}
 
   register() {
     this.router.navigateByUrl('/register', { replaceUrl: true });

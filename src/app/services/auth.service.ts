@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +36,8 @@ export class AuthService {
       })
     );
   }
+
+  
 
 
     
@@ -104,26 +108,36 @@ export class AuthService {
   async getProfile(){
     // return await this.auth.currentUser    
   }
+  
   async loginWithGoogle() {
-    // try {
-    //   const res = await this.auth.signInWithPopup(
-    //     new firebase.auth.GoogleAuthProvider()
-    //   );
-    //   return res;
-    // } catch (error) {
-    //   console.error('Google Sign-In Error:', error);
-    //   return error;
-    // }
+    try {
+      const googleUser = await GoogleAuth.signIn();
+      console.log('Google User:', googleUser);
+
+      // Send token to Laravel
+      return this.http.post(`${this.API_URL}/google-login`, {
+        idToken: googleUser.authentication.idToken
+      }).toPromise();
+
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+
   }
+  
   async loginWithFacebook() {
-    // try {
-    //   const res = await this.auth.signInWithPopup(
-    //     new firebase.auth.FacebookAuthProvider()
-    //   );
-    //   return res;
-    // } catch (error) {
-    //   console.error('Facebook Sign-In Error:', error);
-    //   return error;
-    // }
+   const result: FacebookLoginResponse = await FacebookLogin.login({ permissions: ['email', 'public_profile'] });
+    if (result.accessToken) {
+      return this.http.post(`${this.API_URL}/auth/facebook`, {
+        accessToken: result.accessToken.token
+      }).toPromise();
+    } else {
+      throw new Error('Facebook login failed or cancelled');
+    }
   }
+  saveToken(token: string) {
+    localStorage.setItem('auth_token', token);
+  }
+
 }

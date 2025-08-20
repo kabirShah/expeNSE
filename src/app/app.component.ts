@@ -5,6 +5,8 @@ import { BiometricService } from './services/biometric.service';
 import { Router } from '@angular/router';
 import { MenuService } from './services/menu.service';
 import { AuthService } from './services/auth.service';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
@@ -17,9 +19,21 @@ export class AppComponent {
     private router: Router,
     private alertCtrl: AlertController,
     private menuService: MenuService,
-    private bio: BiometricService
+    private bio: BiometricService,
+    private auth: Auth
   ) {
     this.initializeApp();
+      onAuthStateChanged(this.auth, (user) => {
+    if (user) {
+      // User is logged in
+      console.log("Already logged in:", user);
+      localStorage.setItem('googleuser', JSON.stringify(user));
+      this.router.navigate(['/home']);
+    } else {
+      // Not logged in
+      this.router.navigate(['/login']);
+    }
+  });
   }
   initializeApp(){
     if (this.authService.isLoggedIn()) {
@@ -28,6 +42,7 @@ export class AppComponent {
     this.router.navigate(['/login']);
   }
     this.platform.ready().then(() => {
+      GoogleAuth.initialize();
       this.loadDarkMode();
       this.checkLoginStatus();
     });

@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { File } from "@ionic-native/file/ngx";
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { CardService } from './services/card.service';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],

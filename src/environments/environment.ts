@@ -2,21 +2,18 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-import { getAnalytics } from "@angular/fire/analytics";
-import { initializeApp } from "@angular/fire/app";
 
 export const environment = {
   production: false,
-  apiBaseUrl: "https://192.168.1.9:8000/api",
   firebase:{
-    apiKey: "AIzaSyCeshGn8GApQwxSOPk67bNAi8AUCoDzi6s",
-    authDomain: "paisa-2a3e0.firebaseapp.com",
-    databaseURL: "https://paisa-2a3e0-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "paisa-2a3e0",
-    storageBucket: "paisa-2a3e0.firebasestorage.app",
-    messagingSenderId: "680038177547",
-    appId: "1:680038177547:web:27da2d6f8a9b1099f3600e",
-    measurementId: "G-HRXRYPRV1Z"
+      apiKey: "AIzaSyD8YSW9Sib-7zmEKZVmjuapp9-oCVrY2hs",
+      authDomain: "paisa-b9ba8.firebaseapp.com",
+      databaseURL: "https://paisa-b9ba8-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "paisa-b9ba8",
+      storageBucket: "paisa-b9ba8.firebasestorage.app",
+      messagingSenderId: "864869608639",
+      appId: "1:864869608639:web:e3516f2629a2e5a75aea0a",
+      measurementId: "G-TM6BGJ5CD5"
   }
 };
 

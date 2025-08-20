@@ -1,0 +1,47 @@
+.settings-bg {
+  background: var(--color-background, #181818);
+  min-height: 100vh;
+}
+
+.settings-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 16px 0;
+}
+
+.profile-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  border: 2px solid var(--color-primary, #3498db);
+}
+
+.settings-profile h2 {
+  color: var(--color-text, #fff);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.settings-profile p {
+  color: var(--color-text, #bbb);
+  font-size: 15px;
+  margin-bottom: 0;
+}
+
+.settings-list ion-item {
+  --background: var(--color-card, #222);
+  --color: var(--color-text, #fff);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.settings-list ion-icon {
+  font-size: 22px;
+  color: var(--color-primary, #3498db);
+}
