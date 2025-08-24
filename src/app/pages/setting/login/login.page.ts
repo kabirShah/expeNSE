@@ -7,6 +7,7 @@ import { BiometricService } from '../../../services/biometric.service';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { HttpClient } from '@angular/common/http';
+import { Network } from '@capacitor/network';
 
 @Component({
   selector: 'app-login',
@@ -33,11 +34,12 @@ export class LoginPage {
       rememberMe: ['']
     });
   }
-  async showToast(message: string) {
+  async showToast(message: string, color: 'success'|'warning'|'danger'|'primary'|'medium' = 'primary') {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
       position: 'top',
+      color
     });
     await toast.present();
   }
@@ -63,14 +65,14 @@ export class LoginPage {
       const {email,password} = this.logForm.value;
       try{
         await signInWithEmailAndPassword(this.auth, email, password);
-        this.showToast('Login successfully');
+        this.showToast('Login successfully', 'success');
         this.navCtrl.navigateForward('/home');
       }catch (error){
-        this.showToast("Error");
+        this.showToast("Error", 'danger');
       }
       console.log("Login Form", this.logForm.value);
     }else{
-      this.showToast('Please fill out the form correctly.');
+      this.showToast('Please fill out the form correctly.', 'warning');
       console.log("Invalid login form");
     }
   }
@@ -83,15 +85,18 @@ export class LoginPage {
       } catch (popupError) {
         await signInWithRedirect(this.auth, provider);
       }
-      this.showToast('Facebook login successful');
+      this.showToast('Facebook login successful', 'success');
       this.navCtrl.navigateForward('/home');
     } catch (error) {
-      this.showToast('Facebook login failed');
+      this.showToast('Facebook login failed', 'danger');
     }
   }
 
   async loginWithGoogle() {
     try {
+      const status = await Network.getStatus();
+      const online = status.connected;
+
       let idToken: string | null = null;
       if (Capacitor.getPlatform() === 'web') {
         const provider = new GoogleAuthProvider();
@@ -107,42 +112,44 @@ export class LoginPage {
         throw new Error('Google ID token not found');
       }
 
-      this.http.post('http://127.0.0.1:8000/api/google-login', { id_token: idToken })
-        .subscribe({
-          next: async (res: any) => {
-            localStorage.setItem('auth_token', res.token);
-            localStorage.setItem('user', JSON.stringify(res.user));
-            localStorage.setItem('loginTime', Date.now().toString());
-            localStorage.setItem('rememberMe', '1d');
-            const toast = await this.toastCtrl.create({
-              message: `Welcome ${res.user.first_name || res.user.name}`,
-              duration: 2000,
-              position: 'top',
-              color: 'success'
-            });
-            await toast.present();
-            this.router.navigate(['/home']);
-          },
-          error: async () => {
-            const toast = await this.toastCtrl.create({
-              message: 'Google Sign-In failed at server. Try again.',
-              duration: 2000,
-              position: 'top',
-              color: 'danger'
-            });
-            await toast.present();
-          }
-        });
+      if (online) {
+        this.http.post('http://127.0.0.1:8000/api/google-login', { id_token: idToken })
+          .subscribe({
+            next: async (res: any) => {
+              localStorage.setItem('auth_token', res.token);
+              localStorage.setItem('user', JSON.stringify(res.user));
+              localStorage.setItem('loginTime', Date.now().toString());
+              localStorage.setItem('rememberMe', '1d');
+              await this.showToast(`Welcome ${res.user.first_name || res.user.name}`, 'success');
+              this.router.navigate(['/home']);
+            },
+            error: async () => {
+              // Server down fallback if we have a prior session
+              const cachedUser = localStorage.getItem('user');
+              const cachedToken = localStorage.getItem('auth_token');
+              if (cachedUser && cachedToken) {
+                await this.showToast('Server unreachable. Continuing in offline mode.', 'warning');
+                this.router.navigate(['/home']);
+              } else {
+                await this.showToast('Google Sign-In failed at server. Try again.', 'danger');
+              }
+            }
+          });
+      } else {
+        // Offline fallback if we have a prior session
+        const cachedUser = localStorage.getItem('user');
+        const cachedToken = localStorage.getItem('auth_token');
+        if (cachedUser && cachedToken) {
+          await this.showToast('Offline detected. Resuming previous session.', 'warning');
+          this.router.navigate(['/home']);
+        } else {
+          await this.showToast('No internet. Please connect to sign in.', 'danger');
+        }
+      }
 
     } catch (error) {
       console.error('Google Sign-In Error:', error);
-      const toast = await this.toastCtrl.create({
-        message: 'Google Sign-In failed. Please try again.',
-        duration: 2000,
-        position: 'top',
-        color: 'danger'
-      });
-      await toast.present();
+      await this.showToast('Google Sign-In failed. Please try again.', 'danger');
     }
   }
   register(){
