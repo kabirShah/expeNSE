@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "680038177547",
+    "project_id": "paisa-2a3e0",
+    "storage_bucket": "paisa-2a3e0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680038177547:android:REPLACE_WITH_YOUR_ANDROID_APP_ID",
+        "android_client_info": {
+          "package_name": "io.pocket.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeshGn8GApQwxSOPk67bNAi8AUCoDzi6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
