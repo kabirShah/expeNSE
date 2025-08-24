@@ -14,7 +14,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { HttpClient } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { File } from "@ionic-native/file/ngx";
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { CardService } from './services/card.service';
@@ -25,10 +25,10 @@ import { CardService } from './services/card.service';
     BrowserModule, 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
-    IonicModule.forRoot()
+    IonicModule.forRoot(),
+    HttpClientModule
   ],
   providers: [
-    HttpClient,
     DatabaseService,
     CardService,
     File,
