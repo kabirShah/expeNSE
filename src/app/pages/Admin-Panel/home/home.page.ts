@@ -4,6 +4,7 @@ import { AlertController, NavController, ToastController } from '@ionic/angular'
 import { DatabaseService } from 'src/app/services/database.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
+import { BudgetPlan } from 'src/app/models/budget.model';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,13 @@ export class HomePage implements OnInit {
   yearSaving: number = 0;
   balances: Balance[] = [];
   activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
+  // Budget & Bank usage
+  budget?: BudgetPlan | null;
+  monthlyBudget: number = 0;
+  dreamGoalName: string = '';
+  dreamGoalTarget: number = 0;
+  dreamGoalSaved: number = 0;
+  bankUsage: { [bank: string]: number } = {};
   constructor(
     private router: Router,
     private db: DatabaseService,
@@ -41,6 +49,8 @@ export class HomePage implements OnInit {
     
     await this.loadBalance();
     await this.loadExpenses();
+    await this.loadBudget();
+    this.computeBankUsage();
     this.calculateSavings();
   }
 
@@ -80,6 +90,15 @@ export class HomePage implements OnInit {
     await this.calculateCreditsAndDebits();
   }
 
+  async loadBudget() {
+    const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+    this.budget = await this.db.getBudget(monthKey);
+    this.monthlyBudget = this.budget?.monthlyBudget || 0;
+    this.dreamGoalName = this.budget?.dreamGoalName || '';
+    this.dreamGoalTarget = this.budget?.dreamGoalTarget || 0;
+    this.dreamGoalSaved = this.budget?.dreamGoalSaved || 0;
+  }
+
   async calculateCreditsAndDebits() {
     const credits = await this.db.getAllCredits();
     const debits = await this.db.getAllExpenses();
@@ -105,6 +124,57 @@ export class HomePage implements OnInit {
   calculateSavings() {
     this.monthSaving = this.totalBalance - this.totalMonthExpense;
     this.yearSaving = this.totalBalance - this.totalYearExpense;
+  }
+
+  computeBankUsage() {
+    // Derive from expenses' transactionType or notes containing bank names
+    const banks = ['Kotak', 'ICICI', 'HDFC'];
+    this.bankUsage = { Kotak: 0, ICICI: 0, HDFC: 0 };
+    // Fetch all expenses and aggregate by bank keyword in description/notes/transactionType
+    // For simplicity, use getAllExpenses() which pulls manual expenses
+    this.db.getAllExpenses().then(expenses => {
+      expenses.forEach((exp: any) => {
+        const text = `${exp.transactionType || ''} ${exp.description || ''} ${exp.notes || ''}`.toLowerCase();
+        banks.forEach(bank => {
+          if (text.includes(bank.toLowerCase())) {
+            this.bankUsage[bank] = (this.bankUsage[bank] || 0) + (exp.amount || 0);
+          }
+        });
+      });
+    });
+  }
+
+  async editBudget() {
+    const alert = await this.alertCtrl.create({
+      header: 'Edit Budget & Goal',
+      inputs: [
+        { name: 'monthlyBudget', type: 'number', value: this.monthlyBudget, placeholder: 'Monthly Budget (₹)' },
+        { name: 'dreamGoalName', type: 'text', value: this.dreamGoalName, placeholder: 'Dream Goal Name' },
+        { name: 'dreamGoalTarget', type: 'number', value: this.dreamGoalTarget, placeholder: 'Goal Target (₹)' },
+        { name: 'dreamGoalSaved', type: 'number', value: this.dreamGoalSaved, placeholder: 'Saved So Far (₹)' },
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Save', handler: async (data) => {
+            const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+            const plan: BudgetPlan = {
+              _id: this.budget?._id || monthKey,
+              _rev: this.budget?._rev,
+              month: monthKey,
+              monthlyBudget: Number(data.monthlyBudget) || 0,
+              dreamGoalName: (data.dreamGoalName || '').trim(),
+              dreamGoalTarget: Number(data.dreamGoalTarget) || 0,
+              dreamGoalSaved: Number(data.dreamGoalSaved) || 0,
+            };
+            await this.db.upsertBudget(plan);
+            await this.loadBudget();
+            this.showToast('Budget updated');
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   // navigateTo(path: string) {

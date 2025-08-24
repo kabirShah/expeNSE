@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider, FacebookAuthProvider } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
@@ -71,14 +71,34 @@ export class LoginPage {
     }
   }
 
-  loginWithFacebook() {
-    console.log('Logging in with Facebook');
-    // Integrate Facebook login API logic here
+  async loginWithFacebook() {
+    try {
+      const provider = new FacebookAuthProvider();
+      try {
+        await signInWithPopup(this.auth, provider);
+      } catch (popupError) {
+        await signInWithRedirect(this.auth, provider);
+      }
+      this.showToast('Facebook login successful');
+      this.navCtrl.navigateForward('/home');
+    } catch (error) {
+      this.showToast('Facebook login failed');
+    }
   }
 
-  loginWithGoogle() {
-    console.log('Logging in with Google');
-    // Integrate Google login API logic here
+  async loginWithGoogle() {
+    try {
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(this.auth, provider);
+      } catch (popupError) {
+        await signInWithRedirect(this.auth, provider);
+      }
+      this.showToast('Google login successful');
+      this.navCtrl.navigateForward('/home');
+    } catch (error) {
+      this.showToast('Google login failed');
+    }
   }
   register(){
     this.navCtrl.navigateForward('/register');
