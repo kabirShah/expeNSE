@@ -8,6 +8,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { HttpClient } from '@angular/common/http';
 import { Network } from '@capacitor/network';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -92,6 +93,14 @@ export class LoginPage {
     }
   }
 
+  private getApiBaseForPlatform(): string {
+    // Use Android emulator host mapping for localhost
+    if (Capacitor.getPlatform() === 'android' && environment.apiBase.startsWith('http://127.0.0.1')) {
+      return environment.apiBase.replace('127.0.0.1', '10.0.2.2');
+    }
+    return environment.apiBase;
+  }
+
   async loginWithGoogle() {
     try {
       const status = await Network.getStatus();
@@ -112,8 +121,10 @@ export class LoginPage {
         throw new Error('Google ID token not found');
       }
 
+      const apiBase = this.getApiBaseForPlatform();
+
       if (online) {
-        this.http.post('http://127.0.0.1:8000/api/google-login', { id_token: idToken })
+        this.http.post(`${apiBase}/google-login`, { id_token: idToken })
           .subscribe({
             next: async (res: any) => {
               localStorage.setItem('auth_token', res.token);
@@ -124,7 +135,6 @@ export class LoginPage {
               this.router.navigate(['/home']);
             },
             error: async () => {
-              // Server down fallback if we have a prior session
               const cachedUser = localStorage.getItem('user');
               const cachedToken = localStorage.getItem('auth_token');
               if (cachedUser && cachedToken) {
@@ -136,7 +146,6 @@ export class LoginPage {
             }
           });
       } else {
-        // Offline fallback if we have a prior session
         const cachedUser = localStorage.getItem('user');
         const cachedToken = localStorage.getItem('auth_token');
         if (cachedUser && cachedToken) {
