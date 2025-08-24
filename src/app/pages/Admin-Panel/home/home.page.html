@@ -40,6 +40,44 @@
     </ion-card-content>
   </ion-card>
 
+  <!-- Budget Planner Card -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Budget Planner</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>🎯 <strong>Monthly Budget:</strong> ₹{{ monthlyBudget }}</p>
+      <p *ngIf="dreamGoalName">🌟 <strong>{{ dreamGoalName }}</strong>: ₹{{ dreamGoalSaved }} / ₹{{ dreamGoalTarget }}</p>
+      <ion-button color="warning" (click)="editBudget()">
+        <ion-icon name="create-outline"></ion-icon>
+        Edit Budget
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Bank Usage Summary -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Bank Usage</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Kotak</ion-label>
+          <ion-note slot="end">₹{{ bankUsage['Kotak'] || 0 }}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>ICICI</ion-label>
+          <ion-note slot="end">₹{{ bankUsage['ICICI'] || 0 }}</ion-note>
+        </ion-item>
+        <ion-item>
+          <ion-label>HDFC</ion-label>
+          <ion-note slot="end">₹{{ bankUsage['HDFC'] || 0 }}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
   <!-- Balance History Card -->
   <ion-card>
     <ion-card-header>

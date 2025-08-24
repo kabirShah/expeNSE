@@ -5,6 +5,7 @@ import { CreditCard } from '../models/credit-card.model';
 import { Balance } from '../models/balance.model';
 import { Invoice } from '../models/invoice.model';
 import { DebitCard } from '../models/debit-card.model';
+import { BudgetPlan } from '../models/budget.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class DatabaseService {
   private credits: any[] = [];
   private balanceDb: any;
   private debitDb: any;
+  private budgetDb: PouchDB.Database<BudgetPlan>;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
@@ -28,6 +30,7 @@ export class DatabaseService {
     this.balanceDb = new PouchDB('balanceDB');
     this.scanDb = new PouchDB('scanned_invoices');
     this.creditDb = new PouchDB('creditCards');
+    this.budgetDb = new PouchDB('budgetPlans');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
@@ -147,6 +150,40 @@ export class DatabaseService {
       descending: true,
     });
     return result.rows.map(row => row.doc);
+  }
+  // Budget CRUD
+  async upsertBudget(plan: BudgetPlan) {
+    try {
+      if (plan._id) {
+        const existing = await this.budgetDb.get(plan._id);
+        plan._rev = existing._rev;
+      } else {
+        plan._id = plan.month;
+      }
+      plan.updatedAt = new Date().toISOString();
+      if (!plan.createdAt) plan.createdAt = plan.updatedAt;
+      return await this.budgetDb.put(plan as any);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getBudget(month: string): Promise<BudgetPlan | null> {
+    try {
+      return await this.budgetDb.get(month);
+    } catch (error) {
+      if ((error as any).status === 404) return null;
+      this.handleError(error);
+    }
+  }
+
+  async getAllBudgets(): Promise<BudgetPlan[]> {
+    try {
+      const result = await this.budgetDb.allDocs({ include_docs: true });
+      return result.rows.map(r => r.doc as BudgetPlan);
+    } catch (error) {
+      this.handleError(error);
+    }
   }
   // Balance Management
   async setUserBalance(balance: number) {
