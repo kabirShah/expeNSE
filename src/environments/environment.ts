@@ -16,7 +16,8 @@ export const environment = {
     messagingSenderId: "680038177547",
     appId: "1:680038177547:web:27da2d6f8a9b1099f3600e",
     measurementId: "G-HRXRYPRV1Z"
-  }
+  },
+  apiBase: 'http://localhost:8000/api'
 };
 
 // const app = initializeApp(firebase);
