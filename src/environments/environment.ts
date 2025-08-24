@@ -17,7 +17,7 @@ export const environment = {
     appId: "1:680038177547:web:27da2d6f8a9b1099f3600e",
     measurementId: "G-HRXRYPRV1Z"
   },
-  apiBase: 'http://localhost:8000/api'
+  apiBase: 'http://127.0.0.1:8000/api'
 };
 
 // const app = initializeApp(firebase);
