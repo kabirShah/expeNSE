@@ -12,6 +12,14 @@ const routes: Routes = [
     loadChildren: () => import('./pages/setting/login/login.module').then(m => m.LoginPageModule)
   },
   {
+    path: 'forgot-password',
+    loadChildren: () => import('./pages/setting/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule)
+  },
+  {
+    path: 'otp',
+    loadChildren: () => import('./pages/setting/otp/otp.module').then(m => m.OtpPageModule)
+  },
+  {
     path: 'register',
     loadChildren: () => import('./pages/setting/registration/registration.module').then(m => m.RegistrationPageModule)
   },
@@ -50,6 +58,10 @@ const routes: Routes = [
   {
     path:'setting',
     loadChildren: () => import('./pages/setting/setting/setting.module').then(m=>m.SettingPageModule)
+  },
+  {
+    path: 'terms',
+    loadChildren: () => import('./pages/terms/terms.module').then(m => m.TermsPageModule)
   },
   {
     path:'profile',

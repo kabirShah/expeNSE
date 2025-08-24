@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-registration',
@@ -18,7 +19,8 @@ export class RegistrationPage implements OnInit {
     private auth: Auth,
     private toastCtrl: ToastController,
     private loadingController: LoadingController,
-    private fb: FormBuilder, private navCtrl: NavController) {}
+    private fb: FormBuilder, private navCtrl: NavController,
+    private authService: AuthService) {}
 
   ngOnInit() {
     // Define FormGroup and validations
@@ -68,13 +70,11 @@ export class RegistrationPage implements OnInit {
     const loading = await this.loadingController.create();
     await loading.present();
     if (this.regForm.valid) {
-      const {email, password } = this.regForm.value;
-      try{
-        await createUserWithEmailAndPassword(this.auth, email, password);
-        this.showToast("successfully login");
-      }catch (e){
-        this.showToast("error");
-      }
+      const payload = this.regForm.value;
+      this.authService.register(payload).subscribe({
+        next: () => this.showToast('Registered successfully'),
+        error: () => this.showToast('Registration failed')
+      });
       console.log('Form Data:', this.regForm.value);
       this.navCtrl.navigateForward('/home');
     } else {

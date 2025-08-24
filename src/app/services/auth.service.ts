@@ -1,52 +1,64 @@
 import { Injectable } from '@angular/core';
-import firebase from 'firebase/compat/app';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { ApiService } from './api.service';
+import { BehaviorSubject, tap } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface LoginResponse { token: string; user: any }
 
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  private tokenKey = 'auth_token';
+  private currentUserSubject = new BehaviorSubject<any>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(public auth: AngularFireAuth) { 
-
-  }
-  async registerUser(email:string, password:string){
-    return await this.auth.createUserWithEmailAndPassword(email,password);
-  }
-  async loginUser(email:string,password:string){
-    return await this.auth.signInWithEmailAndPassword(email,password);
-  }
-  async resetPassword(email:string){
-    return await this.auth.sendPasswordResetEmail(email);
-  }
-  async signOut(){
-    return await this.auth.signOut();
-  }
-  
-  async getProfile(){
-    return await this.auth.currentUser    
-  }
-  async loginWithGoogle() {
-    try {
-      const res = await this.auth.signInWithPopup(
-        new firebase.auth.GoogleAuthProvider()
-      );
-      return res;
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      return error;
+  constructor(private api: ApiService) {
+    const token = this.getToken();
+    if (token) {
+      // Optionally load profile
     }
   }
-  async loginWithFacebook() {
-    try {
-      const res = await this.auth.signInWithPopup(
-        new firebase.auth.FacebookAuthProvider()
-      );
-      return res;
-    } catch (error) {
-      console.error('Facebook Sign-In Error:', error);
-      return error;
-    }
+
+  login(email: string, password: string) {
+    return this.api.post<LoginResponse>('/auth/login', { email, password }).pipe(
+      tap(res => {
+        this.setToken(res.token);
+        this.currentUserSubject.next(res.user);
+      })
+    );
+  }
+
+  register(payload: any) {
+    return this.api.post<LoginResponse>('/auth/register', payload).pipe(
+      tap(res => {
+        this.setToken(res.token);
+        this.currentUserSubject.next(res.user);
+      })
+    );
+  }
+
+  forgotPassword(email: string) {
+    return this.api.post<any>('/auth/forgot-password', { email });
+  }
+
+  verifyOtp(email: string, otp: string) {
+    return this.api.post<any>('/auth/verify-otp', { email, otp });
+  }
+
+  resetPassword(email: string, otp: string, password: string) {
+    return this.api.post<any>('/auth/reset-password', { email, otp, password });
+  }
+
+  logout() {
+    localStorage.removeItem(this.tokenKey);
+    this.currentUserSubject.next(null);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  private setToken(token: string) {
+    localStorage.setItem(this.tokenKey, token);
   }
 }
+
+// Removed legacy AngularFire AuthService to avoid duplicate declarations

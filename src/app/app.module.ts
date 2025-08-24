@@ -14,10 +14,12 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { File } from "@ionic-native/file/ngx";
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { CardService } from './services/card.service';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -25,7 +27,8 @@ import { CardService } from './services/card.service';
     BrowserModule, 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
-    IonicModule.forRoot()
+    IonicModule.forRoot(),
+    HttpClientModule
   ],
   providers: [
     HttpClient,
@@ -36,7 +39,8 @@ import { CardService } from './services/card.service';
     provideFirestore(() => getFirestore()), // Provide Firestore
     provideFirebaseApp(() => initializeApp(environment.firebase)), // Initialize Firebase
     provideAuth(() => getAuth()), // Provide Firebase Auth
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]

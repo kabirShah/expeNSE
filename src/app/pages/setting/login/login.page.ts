@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { BiometricService } from '../../../services/biometric.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginPage {
     private alertCtrl: AlertController,
     private router: Router,
     private auth:Auth,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private authService: AuthService
   ) {
     this.logForm = this.fb.group({
       email:['', [Validators.required, Validators.email]],
@@ -57,13 +59,13 @@ export class LoginPage {
   async login() {
     if (this.logForm.valid) {
       const {email,password} = this.logForm.value;
-      try{
-        await signInWithEmailAndPassword(this.auth, email, password);
-        this.showToast('Login successfully');
-        this.navCtrl.navigateForward('/home');
-      }catch (error){
-        this.showToast("Error");
-      }
+      this.authService.login(email, password).subscribe({
+        next: () => {
+          this.showToast('Login successfully');
+          this.navCtrl.navigateForward('/home');
+        },
+        error: () => this.showToast('Login failed')
+      });
       console.log("Login Form", this.logForm.value);
     }else{
       this.showToast('Please fill out the form correctly.');
