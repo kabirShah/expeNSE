@@ -14,7 +14,7 @@ export class HomePage implements OnInit {
   email: any;
   currentMonth: string = '';
   currentYear: number = new Date().getFullYear();
-  
+  userFirstName: string = '';
   totalTodayExpense: number = 0;
   totalMonthExpense: number = 0;
   totalYearExpense: number = 0;
@@ -36,6 +36,13 @@ export class HomePage implements OnInit {
   ) {}
 
   async ngOnInit() {
+ const userStr = localStorage.getItem('user');
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    this.userFirstName = user.first_name || user.name || '';
+  }
+
+
     this.currentMonth = this.getMonthName(new Date().getMonth());
     console.log('Current Month:', this.currentMonth);
     

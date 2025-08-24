@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
+import { isPlatform, Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,13 @@ export class AuthService {
   private API_URL = 'http://127.0.0.1:8000/api';
   TOKEN_EXPIRY_DAYS = 7;
   user: any = null;
-  constructor(private http: HttpClient,private router: Router) { 
-
+  constructor(private http: HttpClient,private router: Router, private platform: Platform) { 
+    if(!isPlatform('capacitor')){
+      GoogleAuth.initialize();
+    }
+    this.platform.ready().then(() => {
+      GoogleAuth.initialize();
+    });
   }
 
 // ONLINE LOGIN

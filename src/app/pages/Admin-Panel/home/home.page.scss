@@ -102,3 +102,28 @@ ion-tab-bar {
   margin-top: 2px;
   font-weight: 500;
 }
+/* filepath: d:\Software Developing\pocket-money-mobile\src\app\pages\Admin-Panel\home\home.page.scss */
+.gradient-card {
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
+}
+
+.shadow-card {
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.12);
+}
+
+ion-card-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.subtitle {
+  color: #6c757d;
+  font-size: 1em;
+  margin-top: 0.5em;
+}

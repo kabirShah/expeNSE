@@ -46,9 +46,21 @@
   </ion-row>
 </ion-grid> -->
   <!-- Expense Summary Card -->
+<ion-card class="welcome-card gradient-card">
+  <ion-card-header>
+    <ion-card-title>
+      <ion-icon name="person-circle-outline" color="primary" style="font-size:2em;vertical-align:middle;"></ion-icon>
+      Welcome, {{userFirstName}}
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <p class="subtitle">Here’s your expense summary for this month!</p>
+  </ion-card-content>
+</ion-card>
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Expense Summary</ion-card-title>
+      <ion-card-title>
+        Expense Summary</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <p>📅 <strong>Today Expense:</strong> ₹{{ totalTodayExpense }}</p>
