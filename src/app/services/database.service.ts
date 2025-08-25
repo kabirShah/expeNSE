@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
-import { Expense, ExpenseCategory, TransactionType } from '../models/expense.model';
+import { Expense, ExpenseCategory, TransactionType, Transaction } from '../models/expense.model';
 import { CreditCard } from '../models/credit-card.model';
 import { Balance } from '../models/balance.model';
 import { Invoice } from '../models/invoice.model';
@@ -13,6 +13,7 @@ export class DatabaseService {
   private manualDb: PouchDB.Database<Expense>;
   private autoDb: PouchDB.Database<Expense>;
   private scanDb: PouchDB.Database<Invoice>;
+  private transactionDb: PouchDB.Database<Transaction>;
   private credits: any[] = [];
   private balanceDb: any;
   private debitDb: any;
@@ -29,10 +30,89 @@ export class DatabaseService {
     this.scanDb = new PouchDB('scanned_invoices');
     this.creditDb = new PouchDB('creditCards');
     this.splitDb = new PouchDB('split_expenses');
+    this.transactionDb = new PouchDB('transactions');
   }
   private handleError(error: any): never {
     console.error('Database Error:', error);
     throw error;
+  }
+
+  // =========================
+  // Transactions CRUD / Query
+  // =========================
+
+  async addTransaction(transaction: Transaction) {
+    try {
+      const userId = localStorage.getItem('user_id');
+      if (!userId) throw new Error('User not logged in');
+
+      transaction.transactionId = transaction.transactionId || new Date().toISOString();
+      (transaction as any).user_id = userId;
+      transaction.createdAt = transaction.createdAt || new Date().toISOString();
+
+      return await this.transactionDb.put({
+        _id: transaction.transactionId,
+        ...(transaction as any),
+      } as any);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async updateTransaction(transaction: Transaction) {
+    try {
+      if (!transaction.transactionId) throw new Error('Transaction must have transactionId');
+      const existing = await this.transactionDb.get(transaction.transactionId);
+      return await this.transactionDb.put({
+        ...(existing as any),
+        ...(transaction as any),
+        _id: transaction.transactionId,
+        _rev: (existing as any)._rev,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async deleteTransaction(transactionId: string) {
+    try {
+      const doc = await this.transactionDb.get(transactionId);
+      return await this.transactionDb.remove(doc);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getAllTransactions(): Promise<Transaction[]> {
+    try {
+      const userId = localStorage.getItem('user_id');
+      const result = await this.transactionDb.allDocs({ include_docs: true, descending: true });
+      return result.rows
+        .map((row: any) => row.doc as Transaction)
+        .filter((tx: any) => tx.user_id === userId);
+    } catch (error) {
+      this.handleError(error);
+      return [];
+    }
+  }
+
+  async getTransactionsByFilter(options: {
+    bank?: string;
+    accountType?: string; // debit | credit | upi | bank_transfer
+    startDateIso?: string;
+    endDateIso?: string;
+  }): Promise<Transaction[]> {
+    const { bank, accountType, startDateIso, endDateIso } = options || {};
+    const all = await this.getAllTransactions();
+    return all.filter((tx: any) => {
+      const matchesBank = bank ? (tx.bank === bank) : true;
+      const matchesType = accountType ? (tx.accountType === accountType) : true;
+      const ts = new Date(tx.date).getTime();
+      const matchesStart = startDateIso ? ts >= new Date(startDateIso).getTime() : true;
+      const matchesEnd = endDateIso ? ts <= new Date(endDateIso).getTime() : true;
+      return matchesBank && matchesType && matchesStart && matchesEnd;
+    });
   }
  async getCards(id:string): Promise<CreditCard | undefined>{
     try {
