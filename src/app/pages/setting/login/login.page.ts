@@ -50,22 +50,32 @@ export class LoginPage {
     await toast.present();
   }
 
-  async loginWithBiometric() {
-    try {
-      const isAuthenticated = await this.biometricService.verifyIdentity();
+async loginWithBiometric() {
+  try {
+    const isAuthenticated = await this.biometricService.verifyIdentity();
 
-      if (isAuthenticated) {
-        localStorage.setItem('isLoggedIn', 'true');
-        this.router.navigateByUrl('/home');
+    if (isAuthenticated) {
+      // ✅ Fake a login session like normal login
+      const token = localStorage.getItem('auth_token');
+      const user = localStorage.getItem('user');
+
+      if (token && user) {
+        // Already stored from a previous login → refresh loginTime
+        localStorage.setItem('loginTime', Date.now().toString());
+        this.navCtrl.navigateRoot('/home');
       } else {
-        this.showErrorAlert('Authentication failed.');
+        this.showErrorAlert('No saved session. Please login manually first.');
       }
-    } catch (error) {
-      this.showErrorAlert('Biometric authentication error.');
+    } else {
+      this.showErrorAlert('Authentication failed.');
     }
+  } catch (error) {
+    this.showErrorAlert('Biometric authentication error.');
   }
+}
 
-  togglePasswordVisibility() {
+
+togglePasswordVisibility() {
     this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
   }
 
@@ -134,13 +144,6 @@ export class LoginPage {
       this.showToast('Please fill out the form correctly.');
     }
   }
-
-  loginWithFacebook() {
-    this.navCtrl.navigateForward('/home');
-    console.log('Logging in with Facebook');
-    // Integrate Facebook login API logic here
-  }
-
 
 
 async signInWithGoogle() {

@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-// import { Plugins } from '@capacitor/core';
 import { NativeBiometric } from 'capacitor-native-biometric';
 
 @Injectable({
@@ -8,14 +6,10 @@ import { NativeBiometric } from 'capacitor-native-biometric';
 })
 export class BiometricService {
 
-  constructor (private router:Router){
-
-  }
-  
   async verifyIdentity(): Promise<boolean> {
     try {
-      const isAvailable = await NativeBiometric.isAvailable();
-      if (!isAvailable) {
+      const result = await NativeBiometric.isAvailable();
+      if (!result.isAvailable) {
         throw new Error('Biometric authentication is not available on this device.');
       }
 
@@ -25,16 +19,14 @@ export class BiometricService {
         subtitle: 'Authenticate',
         description: 'Please authenticate to proceed',
         maxAttempts: 2,
-        useFallback: true,
+        useFallback: false, // better avoid PIN fallback if you want only biometric
       });
 
-      console.log('Biometric authentication successful:');
+      console.log('✅ Biometric authentication successful');
       return true;
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-      console.error('Error verifying identity:', errorMessage);
-      throw new Error(errorMessage);
+    } catch (error: any) {
+      console.error('❌ Biometric auth error:', error.message || error);
+      return false;
     }
   }
-
 }

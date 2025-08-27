@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "210290542284",
+    "project_id": "pocket-expense-c329d",
+    "storage_bucket": "pocket-expense-c329d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210290542284:android:cd55114caf2c24fc4c2469",
+        "android_client_info": {
+          "package_name": "io.pocketexpense.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTp_RmWuBPGhwl0RSYHJ49eY0BLg1WSzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

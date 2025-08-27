@@ -23,7 +23,6 @@
             </intent-filter>
 
         </activity>
-        
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -37,6 +36,6 @@
     </application>
 
     <!-- Permissions -->
-
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

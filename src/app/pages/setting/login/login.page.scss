@@ -161,13 +161,11 @@ h2 {
 
 .biometric-login ion-icon {
   font-size: 46px;
-  color: #007bff;
   animation: pulse 1.6s infinite;
   transition: 0.3s;
 }
 .biometric-login ion-icon:hover {
   transform: scale(1.1);
-  color: #0097a7;
 }
 
 @keyframes pulse {

@@ -10,13 +10,13 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): boolean {
     const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-    const loginTime = localStorage.getItem('loginTime');
-    const rememberMe = localStorage.getItem('rememberMe'); // '1y' or '1d'
+    const loginTime = localStorage.getItem('loginTime') || sessionStorage.getItem('loginTime');;
+    const rememberMe = localStorage.getItem('rememberMe')|| sessionStorage.getItem('rememberMe');; // '1y' or '1d'
 
     if (token && loginTime) {
       const now = new Date().getTime();
       const expiry =
-        rememberMe === '1y'
+        rememberMe === '7d'
           ? 1000 * 60 * 60 * 24 * 7   // 7 days if remember me
           : 1000 * 60 * 60 * 24;      // 1 day otherwise
 

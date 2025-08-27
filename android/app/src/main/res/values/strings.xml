@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">pocket-money</string>
     <string name="title_activity_main">pocket-money</string>
-    <string name="package_name">io.pocket.app</string>
-    <string name="custom_url_scheme">io.pocket.app</string>
-    <string name="server_client_id">154523177520-opt7hor5f5m17ritj5nrpsehutv9h9ov.apps.googleusercontent.com</string>
+    <string name="package_name">io.pocketexpense.app</string>
+    <string name="custom_url_scheme">io.pocketexpense.app</string>
 </resources>

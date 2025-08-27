@@ -19,9 +19,6 @@ export class AuthService {
     if(!isPlatform('capacitor')){
       GoogleAuth.initialize();
     }
-    this.platform.ready().then(() => {
-      GoogleAuth.initialize();
-    });
   }
 
 // ONLINE LOGIN
@@ -38,6 +35,8 @@ export class AuthService {
           localStorage.setItem('user_name', response.user.name);
           localStorage.setItem('auth_token', response.token);
           localStorage.setItem('loginTime',new Date().getTime().toString());
+          localStorage.setItem('token_timestamp', new Date().getTime().toString());
+
         }
       })
     );

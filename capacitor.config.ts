@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.pocket.app',
+  appId: 'io.pocketexpense.app',
   appName: 'pocket-money',
   webDir: 'www',
   plugins: {
