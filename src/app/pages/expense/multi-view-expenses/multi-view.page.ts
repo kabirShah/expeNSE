@@ -22,7 +22,7 @@ export class MultiViewPage implements OnInit {
   }
 
   async loadAutoExpenses() {
-    this.autoExpenses = await this.db.getAllAutoExpenses();
+    // this.autoExpenses = await this.db.getAllAutoExpenses();
     this.applyFilters();
   }
   async applyFilters(){

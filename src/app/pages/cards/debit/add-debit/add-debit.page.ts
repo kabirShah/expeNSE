@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { DebitCard } from 'src/app/models/debit-card.model';
-import { DatabaseService } from 'src/app/services/database.service';
+import { CardApiService } from 'src/app/services/card-api.service';
 
 @Component({
   selector: 'app-add-debit',
@@ -14,9 +14,10 @@ export class AddDebitPage implements OnInit {
   createdebitForm!: FormGroup;
   debitCardId: string | null = null;
   debitCard: DebitCard | null = null;
+  loading: boolean = false;
 
   constructor(
-    private db: DatabaseService,
+    private cardApiService: CardApiService,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -25,7 +26,6 @@ export class AddDebitPage implements OnInit {
 
   ngOnInit() {
     this.createdebitForm = this.fb.group({
-      userId: ['12345'], // Replace with dynamic user ID
       cardNumber: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(19)]],
       cardHolderName: ['', Validators.required],
       expiryDate: ['', Validators.required],
@@ -40,22 +40,30 @@ export class AddDebitPage implements OnInit {
 
   async loadCard(cardId: string | null) {
     if (cardId !== null) {
+      this.loading = true;
       try {
-        const card = await this.db.getDebitCard(cardId);
-        this.debitCard = card ?? null; // Ensure null is assigned if undefined
+        const response = await this.cardApiService.getDebitCardById(cardId).toPromise();
+        if (response?.success) {
+          this.debitCard = response.data;
+          // Populate form with existing data
+          this.createdebitForm.patchValue({
+            cardNumber: this.debitCard.cardNumber,
+            cardHolderName: this.debitCard.cardHolderName,
+            expiryDate: this.debitCard.expiryDate,
+            debitLimit: this.debitCard.debitLimit
+          });
+        } else {
+          this.showToast('Failed to load card details.', 'danger');
+        }
       } catch (error) {
         this.showToast('Failed to load card details.', 'danger');
         console.error(error);
-        this.debitCard = null; // Handle error case by setting to null
+      } finally {
+        this.loading = false;
       }
-    } else {
-      console.log('Card ID is null');
-      this.debitCard = null;
     }
   }
   
-  
-
   async addCard() {
     if (this.createdebitForm.invalid) {
       console.error('Form is invalid');
@@ -64,21 +72,27 @@ export class AddDebitPage implements OnInit {
     }
 
     const cardDetails = this.createdebitForm.value;
+    this.loading = true;
+    
     try {
-      if (this.debitCardId) {
+      if (this.debitCardId && this.debitCard) {
         // Update existing card
-        if (this.debitCard) {
-          cardDetails._id = this.debitCard._id;
-          cardDetails._rev = this.debitCard._rev;
-          await this.db.updateDebitCard(cardDetails);
+        const updatedCard = { ...this.debitCard, ...cardDetails };
+        const response = await this.cardApiService.updateDebitCard(this.debitCardId, updatedCard).toPromise();
+        
+        if (response?.success) {
           await this.showToast('Debit Card Updated Successfully', 'success');
         } else {
-          await this.showToast('Debit Card not found', 'danger');
+          await this.showToast('Failed to update debit card', 'danger');
         }
       } else {
         // Add new card
-        await this.db.addDebitCard(cardDetails);
-        await this.showToast('Debit Card Added Successfully', 'success');
+        const response = await this.cardApiService.createDebitCard(cardDetails).toPromise();
+        if (response?.success) {
+          await this.showToast('Debit Card Added Successfully', 'success');
+        } else {
+          await this.showToast('Failed to add debit card', 'danger');
+        }
       }
 
       this.createdebitForm.reset();
@@ -86,6 +100,8 @@ export class AddDebitPage implements OnInit {
     } catch (error) {
       this.showToast('Failed to add/update debit card.', 'danger');
       console.error(error);
+    } finally {
+      this.loading = false;
     }
   }
 

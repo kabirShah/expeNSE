@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,6 +19,7 @@ export class LoginPage {
   isLoading: boolean = false;
 
   constructor(
+    private cd: ChangeDetectorRef,
     private biometricService: BiometricService,
     private fb: FormBuilder,
     private navCtrl: NavController,
@@ -51,14 +52,16 @@ async loginWithBiometric() {
     const isAuthenticated = await this.biometricService.verifyIdentity();
 
     if (isAuthenticated) {
-      // ✅ Fake a login session like normal login
-      const token = localStorage.getItem('auth_token');
+      // ✅ Check if there's a valid session
+      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
       const user = localStorage.getItem('user');
 
       if (token && user) {
         // Already stored from a previous login → refresh loginTime
-        localStorage.setItem('loginTime', Date.now().toString());
-        this.navCtrl.navigateRoot('/home');
+        const now = new Date().getTime();
+        localStorage.setItem('loginTime', now.toString());
+        // Use consistent navigation method
+        this.router.navigateByUrl('/home', { replaceUrl: true });
       } else {
         this.showErrorAlert('No saved session. Please login manually first.');
       }
@@ -115,7 +118,7 @@ togglePasswordVisibility() {
             }
 
             this.showToast('Login successful!');
-            this.navCtrl.navigateForward('/home');
+            this.router.navigateByUrl('/home', { replaceUrl: true });
           },
           error: async (err) => {
             this.isLoading = false;
@@ -144,15 +147,17 @@ togglePasswordVisibility() {
 
 
 
-  register() {
-    this.router.navigateByUrl('/register', { replaceUrl: true });
-
-    // this.navCtrl.navigateForward('/register');
+  goToRegister() {
+    this.cd.detectChanges();
+    Object.values(this.logForm.controls).forEach(control => control.markAsTouched());
+    this.router.navigateByUrl('/register');
   }
+
 
   forgotPassword() {
-    this.navCtrl.navigateForward('/forgot-password');
+    this.router.navigateByUrl('/forgot-password', { replaceUrl: true });
   }
+
 
   async showErrorAlert(message: string) {
     const alert = await this.alertCtrl.create({

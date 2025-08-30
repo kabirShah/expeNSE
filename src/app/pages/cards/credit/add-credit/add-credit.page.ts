@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { CreditCard } from '../../../../models/credit-card.model';
-import { DatabaseService } from 'src/app/services/database.service';
+import { CardApiService } from 'src/app/services/card-api.service';
 
 @Component({
   selector: 'app-add-credit',
@@ -14,9 +14,10 @@ export class AddCreditPage implements OnInit {
   createCreditForm!: FormGroup;
   creditCardId: string | null = null;
   creditCard: CreditCard | null = null;
+  loading: boolean = false;
 
   constructor(
-    private db: DatabaseService,
+    private cardApiService: CardApiService,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private route: ActivatedRoute,
@@ -25,7 +26,6 @@ export class AddCreditPage implements OnInit {
 
   ngOnInit() {
     this.createCreditForm = this.fb.group({
-      userId: ['12345'], // Replace with dynamic user ID
       cardNumber: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(19)]],
       cardHolderName: ['', Validators.required],
       expiryDate: ['', Validators.required],
@@ -40,22 +40,30 @@ export class AddCreditPage implements OnInit {
 
   async loadCard(cardId: string | null) {
     if (cardId !== null) {
+      this.loading = true;
       try {
-        const card = await this.db.getCreditCard(cardId);
-        this.creditCard = card ?? null; // Ensure null is assigned if undefined
+        const response = await this.cardApiService.getCreditCardById(cardId).toPromise();
+        if (response?.success) {
+          this.creditCard = response.data;
+          // Populate form with existing data
+          this.createCreditForm.patchValue({
+            cardNumber: this.creditCard.cardNumber,
+            cardHolderName: this.creditCard.cardHolderName,
+            expiryDate: this.creditCard.expiryDate,
+            creditLimit: this.creditCard.creditLimit
+          });
+        } else {
+          this.showToast('Failed to load card details.', 'danger');
+        }
       } catch (error) {
         this.showToast('Failed to load card details.', 'danger');
         console.error(error);
-        this.creditCard = null; // Handle error case by setting to null
+      } finally {
+        this.loading = false;
       }
-    } else {
-      console.log('Card ID is null');
-      this.creditCard = null;
     }
   }
   
-  
-
   async addCard() {
     if (this.createCreditForm.invalid) {
       console.error('Form is invalid');
@@ -64,21 +72,27 @@ export class AddCreditPage implements OnInit {
     }
 
     const cardDetails = this.createCreditForm.value;
+    this.loading = true;
+    
     try {
-      if (this.creditCardId) {
+      if (this.creditCardId && this.creditCard) {
         // Update existing card
-        if (this.creditCard) {
-          cardDetails._id = this.creditCard._id;
-          cardDetails._rev = this.creditCard._rev;
-          await this.db.updateCreditCard(cardDetails);
+        const updatedCard = { ...this.creditCard, ...cardDetails };
+        const response = await this.cardApiService.updateCreditCard(this.creditCardId, updatedCard).toPromise();
+        
+        if (response?.success) {
           await this.showToast('Credit Card Updated Successfully', 'success');
         } else {
-          await this.showToast('Credit Card not found', 'danger');
+          await this.showToast('Failed to update credit card', 'danger');
         }
       } else {
         // Add new card
-        await this.db.addCreditCard(cardDetails);
-        await this.showToast('Credit Card Added Successfully', 'success');
+        const response = await this.cardApiService.createCreditCard(cardDetails).toPromise();
+        if (response?.success) {
+          await this.showToast('Credit Card Added Successfully', 'success');
+        } else {
+          await this.showToast('Failed to add credit card', 'danger');
+        }
       }
 
       this.createCreditForm.reset();
@@ -86,6 +100,8 @@ export class AddCreditPage implements OnInit {
     } catch (error) {
       this.showToast('Failed to add/update credit card.', 'danger');
       console.error(error);
+    } finally {
+      this.loading = false;
     }
   }
 

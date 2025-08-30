@@ -37,7 +37,7 @@ export class AnalyticsPage implements AfterViewInit {
   constructor(public navCtrl: NavController, private db:DatabaseService, private http: HttpClient) {}
 
   async ngAfterViewInit() {
-    await this.loadExpenses();
+    // await this.loadExpenses();
     this.initFilters();
     this.filterExpenses();
     this.createManualChart();
@@ -105,16 +105,16 @@ export class AnalyticsPage implements AfterViewInit {
     this.createAutoChart();
   }
 
-  async loadExpenses(){
-    try {
-      this.manualExpenses = await this.db.getAllManualExpenses();
-      console.log('Manual Expenses:', this.manualExpenses);
-      this.autoExpenses = await this.db.getAllAutoExpenses();
-      console.log('Auto Expenses:', this.autoExpenses);
-    } catch (error) {
-      console.error('Error loading expenses:', error);
-    }
-  }
+  // async loadExpenses(){
+  //   try {
+  //     this.manualExpenses = await this.db.getAllManualExpenses();
+  //     console.log('Manual Expenses:', this.manualExpenses);
+  //     this.autoExpenses = await this.db.getAllAutoExpenses();
+  //     console.log('Auto Expenses:', this.autoExpenses);
+  //   } catch (error) {
+  //     console.error('Error loading expenses:', error);
+  //   }
+  // }
   createManualChart() {
     const groupedExpenses = this.groupExpensesByCategory(this.filteredManualExpenses);
     const categories = Object.keys(groupedExpenses);

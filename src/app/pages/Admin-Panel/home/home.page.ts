@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
-import { DatabaseService } from 'src/app/services/database.service';
+import { BalanceService } from 'src/app/services/balance.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { ExpenseService } from 'src/app/services/expense.service';
+import { TransactionService } from 'src/app/services/transaction.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -28,37 +31,102 @@ export class HomePage implements OnInit {
   yearSaving: number = 0;
   balances: Balance[] = [];
   activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
+  loading: boolean = false;
+
   constructor(
     private router: Router,
-    private db: DatabaseService,
+    private balanceService: BalanceService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private menuService: MenuService,
-    private authService: AuthService
+    private authService: AuthService,
+    private expenseService: ExpenseService,
+    private transactionService: TransactionService
   ) {}
 
   async ngOnInit() {
-
-
     this.currentMonth = this.getMonthName(new Date().getMonth());
     console.log('Current Month:', this.currentMonth);
     
-    await this.loadBalance();
-    await this.loadExpenses();
-    this.calculateSavings();
-    const profile$ = this.authService.getProfile();
-    if (profile$) {
-      profile$.subscribe({
-        next: (res) => {
-          this.user = res.user;
-          this.userFirstName = this.user?.name?.split(' ')[0] || '';
-        },
-        error: (err) => {
+    this.loading = true;
+    
+    try {
+      // Load profile, balances, and expenses in parallel
+      const profile$ = this.authService.getProfile();
+      const balances$ = this.balanceService.getBalances();
+      const expenses$ = this.expenseService.getExpenses();
+      const transactions$ = this.transactionService.getTransactions();
+      
+      const [profileRes, balanceRes, expenseRes, transactionRes] = await Promise.all([
+        profile$?.toPromise().catch(err => {
           console.error('Error loading profile:', err);
-          this.user = null;
+          return null;
+        }),
+        balances$?.toPromise().catch(err => {
+          console.error('Error loading balances:', err);
+          return { success: false, data: [] };
+        }),
+        expenses$?.toPromise().catch(err => {
+          console.error('Error loading expenses:', err);
+          return { success: false, data: [] };
+        }),
+        transactions$?.toPromise().catch(err => {
+          console.error('Error loading transactions:', err);
+          return { success: false, data: [] };
+        })
+      ]);
+
+      // Process profile
+      if (profileRes) {
+        this.user = profileRes.user;
+        this.userFirstName = this.user?.name?.split(' ')[0] || '';
+      }
+
+      // Process balances
+      if (balanceRes?.success) {
+        const balanceDocs: Balance[] = balanceRes.data;
+        if (balanceDocs.length > 0) {
+          this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
+          this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
+        } else {
+          this.totalBalance = 0;
+          this.balances = [];
         }
-      });
+      }
+
+      // Process expenses
+      if (expenseRes?.success) {
+        const expenses = expenseRes.data;
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        this.totalTodayExpense = this.sumExpenses(expenses.filter(exp => 
+          new Date(exp.date).toISOString().split('T')[0] === todayStr
+        ));
+        
+        this.totalMonthExpense = this.sumExpenses(expenses, 'month');
+        this.totalYearExpense = this.sumExpenses(expenses, 'year');
+      }
+
+      // Process transactions for credits/debits
+      if (transactionRes?.success) {
+        const transactions = transactionRes.data;
+        const credits = transactions.filter(t => t.type === 'credit');
+        const debits = transactions.filter(t => t.type === 'debit');
+        
+        this.creditTotal = this.sumExpenses(credits);
+        this.debitTotal = this.sumExpenses(debits);
+        this.userBalance = this.creditTotal - this.debitTotal;
+      }
+
+      this.calculateSavings();
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      this.showToast('Failed to load financial data', 'danger');
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -70,44 +138,12 @@ export class HomePage implements OnInit {
     return months[monthIndex] || 'Unknown';
   }
 
-  async loadBalance() {
-    try {
-      const userId = localStorage.getItem('user_id'); // 🔑 get logged-in user ID
-      if (!userId) throw new Error('User ID not found');
-      const balanceDocs: Balance[] = await this.db.getAllBalances();
-      const userBalances = balanceDocs.filter(b => b.userId === userId);
-      if (balanceDocs.length > 0) {
-        this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
-        this.userBalance = this.totalBalance - this.totalMonthExpense;
-        this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()); // Sort by date
-      } else {
-        this.totalBalance = 0;
-        this.userBalance = 0;
-        this.balances = [];
-      }
-    } catch (error) {
-      console.error('Error loading balance:', error);
-    }
-  }
-  
-  async loadExpenses() {
-    const manualExpenses = await this.db.getAllManualExpenses();
-    const todayStr = new Date().toISOString().split('T')[0];
-
-    this.totalTodayExpense = this.sumExpenses(manualExpenses.filter(exp => exp.date.startsWith(todayStr)));
-    this.totalMonthExpense = this.sumExpenses(manualExpenses, 'month');
-    this.totalYearExpense = this.sumExpenses(manualExpenses, 'year');
-
-    await this.calculateCreditsAndDebits();
+  async refreshData() {
+    await this.ngOnInit();
   }
 
   async calculateCreditsAndDebits() {
-    const credits = await this.db.getAllCredits();
-    const debits = await this.db.getAllExpenses();
-
-    this.creditTotal = this.sumExpenses(credits);
-    this.debitTotal = this.sumExpenses(debits);
-    this.userBalance = this.creditTotal - this.debitTotal;
+    // This is now handled in ngOnInit
   }
 
   sumExpenses(expenses: any[], filter?: 'month' | 'year'): number {
@@ -150,7 +186,7 @@ export class HomePage implements OnInit {
         {
           name: 'source',
           type: 'text',
-          value: balance.source,
+          value: balance.source ?? '',
           placeholder: 'Enter new source',
         },
       ],
@@ -165,17 +201,21 @@ export class HomePage implements OnInit {
             if (data.amount && data.source) {
               try {
                 console.log('Updating Balance:', balance._id, data.amount, data.source);
-                await this.db.updateBalance({
-                  _id: balance._id,
-                  _rev: balance._rev, // Ensure _rev is passed
-                  amount: data.amount,
-                  source: data.source,
-                  dateAdded: balance.dateAdded,
-                  userId: balance.userId
-                });
-  
-                await this.loadBalance(); // Refresh UI
-                this.showToast('Balance updated successfully!');
+                const response = await this.balanceService.updateBalance(balance._id!, {
+                  _id: balance._id!,
+                  _rev: balance._rev,
+                  amount: parseFloat(data.amount),
+                  source: data.source ?? '',
+                  dateAdded: balance.dateAdded!,
+                  userId: balance.userId!
+                }).toPromise();
+                
+                if (response?.success) {
+                  // await this.loadBalance(); // Refresh UI
+                  this.showToast('Balance updated successfully!');
+                } else {
+                  this.showToast('Failed to update balance!');
+                }
               } catch (error) {
                 console.error('Error updating balance:', error);
                 this.showToast('Error updating balance!');
@@ -210,9 +250,13 @@ export class HomePage implements OnInit {
           handler: async () => {
             try {
               console.log('Deleting Balance with ID:', balanceId);
-              await this.db.deleteBalance(balanceId);
-              await this.loadBalance(); // 🔥 Refresh UI to reflect deletion
-              this.showToast('Balance deleted successfully!');
+              const response = await this.balanceService.deleteBalance(balanceId).toPromise();
+              if (response?.success) {
+                // await this.loadBalance(); // 🔥 Refresh UI to reflect deletion
+                this.showToast('Balance deleted successfully!');
+              } else {
+                this.showToast('Failed to delete balance!');
+              }
             } catch (error) {
               console.error('Error deleting balance:', error);
               this.showToast('Error deleting balance!');
@@ -267,12 +311,18 @@ export class HomePage implements OnInit {
         },
         {
           text: 'Logout',
-          handler: () => {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('isBiometricVerified');
+        handler: () => {
             localStorage.removeItem('auth_token');
-            this.router.navigateByUrl('/login');
-          
+            localStorage.removeItem('user');
+            localStorage.removeItem('loginTime');
+            localStorage.removeItem('rememberMe');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_name');
+            sessionStorage.removeItem('auth_token');
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('loginTime');
+            sessionStorage.removeItem('rememberMe');
+            this.router.navigateByUrl('/login', { replaceUrl: true });
           }
         }
       ]
@@ -281,12 +331,13 @@ export class HomePage implements OnInit {
     await alert.present();
   }
 
-  async showToast(message: string) {
+  async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
       position: 'top',
+      color,
     });
-    toast.present();
+    await toast.present();
   }
 }

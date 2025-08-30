@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { DebitCard } from 'src/app/models/debit-card.model';
-import { DatabaseService } from 'src/app/services/database.service';
+import { CardApiService } from 'src/app/services/card-api.service';
 
 @Component({
   selector: 'app-debit',
@@ -11,9 +11,10 @@ import { DatabaseService } from 'src/app/services/database.service';
 export class DebitPage implements OnInit {
 
   debitCards: DebitCard[] = [];
+  loading: boolean = false;
 
   constructor(
-    private db: DatabaseService,
+    private cardApiService: CardApiService,
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
@@ -24,10 +25,19 @@ export class DebitPage implements OnInit {
   }
 
   async loadDebitCards() {
+    this.loading = true;
     try {
-      this.debitCards = await this.db.getAllDebitCards(); // Fetch from database
+      const response = await this.cardApiService.getDebitCards().toPromise();
+      if (response?.success) {
+        this.debitCards = response.data;
+      } else {
+        this.showToast('Failed to load debit cards', 'danger');
+      }
     } catch (error) {
-      console.error('Failed to load Debit cards:', error);
+      console.error('Failed to load debit cards:', error);
+      this.showToast('Failed to load debit cards', 'danger');
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -40,24 +50,38 @@ export class DebitPage implements OnInit {
       console.error('Invalid card ID');
       return;
     }
-  
-    try {
-      const success = await this.db.deleteDebitCard(cardId);
-      if (success) {
-        this.showToast('Debit card deleted successfully', 'success');
-        this.loadDebitCards(); // Refresh the list after deletion
-      } else {
-        this.showToast('Failed to delete Debit card', 'danger');
-      }
-    } catch (error) {
-      console.error('Error deleting Debit card:', error);
-      this.showToast('Error deleting Debit card', 'danger');
-    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm Delete',
+      message: 'Are you sure you want to delete this debit card?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            try {
+              const response = await this.cardApiService.deleteDebitCard(cardId).toPromise();
+              if (response?.success) {
+                this.showToast('Debit card deleted successfully', 'success');
+                this.loadDebitCards(); // Refresh the list after deletion
+              } else {
+                this.showToast('Failed to delete debit card', 'danger');
+              }
+            } catch (error) {
+              console.error('Error deleting debit card:', error);
+              this.showToast('Error deleting debit card', 'danger');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
   
-  
-  
-
   private async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
       message,

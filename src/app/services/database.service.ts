@@ -6,12 +6,14 @@ import { Balance } from '../models/balance.model';
 import { Invoice } from '../models/invoice.model';
 import { DebitCard } from '../models/debit-card.model';
 import { HttpClient, HttpHeaders  } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DatabaseService {
-  private manualDb: PouchDB.Database<Expense>;
+
+  private apiUrl = `${environment.apiURL}`;
   private autoDb: PouchDB.Database<Expense>;
   private scanDb: PouchDB.Database<Invoice>;
   private credits: any[] = [];
@@ -23,7 +25,6 @@ export class DatabaseService {
   private creditDb: PouchDB.Database<CreditCard>;
   private splitDb: any;
   constructor(private http: HttpClient) {
-    this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
     this.debitDb = new PouchDB('debitCards');
     this.balanceDb = new PouchDB('balanceDB');
@@ -44,7 +45,8 @@ export class DatabaseService {
     console.error('Database Error:', error);
     throw error;
   }
- async getCards(id:string): Promise<CreditCard | undefined>{
+
+  async getCards(id:string): Promise<CreditCard | undefined>{
     try {
       return await this.creditDb.get(id);
     } catch (error) {
@@ -65,45 +67,29 @@ export class DatabaseService {
       }
     }
 
-  async getExpense(id: string): Promise<Expense | undefined> {
-    try {
-      return await this.manualDb.get(id);
-    } catch (error) {
-      if (error === 404) return undefined;
-      this.handleError(error);
-    }
-  }
-  async getAutoExpense(databaseName:string, id:string){
-    return await this.autoDb.get(id);
-  }
+  // async getAutoExpense(databaseName:string, id:string){
+  //   return await this.autoDb.get(id);
+  // }
 
 
-  async getAllManualExpenses(): Promise<Expense[]> {
-    try {
-    const userId = localStorage.getItem('user_id');
-    const result = await this.manualDb.allDocs({ include_docs: true });
-    return result.rows
-      .map((row) => row.doc as Expense)
-      .filter(exp => (exp as any).user_id === userId); // <-- Filter by user_id
-    } catch (error) {
-    this.handleError(error);
-      return [];
-    }
-  }
+  // async getAllManualExpenses(): Promise<Expense[]> {
+  //   try {
+  //   const userId = localStorage.getItem('user_id');
+  //   const result = await this.manualDb.allDocs({ include_docs: true });
+  //   return result.rows
+  //     .map((row) => row.doc as Expense)
+  //     .filter(exp => (exp as any).user_id === userId); // <-- Filter by user_id
+  //   } catch (error) {
+  //   this.handleError(error);
+  //     return [];
+  //   }
+  // }
 
   async getAllBalance(): Promise <Balance[]>{
     try{
       const result = await this.balanceDb.allDocs({include_docs:true});
       return result.rows.map((row)=>row.doc as Balance);
     } catch(error){
-      this.handleError(error);
-    }
-  }
-  async deleteManualExpense(id: string, rev: string) {
-    try {
-      const response = await this.manualDb.remove(id, rev);
-      return response;
-    } catch (error) {
       this.handleError(error);
     }
   }
@@ -121,36 +107,36 @@ async addAutoExpense(expense: Expense) {
   }
 }
 
-  async getAllAutoExpenses(): Promise<Expense[]> {
-  try {
-    const userId = this.getUserId();
-    const result = await this.autoDb.allDocs({ include_docs: true });
-    return result.rows
-      .map((row) => row.doc as Expense)
-      .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
-  } catch (error) {
-    this.handleError(error);
-    return [];
-  }
-}
+//   async getAllAutoExpenses(): Promise<Expense[]> {
+//   try {
+//     const userId = this.getUserId();
+//     const result = await this.autoDb.allDocs({ include_docs: true });
+//     return result.rows
+//       .map((row) => row.doc as Expense)
+//       .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
+//   } catch (error) {
+//     this.handleError(error);
+//     return [];
+//   }
+// }
 
 
 
-  async getAllExpenses() {
-    const result = await this.manualDb.allDocs({
-      include_docs: true,
-      descending: true,
-    });
-    return result.rows.map(row => row.doc);
-  }
-  // Balance Management
-  async setUserBalance(balance: number) {
-      const balanceDoc = await this.manualDb.get('userBalance');
-      await this.manualDb.put({
-        ...balanceDoc,
-        amount: balance,
-      });
-  }
+  // async getAllExpenses() {
+  //   const result = await this.manualDb.allDocs({
+  //     include_docs: true,
+  //     descending: true,
+  //   });
+  //   return result.rows.map(row => row.doc);
+  // }
+  // // Balance Management
+  // async setUserBalance(balance: number) {
+  //     const balanceDoc = await this.manualDb.get('userBalance');
+  //     await this.manualDb.put({
+  //       ...balanceDoc,
+  //       amount: balance,
+  //     });
+  // }
   async addCredit(credit: { id: number; amount: number; date: string }) {
     this.credits.push(credit);
     return Promise.resolve(true);

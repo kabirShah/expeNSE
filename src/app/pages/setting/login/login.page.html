@@ -3,6 +3,7 @@
     <h2>Pocket Money</h2>
     <p class="tagline">Smart Way to budget</p>
 
+    <!-- Login Form -->
     <form [formGroup]="logForm" (ngSubmit)="login()">
       <!-- Email -->
       <ion-item class="custom-input">
@@ -38,19 +39,11 @@
       </ion-button>
     </form>
 
-    <!-- Social Logins -->
-    <div class="social-login">
-      <!-- <ion-button expand="block" class="google-btn" (click)="signInWithGoogle()">
-        <ion-icon name="logo-google"></ion-icon> Login with Google
-      </ion-button> -->
-    </div>
-
-    <!-- Register -->
+    <!-- 🚀 Register placed OUTSIDE the form -->
     <p class="register-link">
       Don't have an account?
-      <ion-router-link routerLink="/register">Register</ion-router-link>
-    </p>
-
+      <a routerLink="/register">Register</a>
+    </p>      
 
 
     <!-- Biometric Login -->

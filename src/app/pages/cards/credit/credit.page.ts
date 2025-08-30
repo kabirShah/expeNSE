@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController, ToastController } from '@ionic/angular';
-import { DatabaseService } from 'src/app/services/database.service';
+import { CardApiService } from 'src/app/services/card-api.service';
 import { CreditCard } from 'src/app/models/credit-card.model';
 
 @Component({
@@ -10,9 +10,10 @@ import { CreditCard } from 'src/app/models/credit-card.model';
 })
 export class CreditPage implements OnInit {
   creditCards: CreditCard[] = [];
+  loading: boolean = false;
 
   constructor(
-    private db: DatabaseService,
+    private cardApiService: CardApiService,
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
@@ -23,10 +24,19 @@ export class CreditPage implements OnInit {
   }
 
   async loadCreditCards() {
+    this.loading = true;
     try {
-      this.creditCards = await this.db.getAllCreditCards(); // Fetch from database
+      const response = await this.cardApiService.getCreditCards().toPromise();
+      if (response?.success) {
+        this.creditCards = response.data;
+      } else {
+        this.showToast('Failed to load credit cards', 'danger');
+      }
     } catch (error) {
       console.error('Failed to load credit cards:', error);
+      this.showToast('Failed to load credit cards', 'danger');
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -39,24 +49,38 @@ export class CreditPage implements OnInit {
       console.error('Invalid card ID');
       return;
     }
-  
-    try {
-      const success = await this.db.deleteCreditCard(cardId);
-      if (success) {
-        this.showToast('Credit card deleted successfully', 'success');
-        this.loadCreditCards(); // Refresh the list after deletion
-      } else {
-        this.showToast('Failed to delete credit card', 'danger');
-      }
-    } catch (error) {
-      console.error('Error deleting credit card:', error);
-      this.showToast('Error deleting credit card', 'danger');
-    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Confirm Delete',
+      message: 'Are you sure you want to delete this credit card?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          handler: async () => {
+            try {
+              const response = await this.cardApiService.deleteCreditCard(cardId).toPromise();
+              if (response?.success) {
+                this.showToast('Credit card deleted successfully', 'success');
+                this.loadCreditCards(); // Refresh the list after deletion
+              } else {
+                this.showToast('Failed to delete credit card', 'danger');
+              }
+            } catch (error) {
+              console.error('Error deleting credit card:', error);
+              this.showToast('Error deleting credit card', 'danger');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
   
-  
-  
-
   private async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
       message,

@@ -54,10 +54,12 @@ export class RegistrationPage implements OnInit {
         '',
         [
           Validators.required,
-          Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-8])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}')
+          Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}')
         ],
       ],
-    });
+      confirmPassword: ['', Validators.required],
+      rememberMe: [false]
+    }, { validators: this.passwordMatchValidator });
   }
   get errorControl() {
     return this.regForm.controls;
@@ -107,8 +109,8 @@ export class RegistrationPage implements OnInit {
     this.authService?.register(formData)?.subscribe(
       async (res) => {
         await loading.dismiss();
-        await this.showToast('Registration successful!', 'success');
-        this.router.navigate(['/home']);
+        await this.showToast('Registration successful! Please login to continue.', 'success');
+        this.router.navigateByUrl('/login', { replaceUrl: true });
       },
       async (err) => {
         await loading.dismiss();

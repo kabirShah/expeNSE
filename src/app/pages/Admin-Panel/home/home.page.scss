@@ -25,78 +25,288 @@
 #container a {
   text-decoration: none;
 }
-// Center the welcome text
-.welcome-section {
+
+// Loading Container
+.loading-container {
   text-align: center;
-  margin-bottom: 20px;
+  padding: 2rem;
+  
+  ion-spinner {
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
 }
 
-// Style for the header text
-.welcome-section h2 {
-  font-weight: bold;
-  font-size: 24px;
+// Welcome Card
+.welcome-card {
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .subtitle {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 0.95rem;
+  }
 }
 
-.welcome-section p {
-  font-size: 16px;
-  color: var(--ion-color-medium);
+// Summary Cards
+.summary-card {
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  ion-card-header {
+    padding-bottom: 0.5rem;
+  }
+  
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+  }
+  
+  .amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: var(--ion-color-dark);
+    
+    &.positive {
+      color: var(--ion-color-success);
+    }
+    
+    &.negative {
+      color: var(--ion-color-danger);
+    }
+  }
+  
+  .card-subtitle {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 0.85rem;
+  }
 }
 
-// Style for the cards
-ion-card h3 {
-  font-weight: bold;
-  font-size: 22px;
-  color: white;
+// Card Colors
+.balance-card {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: white;
+  
+  ion-card-title, .amount, .card-subtitle {
+    color: white !important;
+  }
 }
 
-// Floating action button styling (if needed)
-ion-fab-button {
-  --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+.expense-card {
+  --background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --color: white;
+  
+  ion-card-title, .amount, .card-subtitle {
+    color: white !important;
+  }
 }
+
+.savings-card {
+  --background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --color: white;
+  
+  ion-card-title, .amount, .card-subtitle {
+    color: white !important;
+  }
+}
+
+// Stat Cards
+.stat-card {
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  text-align: center;
+  
+  ion-card-content {
+    padding: 1rem;
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    
+    ion-icon {
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    &.today {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    }
+    
+    &.year {
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    }
+    
+    &.credit {
+      background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    }
+    
+    &.debit {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    }
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 0.8rem;
+  }
+}
+
+// Balance Items
+.balance-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  
+  h3 {
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  
+  ion-note {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+  
+  ion-icon {
+    margin-bottom: 1rem;
+    color: var(--ion-color-medium);
+  }
+  
+  h3 {
+    color: var(--ion-color-medium);
+    margin: 0 0 0.5rem;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// Quick Actions
+.quick-action {
+  text-align: center;
+  margin-bottom: 1rem;
+  
+  ion-button {
+    --border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    
+    ion-icon {
+      font-size: 1.5rem;
+    }
+  }
+  
+  p {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+  }
+}
+
+// Bottom Navigation
 ion-tab-bar {
   background: #ffffff;
   border-top: 2px solid #ddd;
   padding-bottom: 10px;
 
   ion-tab-button {
-    color: #555; /* Default color */
+    color: #555;
     font-size: 12px;
 
     &.active {
-      color: #007aff !important; /* Highlight active tab */
+      color: #007aff !important;
       font-weight: bold;
     }
 
     ion-icon {
       font-size: 22px;
-      color: #555; /* Ensure icon color stays visible */
+      color: #555;
     }
   }
 }
-.quick-action {
-  text-align: center;
-}
-.quick-action p {
-  margin-top: 6px;
-  font-size: 14px;
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .summary-card {
+    .amount {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .stat-card {
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .quick-action {
+    p {
+      font-size: 0.75rem;
+    }
+  }
 }
 
-
+// Shadow utilities
 .shadow-card {
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(44, 62, 80, 0.12);
-}
-
-ion-card-title {
-  font-size: 1.3em;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-
-.subtitle {
-  color: #6c757d;
-  font-size: 1em;
-  margin-top: 0.5em;
 }

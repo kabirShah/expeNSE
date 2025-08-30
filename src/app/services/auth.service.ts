@@ -6,6 +6,7 @@ import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
 import { isPlatform, Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ import { Observable } from 'rxjs';
 
 export class AuthService {
 
-  private API_URL = 'http://127.0.0.1:8000/api';
+  private API_URL = `${environment.apiURL}`;
   TOKEN_EXPIRY_DAYS = 7;
   user: any = null;
   constructor(private http: HttpClient,private router: Router, private platform: Platform) { 
