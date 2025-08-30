@@ -4,8 +4,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, NavController, ToastController } from '@ionic/angular';
 import { BiometricService } from '../../../services/biometric.service';
-import { AuthService } from 'src/app/services/auth.service';
-import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-login',
@@ -25,10 +23,8 @@ export class LoginPage {
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private router: Router,
-    private authService: AuthService,
-    private toastCtrl: ToastController,
-    private loadingController: LoadingController,
-    private http: HttpClient
+    private auth:Auth,
+    private toastCtrl: ToastController
   ) {
     
     this.logForm = this.fb.group({
@@ -144,13 +140,17 @@ togglePasswordVisibility() {
     }
   }
 
+  loginWithFacebook() {
+    console.log('Logging in with Facebook');
+    // Integrate Facebook login API logic here
+  }
 
-
-
-  goToRegister() {
-    this.cd.detectChanges();
-    Object.values(this.logForm.controls).forEach(control => control.markAsTouched());
-    this.router.navigateByUrl('/register');
+  loginWithGoogle() {
+    console.log('Logging in with Google');
+    // Integrate Google login API logic here
+  }
+  register(){
+    this.navCtrl.navigateForward('/register');
   }
 
 

@@ -22,10 +22,10 @@ import { CardService } from './services/card.service';
     BrowserModule, 
     AppRoutingModule,
     IonicStorageModule.forRoot(),
-    IonicModule.forRoot()
+    IonicModule.forRoot(),
+    HttpClientModule
   ],
   providers: [
-    provideHttpClient(),
     HttpClient,
     DatabaseService,
     CardService,

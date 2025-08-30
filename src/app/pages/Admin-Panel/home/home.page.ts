@@ -31,8 +31,6 @@ export class HomePage implements OnInit {
   yearSaving: number = 0;
   balances: Balance[] = [];
   activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
-  loading: boolean = false;
-
   constructor(
     private router: Router,
     private balanceService: BalanceService,
@@ -49,85 +47,9 @@ export class HomePage implements OnInit {
     this.currentMonth = this.getMonthName(new Date().getMonth());
     console.log('Current Month:', this.currentMonth);
     
-    this.loading = true;
-    
-    try {
-      // Load profile, balances, and expenses in parallel
-      const profile$ = this.authService.getProfile();
-      const balances$ = this.balanceService.getBalances();
-      const expenses$ = this.expenseService.getExpenses();
-      const transactions$ = this.transactionService.getTransactions();
-      
-      const [profileRes, balanceRes, expenseRes, transactionRes] = await Promise.all([
-        profile$?.toPromise().catch(err => {
-          console.error('Error loading profile:', err);
-          return null;
-        }),
-        balances$?.toPromise().catch(err => {
-          console.error('Error loading balances:', err);
-          return { success: false, data: [] };
-        }),
-        expenses$?.toPromise().catch(err => {
-          console.error('Error loading expenses:', err);
-          return { success: false, data: [] };
-        }),
-        transactions$?.toPromise().catch(err => {
-          console.error('Error loading transactions:', err);
-          return { success: false, data: [] };
-        })
-      ]);
-
-      // Process profile
-      if (profileRes) {
-        this.user = profileRes.user;
-        this.userFirstName = this.user?.name?.split(' ')[0] || '';
-      }
-
-      // Process balances
-      if (balanceRes?.success) {
-        const balanceDocs: Balance[] = balanceRes.data;
-        if (balanceDocs.length > 0) {
-          this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
-          this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
-        } else {
-          this.totalBalance = 0;
-          this.balances = [];
-        }
-      }
-
-      // Process expenses
-      if (expenseRes?.success) {
-        const expenses = expenseRes.data;
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        
-        this.totalTodayExpense = this.sumExpenses(expenses.filter(exp => 
-          new Date(exp.date).toISOString().split('T')[0] === todayStr
-        ));
-        
-        this.totalMonthExpense = this.sumExpenses(expenses, 'month');
-        this.totalYearExpense = this.sumExpenses(expenses, 'year');
-      }
-
-      // Process transactions for credits/debits
-      if (transactionRes?.success) {
-        const transactions = transactionRes.data;
-        const credits = transactions.filter(t => t.type === 'credit');
-        const debits = transactions.filter(t => t.type === 'debit');
-        
-        this.creditTotal = this.sumExpenses(credits);
-        this.debitTotal = this.sumExpenses(debits);
-        this.userBalance = this.creditTotal - this.debitTotal;
-      }
-
-      this.calculateSavings();
-      
-    } catch (error) {
-      console.error('Error loading data:', error);
-      this.showToast('Failed to load financial data', 'danger');
-    } finally {
-      this.loading = false;
-    }
+    await this.loadBalance();
+    await this.loadExpenses();
+    this.calculateSavings();
   }
 
   getMonthName(monthIndex: number): string {
@@ -140,6 +62,15 @@ export class HomePage implements OnInit {
 
   async refreshData() {
     await this.ngOnInit();
+  }
+
+  async loadBudget() {
+    const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+    this.budget = await this.db.getBudget(monthKey);
+    this.monthlyBudget = this.budget?.monthlyBudget || 0;
+    this.dreamGoalName = this.budget?.dreamGoalName || '';
+    this.dreamGoalTarget = this.budget?.dreamGoalTarget || 0;
+    this.dreamGoalSaved = this.budget?.dreamGoalSaved || 0;
   }
 
   async calculateCreditsAndDebits() {
@@ -162,6 +93,57 @@ export class HomePage implements OnInit {
   calculateSavings() {
     this.monthSaving = this.totalBalance - this.totalMonthExpense;
     this.yearSaving = this.totalBalance - this.totalYearExpense;
+  }
+
+  computeBankUsage() {
+    // Derive from expenses' transactionType or notes containing bank names
+    const banks = ['Kotak', 'ICICI', 'HDFC'];
+    this.bankUsage = { Kotak: 0, ICICI: 0, HDFC: 0 };
+    // Fetch all expenses and aggregate by bank keyword in description/notes/transactionType
+    // For simplicity, use getAllExpenses() which pulls manual expenses
+    this.db.getAllExpenses().then(expenses => {
+      expenses.forEach((exp: any) => {
+        const text = `${exp.transactionType || ''} ${exp.description || ''} ${exp.notes || ''}`.toLowerCase();
+        banks.forEach(bank => {
+          if (text.includes(bank.toLowerCase())) {
+            this.bankUsage[bank] = (this.bankUsage[bank] || 0) + (exp.amount || 0);
+          }
+        });
+      });
+    });
+  }
+
+  async editBudget() {
+    const alert = await this.alertCtrl.create({
+      header: 'Edit Budget & Goal',
+      inputs: [
+        { name: 'monthlyBudget', type: 'number', value: this.monthlyBudget, placeholder: 'Monthly Budget (₹)' },
+        { name: 'dreamGoalName', type: 'text', value: this.dreamGoalName, placeholder: 'Dream Goal Name' },
+        { name: 'dreamGoalTarget', type: 'number', value: this.dreamGoalTarget, placeholder: 'Goal Target (₹)' },
+        { name: 'dreamGoalSaved', type: 'number', value: this.dreamGoalSaved, placeholder: 'Saved So Far (₹)' },
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Save', handler: async (data) => {
+            const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+            const plan: BudgetPlan = {
+              _id: this.budget?._id || monthKey,
+              _rev: this.budget?._rev,
+              month: monthKey,
+              monthlyBudget: Number(data.monthlyBudget) || 0,
+              dreamGoalName: (data.dreamGoalName || '').trim(),
+              dreamGoalTarget: Number(data.dreamGoalTarget) || 0,
+              dreamGoalSaved: Number(data.dreamGoalSaved) || 0,
+            };
+            await this.db.upsertBudget(plan);
+            await this.loadBudget();
+            this.showToast('Budget updated');
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   // navigateTo(path: string) {
