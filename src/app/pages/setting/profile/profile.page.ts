@@ -1,6 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
 import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
 
 
 @Component({
@@ -9,56 +12,59 @@ import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
   styleUrls: ['./profile.page.scss'],
 })
 export class ProfilePage implements OnInit {
-  user: any = null; // Holds the user data
-  isLoading: boolean = true; // Loading state for data fetching
+user: any = null;
+  isLoading = true;
+  apiBase = 'http://127.0.0.1:8000'; // Laravel backend
 
-  constructor(private auth: Auth, private firestore: Firestore) {}
+  selectedFile: File | null = null;
+
+  constructor(private http: HttpClient, private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    this.loadUserProfile();
+    this.loadProfile();
   }
 
-  // Load user profile from Firebase Auth and Firestore
-  private async loadUserProfile() {
-    onAuthStateChanged(this.auth, async (firebaseUser: User | null) => {
-      if (firebaseUser) {
-        try {
-          // Initialize user object with Firebase Auth data
-          this.user = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName || '',
-          };
-
-          // Fetch additional user data from Firestore
-          const userDocRef = doc(this.firestore, `users/${firebaseUser.uid}`);
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            this.user = { ...this.user, ...userDoc.data() };
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
+  // Fetch profile from Laravel
+  loadProfile() {
+    this.http.get(`${this.apiBase}/api/user`, { headers: this.authService.getAuthHeaders() })
+      .subscribe({
+        next: (res: any) => {
+          this.user = res;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading profile', err);
+          this.isLoading = false;
         }
-      } else {
-        console.log('No user is logged in.');
-        this.user = null;
-      }
-      this.isLoading = false; // Stop loading after fetching
-    });
+      });
   }
 
-  // Update profile data
-  async updateProfile(newData: any) {
-    if (this.user) {
-      try {
-        const userDocRef = doc(this.firestore, `users/${this.user.uid}`);
-        await updateDoc(userDocRef, newData);
-        this.user = { ...this.user, ...newData }; // Update the local user object
-        console.log('Profile updated successfully!');
-      } catch (error) {
-        console.error('Error updating profile:', error);
-      }
+  // Handle file input
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  // Update profile
+  updateProfile() {
+    const formData = new FormData();
+    formData.append('first_name', this.user.first_name);
+    formData.append('last_name', this.user.last_name);
+    formData.append('phone', this.user.phone);
+    formData.append('dob', this.user.dob);
+    formData.append('gender', this.user.gender);
+
+    if (this.selectedFile) {
+      formData.append('profile_image', this.selectedFile);
     }
+
+    this.http.post(`${this.apiBase}/api/settings/update-profile`, formData, { headers: this.authService.getAuthHeaders() })
+      .subscribe({
+        next: (res) => {
+          console.log('Profile updated:', res);
+          this.loadProfile(); // reload after update
+        },
+        error: (err) => console.error('Update error:', err)
+      });
+      this.router.navigate(['/setting']);
   }
 }

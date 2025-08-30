@@ -7,40 +7,66 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class ExpenseService {
+  private apiUrl = `${environment.apiURL}/expenses`;
 
-  private apiUrl = 'http://127.0.0.1:8000/api/expenses';
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-  }
-
-  private getAuthHeaders() {
+  private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     });
   }
 
-  getExpenses()  {
-  // No need to send user_id as query param, backend will use authenticated user
-  return this.http.get<Expense[]>(this.apiUrl, { headers: this.getAuthHeaders() });
-}
+  // ✅ Get all expenses
+  getExpenses() {
+    return this.http.get<{ success: boolean; data: Expense[] }>(this.apiUrl, {
+      headers: this.getAuthHeaders(),
+    });
+  }
+
+  // ✅ Get single expense by ID
   getExpenseById(id: string) {
-    return this.http.get<Expense>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.get<{ success: boolean; data: Expense }>(
+      `${this.apiUrl}/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
-createExpense(expense: Expense)  {
-  // Always attach user_id from localStorage
-  const userId = localStorage.getItem('user_id');
-  const payload = { ...expense, user_id: userId }; // <-- Attach user_id
-  return this.http.post(this.apiUrl, payload, { headers: this.getAuthHeaders() });
-}
-
-
-  updateExpense(id: string, expense: Expense)  {
-    return this.http.put(`${this.apiUrl}/${id}`, expense, { headers: this.getAuthHeaders() });
+  // ✅ Create new expense
+  createExpense(expense: Expense) {
+    return this.http.post<{ success: boolean; data: Expense }>(
+      this.apiUrl,
+      expense,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
+  // ✅ Bulk insert expenses
+  createMultipleExpenses(expenses: Expense[]) {
+    return this.http.post<{ success: boolean; data: Expense[] }>(
+      `${this.apiUrl}/bulk`,
+      { expenses },
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  // ✅ Update expense by ID
+  updateExpense(id: string, expense: Expense) {
+    return this.http.put<{ success: boolean; data: Expense }>(
+      `${this.apiUrl}/${id}`,
+      expense,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  // ✅ Delete expense by ID
   deleteExpense(id: string) {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete<{ success: boolean; message: string }>(
+      `${this.apiUrl}/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 }

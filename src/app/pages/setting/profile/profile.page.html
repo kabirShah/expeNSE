@@ -1,46 +1,79 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button> 
-   </ion-buttons>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- Show loading spinner until the data is ready -->
-  <ion-spinner *ngIf="isLoading"></ion-spinner>
+<ion-content class="ion-padding">
+    <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" class="ion-text-center">
+        <ion-avatar>
+          <img [src]="user?.profile_image || 'assets/default-avatar.png'" alt="Profile" />
+        </ion-avatar>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <!-- Loader -->
+  <ion-spinner *ngIf="isLoading" class="spinner-center"></ion-spinner>
 
-  <!-- Profile content -->
   <div *ngIf="!isLoading && user">
-    <ion-item>
-      <ion-label>Email:</ion-label>
-      <ion-text>{{ user.email }}</ion-text>
-    </ion-item>
+    <!-- Profile Image Upload -->
+    <div class="profile-container">
+      <img
+        [src]="user.profile_image ? apiBase + '/storage/' + user.profile_image : 'assets/profile.png'"
+        alt="Profile"
+        class="profile-img"
+      />
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput />
+      <ion-button size="small" (click)="fileInput.click()">Change Photo</ion-button>
+    </div>
 
-    <ion-item>
-      <ion-label>Display Name:</ion-label>
-      <ion-input
-        [(ngModel)]="user.displayName"
-        placeholder="Enter your name"
-      ></ion-input>
-    </ion-item>
+    <!-- Profile Info -->
+    <ion-list>
+      <ion-item>
+        <ion-label>Email</ion-label>
+        <ion-text>{{ user.email }}</ion-text>
+      </ion-item>
 
-    <!-- Add other fields as needed -->
-    <ion-item>
-      <ion-label>Phone:</ion-label>
-      <ion-input
-        placeholder="Enter your phone number"
-      ></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="floating">First Name</ion-label>
+        <ion-input [(ngModel)]="user.first_name"></ion-input>
+      </ion-item>
 
-    <ion-button expand="block" (click)="updateProfile({ displayName: user.displayName, phone: user.phone })">
-      Save Changes
-    </ion-button>
+      <ion-item>
+        <ion-label position="floating">Last Name</ion-label>
+        <ion-input [(ngModel)]="user.last_name"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Phone</ion-label>
+        <ion-input [(ngModel)]="user.phone"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">DOB</ion-label>
+        <ion-input type="date" [(ngModel)]="user.dob"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Gender</ion-label>
+        <ion-select [(ngModel)]="user.gender">
+          <ion-select-option value="Male">Male</ion-select-option>
+          <ion-select-option value="Female">Female</ion-select-option>
+          <ion-select-option value="Other">Other</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+
+    <!-- Save Button -->
+    <ion-button expand="block" (click)="updateProfile()">Save Changes</ion-button>
   </div>
 
-  <!-- Show fallback message if no user is logged in -->
   <div *ngIf="!isLoading && !user">
-    <p>No user is logged in. Please log in to view your profile.</p>
+    <p class="ion-text-center">No user found. Please login.</p>
   </div>
 </ion-content>

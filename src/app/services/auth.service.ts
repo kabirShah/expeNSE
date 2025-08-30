@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
 import { isPlatform, Platform } from '@ionic/angular';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,12 @@ export class AuthService {
       GoogleAuth.initialize();
     }
   }
+
+  getAuthHeaders() {
+  const token = localStorage.getItem('auth_token');
+  return { Authorization: `Bearer ${token}` };
+}
+
 
 // ONLINE LOGIN
   loginLaravel(email: string, password: string) {
@@ -62,7 +69,13 @@ export class AuthService {
     localStorage.removeItem('token_timestamp');
     this.router.navigate(['/login']);
   }
-
+  forgotPassword(email: string) {
+    return this.http.post<any>(`${this.API_URL}/forgot-password`, { email });
+  }
+  resetPassword(data: any) {
+    return this.http.post<any>(`${this.API_URL}/reset-password`, data);
+  }
+  
   // CHECK IF LOGGED IN & TOKEN VALID (< 7 days)
   isLoggedIn(): boolean {
     const token = localStorage.getItem('auth_token');
@@ -103,16 +116,23 @@ export class AuthService {
     // return await this.auth.signInWithEmailAndPassword(email,password);
     
   }
-  async resetPassword(email:string){
-    // return await this.auth.sendPasswordResetEmail(email);
-  }
+
   async signOut(){
     // return await this.auth.signOut();
   }
   
-  async getProfile(){
-    // return await this.auth.currentUser    
+  getProfile(): Observable<any> | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    return this.http.get<any>(`${this.API_URL}/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   }
+
   
   async loginWithGoogle() {
     try {

@@ -73,41 +73,14 @@ ion-tab-bar {
     }
   }
 }
-.quick-actions {
-  margin-bottom: 16px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  background: #f8f8f8;
-  border-radius: 12px;
+.quick-action {
+  text-align: center;
 }
-
-.quick-action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 70px;
+.quick-action p {
+  margin-top: 6px;
   font-size: 14px;
-  --box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
 }
 
-.quick-action-btn ion-icon {
-  font-size: 28px;
-  margin-bottom: 4px;
-}
-
-.quick-action-label {
-  font-size: 13px;
-  color: #333;
-  margin-top: 2px;
-  font-weight: 500;
-}
-/* filepath: d:\Software Developing\pocket-money-mobile\src\app\pages\Admin-Panel\home\home.page.scss */
-.gradient-card {
-  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
-}
 
 .shadow-card {
   border-radius: 18px;

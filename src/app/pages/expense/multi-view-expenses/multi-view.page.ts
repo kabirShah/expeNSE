@@ -50,7 +50,7 @@ export class MultiViewPage implements OnInit {
     await this.router.navigate(['/multi-view-expense/multi-expense/:id']);
   }
   async deleteAutoExpense(id: string) {
-    await this.db.deleteAutoExpense(id);
+    // await this.db.deleteAutoExpense(id);
     this.loadAutoExpenses();
   }
   navigateToMultiExpense(){

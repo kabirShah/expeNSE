@@ -33,6 +33,10 @@ const routes: Routes = [
     loadChildren: () => import('./pages/expense/single-view-expenses/single-view-expenses.module').then(m => m.SingleViewExpensesPageModule), canActivate: [AuthGuard]
   },
   {
+    path: 'single-expense/:id',
+    loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule), canActivate:[AuthGuard]
+  },
+  {
     path: 'multi-expense',
     loadChildren: () => import('./pages/expense/multi-view-expenses/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule), canActivate: [AuthGuard]
   },
@@ -69,11 +73,16 @@ const routes: Routes = [
     loadChildren: () => import('./pages/scan/scan.module').then( m => m.ScanPageModule), canActivate: [AuthGuard]
   },
   {
-    path: '**',
-    loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
-  },  {
     path: 'integration',
     loadChildren: () => import('./pages/integration/integration.module').then( m => m.IntegrationPageModule)
+  },
+  {
+    path: 'forgot-password',
+    loadChildren: () => import('./pages/setting/forgot-password/forgot-password.module').then( m => m.ForgotPasswordPageModule)
+  },
+  {
+    path: '**',
+    loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
   }
 
 

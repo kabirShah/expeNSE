@@ -59,20 +59,25 @@
 
 <ion-content class="ion-padding">
   <!-- Month Filter -->
-  <ion-list *ngIf="filteredExpenses.length; else noData">
-    <ion-item *ngFor="let expense of filteredExpenses">
-      <ion-label>
-        <h2>{{ expense.description }}</h2>
-        <p>
-          Amount: ₹{{ expense.amount }} | 
-          Date: {{ expense.date | date: 'medium' }} | 
-          Category: {{ expense.category }}
-        </p>
-      </ion-label>
-      <ion-button slot="end" color="primary" (click)="editExpense(expense._id)"><ion-icon name="pencil-outline"></ion-icon></ion-button>
-      <ion-button slot="end" color="danger" (click)="deleteExpense(expense._id,expense._rev)"><ion-icon name="trash-outline"></ion-icon></ion-button>
-    </ion-item>
-  </ion-list>
+<ion-list *ngIf="filteredExpenses.length; else noData">
+  <ion-item *ngFor="let expense of filteredExpenses">
+    <ion-label>
+      <h2>{{ expense.description }}</h2>
+      <p>
+        Amount: ₹{{ expense.amount }} |
+        Date: {{ expense.date | date: 'medium' }} |
+        Category: {{ expense.category }}
+      </p>
+    </ion-label>
+    <ion-button slot="end" color="primary" (click)="editExpense(expense.id!.toString())">
+      <ion-icon name="pencil-outline"></ion-icon>
+    </ion-button>
+    <ion-button slot="end" color="danger" (click)="deleteExpense(expense.id!.toString())">
+      <ion-icon name="trash-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-list>
+
 
   <ng-template #noData>
     <ion-label class="noexp">No expenses found.</ion-label>

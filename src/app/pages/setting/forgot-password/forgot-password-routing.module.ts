@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SingleViewExpensesPage } from './single-view-expenses.page';
+import { ForgotPasswordPage } from './forgot-password.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: SingleViewExpensesPage
+    component: ForgotPasswordPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class SingleViewExpensesPageRoutingModule {}
+export class ForgotPasswordPageRoutingModule {}

@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Auth, signInWithPopup, GoogleAuthProvider,signInWithRedirect, getRedirectResult  } from '@angular/fire/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, NavController, ToastController } from '@ionic/angular';
 import { BiometricService } from '../../../services/biometric.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { setPersistence, browserLocalPersistence } from '@angular/fire/auth';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { Capacitor } from '@capacitor/core';
 
 @Component({
@@ -27,7 +24,6 @@ export class LoginPage {
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private router: Router,
-    private auth : Auth,   
     private authService: AuthService,
     private toastCtrl: ToastController,
     private loadingController: LoadingController,
@@ -146,67 +142,6 @@ togglePasswordVisibility() {
   }
 
 
-async signInWithGoogle() {
-  try {
-    let idToken: string | null = null;
-
-    if (Capacitor.getPlatform() === 'web') {
-      // 🔹 Web flow using Firebase
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(this.auth, provider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      idToken = credential?.idToken || null;
-    } else {
-      // 🔹 Native (Android / iOS) flow using Capacitor GoogleAuth
-      const user = await GoogleAuth.signIn();
-      idToken = user.authentication.idToken;
-    }
-
-    if (!idToken) {
-      throw new Error('Google ID token not found');
-    }
-
-    // 🚀 Send token to Laravel backend
-    this.http.post('http://127.0.0.1:8000/api/google-login', { id_token: idToken })
-      .subscribe({
-        next: async (res: any) => {
-          localStorage.setItem('auth_token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
-          localStorage.setItem('loginTime', Date.now().toString());
-          localStorage.setItem('rememberMe', '1d');
-
-          const toast = await this.toastCtrl.create({
-            message: `Welcome ${res.user.first_name || res.user.name}`,
-            duration: 2000,
-            position: 'top',
-            color: 'success'
-          });
-          await toast.present();
-
-          this.router.navigate(['/home']);
-        },
-        error: async () => {
-          const toast = await this.toastCtrl.create({
-            message: 'Google Sign-In failed at server. Try again.',
-            duration: 2000,
-            position: 'top',
-            color: 'danger'
-          });
-          await toast.present();
-        }
-      });
-
-  } catch (error) {
-    console.error('Google Sign-In Error:', error);
-    const toast = await this.toastCtrl.create({
-      message: 'Google Sign-In failed. Please try again.',
-      duration: 2000,
-      position: 'top',
-      color: 'danger'
-    });
-    await toast.present();
-  }
-}
 
 
   register() {

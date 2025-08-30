@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, AlertController, Platform } from '@ionic/angular';
-import { DatabaseService } from 'src/app/services/database.service';
+import { ExpenseService  } from 'src/app/services/expense.service';
 import { Router } from '@angular/router';
 
 //Share, PDF and File
@@ -12,25 +12,26 @@ import autoTable from 'jspdf-autotable';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { Share } from '@capacitor/share';
 import * as pdfjsLib from 'pdfjs-dist';
+import { Expense } from 'src/app/models/expense.model';
 
 @Component({
   selector: 'app-view-expenses',
   templateUrl: './single-view-expenses.page.html',
 })
 export class SingleViewExpensesPage implements OnInit {
-  manualExpenses: any[] = [];
-  autoExpenses: any[]=[];
   arr:any[]=[];
-  expenses: any[] = [];
+  expenses: Expense[] = [];
+  filteredExpenses: Expense[] = [];
   data: any[] = [];
-  filteredExpenses: any[] = [];
   searchTerm: string = '';
   selectedMonth: string = 'all';
+  loading = false;
+
 
 
   constructor(
     private navCtrl: NavController,
-    private db: DatabaseService,
+    private db: ExpenseService,
     private file:File,
     private alertController: AlertController,
     private router: Router,
@@ -39,59 +40,75 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
   ngOnInit() {
-    this.loadManualExpenses();
+    this.loadExpenses();
   }
-
+  
+  ionViewWillEnter() {
+    this.loadExpenses();
+  }
+  loadExpenses() {
+    this.loading = true;
+    this.db.getExpenses().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.expenses = res.data;
+          this.applyFilters();
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching expenses:', err);
+        this.loading = false;
+      },
+    });
+  }
   async loadManualExpenses() {
     // Retrieve the expenses array from localStorage
-    this.manualExpenses = await this.db.getAllManualExpenses();
     this.applyFilters();
   }
-  async applyFilters(){
-    this.filteredExpenses = this.manualExpenses.filter((expense) => {
+  applyFilters() {
+    this.filteredExpenses = this.expenses.filter((expense) => {
       let matchesSearch = true;
       let matchesMonth = true;
 
-      // Apply Search Filter
+      // Search filter
       if (this.searchTerm) {
         const searchLower = this.searchTerm.toLowerCase();
-        matchesSearch = expense.description.toLowerCase().includes(searchLower) || 
-                        expense.category.toLowerCase().includes(searchLower);
+        matchesSearch =
+          expense.description.toLowerCase().includes(searchLower) ||
+          expense.category.toLowerCase().includes(searchLower);
       }
 
-      // Apply Month Filter
+      // Month filter
       if (this.selectedMonth && this.selectedMonth !== 'all') {
-        const expenseMonth = new Date(expense.date).toLocaleString('default', { month: 'long' });
+        const expenseMonth = new Date(expense.date).toLocaleString('default', {
+          month: 'long',
+        });
         matchesMonth = expenseMonth === this.selectedMonth;
       }
 
       return matchesSearch && matchesMonth;
     });
   }
-  async deleteExpense(id: string, rev: string) {
+ async deleteExpense(id: string) {
     const alert = await this.alertController.create({
       header: 'Confirm Deletion',
       message: 'Are you sure you want to delete this record?',
       buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Delete action canceled');
-          }
-        },
+        { text: 'Cancel', role: 'cancel' },
         {
           text: 'Delete',
-          handler: async () => {
-            // Proceed with deletion
-            await this.db.deleteManualExpense(id, rev);
-            this.loadManualExpenses();
-            console.log('Record deleted');
-          }
-        }
-      ]
+          handler: () => {
+            this.db.deleteExpense(id).subscribe({
+              next: () => {
+                this.loadExpenses(); // refresh list
+              },
+              error: (err) => console.error('Delete error:', err),
+            });
+          },
+        },
+      ],
     });
-  
     await alert.present();
   }
 
@@ -102,11 +119,11 @@ export class SingleViewExpensesPage implements OnInit {
     doc.text('Expense Report', 105, 10, { align: 'center' });
 
     // Table Data
-    const tableData = [...this.manualExpenses, ...this.autoExpenses].map(
+    const tableData = this.expenses.map(
       (expense, index) => [
         index + 1,
         expense.description,
-        `₹${expense.amount.toFixed(2)}`,
+        `₹${Number(expense.amount).toFixed(2)}`,
         new Date(expense.date).toLocaleDateString(),
         expense.category,
       ]
@@ -170,11 +187,11 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
   
-  editExpense(id:string) {
-    this.router.navigate(['/single-view-expenses/single-expense',id]);
+  editExpense(id: string) {
+    this.router.navigate(['/single-expense', id]);
   }
- 
-  navigateToAddExpense(){
+
+  navigateToAddExpense() {
     this.router.navigate(['/single-expense']);
   }
 

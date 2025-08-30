@@ -5,6 +5,7 @@ import { CreditCard } from '../models/credit-card.model';
 import { Balance } from '../models/balance.model';
 import { Invoice } from '../models/invoice.model';
 import { DebitCard } from '../models/debit-card.model';
+import { HttpClient, HttpHeaders  } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class DatabaseService {
   private TransactionType: any[]=[];
   private creditDb: PouchDB.Database<CreditCard>;
   private splitDb: any;
-  constructor() {
+  constructor(private http: HttpClient) {
     this.manualDb = new PouchDB('expDatabase'); // Manually added expenses
     this.autoDb = new PouchDB('dropDatabase'); // Auto-parsed expenses
     this.debitDb = new PouchDB('debitCards');
@@ -30,6 +31,15 @@ export class DatabaseService {
     this.creditDb = new PouchDB('creditCards');
     this.splitDb = new PouchDB('split_expenses');
   }
+  private getHeaders() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      })
+    };
+  }
+
   private handleError(error: any): never {
     console.error('Database Error:', error);
     throw error;
@@ -66,19 +76,7 @@ export class DatabaseService {
   async getAutoExpense(databaseName:string, id:string){
     return await this.autoDb.get(id);
   }
-  // Manual Expense CRUD
-  async addManualExpense(expense: Expense) {
-    try {
-      const userId = localStorage.getItem('user_id');
-      if (!userId) throw new Error('User not logged in');
-      expense._id = expense._id || new Date().toISOString();
-      (expense as any).user_id = userId; // <-- Use user_id (snake_case)
-      const response = await this.manualDb.put(expense);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
+
 
   async getAllManualExpenses(): Promise<Expense[]> {
     try {
@@ -111,46 +109,33 @@ export class DatabaseService {
   }
 
   // Auto Expense CRUD
-  async addAutoExpense(expense: Expense) {
-    try {
-      expense._id = expense._id || new Date().toISOString();
-      const response = await this.autoDb.put(expense);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
+async addAutoExpense(expense: Expense) {
+  try {
+    const userId = this.getUserId();  // ✅ always tie to user
+    expense.id = expense.id;
+    (expense as any).user_id = userId;
+    const response = await this.autoDb.put(expense);
+    return response;
+  } catch (error) {
+    this.handleError(error);
   }
+}
+
   async getAllAutoExpenses(): Promise<Expense[]> {
-    try {
-      const result = await this.autoDb.allDocs({ include_docs: true });
-      return result.rows.map((row) => row.doc as Expense);
-    } catch (error) {
-      this.handleError(error);
-    }
+  try {
+    const userId = this.getUserId();
+    const result = await this.autoDb.allDocs({ include_docs: true });
+    return result.rows
+      .map((row) => row.doc as Expense)
+      .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
+  } catch (error) {
+    this.handleError(error);
+    return [];
   }
+}
 
-  async updateManualExpense(expense: Expense) {
-    try {
-      
-    if (!expense._id || !expense._rev) {
-      throw new Error('Expense must have a valid _id and _rev for updates');
-    }
-      const response = await this.manualDb.put(expense);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
 
-  async deleteAutoExpense(id: string) {
-    try {
-      const doc = await this.autoDb.get(id);
-      const response = await this.autoDb.remove(doc);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
+
   async getAllExpenses() {
     const result = await this.manualDb.allDocs({
       include_docs: true,
@@ -213,25 +198,25 @@ export class DatabaseService {
       console.error('Error deleting invoice:', error);
     }
   }
-  async saveManualExpenses(expenses: Expense[]) {
-    try {
-      const savePromises = expenses.map((expense) => {
-        // If _id and _rev exist, update, else add as new expense
-        if (expense._id && expense._rev) {
-          return this.updateManualExpense(expense);
-        } else {
-          return this.addManualExpense(expense);
-        }
-      });
+  // async saveManualExpenses(expenses: Expense[]) {
+  //   try {
+  //     const savePromises = expenses.map((expense) => {
+  //       // If _id and _rev exist, update, else add as new expense
+  //       if (expense._id && expense._rev) {
+  //         return this.updateManualExpense(expense);
+  //       } else {
+  //         return this.addManualExpense(expense);
+  //       }
+  //     });
   
-      // Wait for all save/update operations to complete
-      await Promise.all(savePromises);
-      console.log('Expenses saved successfully');
-    } catch (error) {
-      console.error('Error saving expenses:', error);
-      this.handleError(error);
-    }
-  }
+  //     // Wait for all save/update operations to complete
+  //     await Promise.all(savePromises);
+  //     console.log('Expenses saved successfully');
+  //   } catch (error) {
+  //     console.error('Error saving expenses:', error);
+  //     this.handleError(error);
+  //   }
+  // }
   async addReceipt(receipt: any){
     return await this.scanDb.put({...receipt, _id: receipt.id});
   }

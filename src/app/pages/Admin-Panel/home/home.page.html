@@ -1,9 +1,9 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header color="light">
+  <ion-toolbar color="light">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button> 
     </ion-buttons>
-    <ion-title>Expense Tracker</ion-title>
+    <ion-title>Pocket Money</ion-title>
     <ion-buttons slot="end">
       <ion-icon name="power-outline" (click)="logout()"></ion-icon>
     </ion-buttons>
@@ -11,46 +11,13 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- <ion-grid class="quick-actions">
-  <ion-row>
-    <ion-col>
-      <ion-button expand="block" color="primary" (click)="navigateTo('/single-view-expenses')" class="quick-action-btn">
-        <ion-icon name="wallet-outline" slot="icon-only"></ion-icon>
-        <span class="quick-action-label">Expenses</span>
-      </ion-button>
-    </ion-col>
-    <ion-col>
-      <ion-button expand="block" color="success" (click)="navigateTo('/balance')" class="quick-action-btn">
-        <ion-icon name="cash-outline" slot="icon-only"></ion-icon>
-        <span class="quick-action-label">Balance</span>
-      </ion-button>
-    </ion-col>
-    <ion-col>
-      <ion-button expand="block" color="tertiary" (click)="navigateTo('/saving')" class="quick-action-btn">
-        <ion-icon name="trending-up-outline" slot="icon-only"></ion-icon>
-        <span class="quick-action-label">Saving</span>
-      </ion-button>
-    </ion-col>
-    <ion-col>
-      <ion-button expand="block" color="warning" (click)="navigateTo('/split-view')" class="quick-action-btn">
-        <ion-icon name="git-branch-outline" slot="icon-only"></ion-icon>
-        <span class="quick-action-label">Split</span>
-      </ion-button>
-    </ion-col>
-    <ion-col>
-      <ion-button expand="block" color="dark" (click)="navigateTo('/scan')" class="quick-action-btn">
-        <ion-icon name="scan-outline" slot="icon-only"></ion-icon>
-        <span class="quick-action-label">Scan</span>
-      </ion-button>
-    </ion-col>
-  </ion-row>
-</ion-grid> -->
+
   <!-- Expense Summary Card -->
 <ion-card class="welcome-card gradient-card">
   <ion-card-header>
     <ion-card-title>
       <ion-icon name="person-circle-outline" color="primary" style="font-size:2em;vertical-align:middle;"></ion-icon>
-      Welcome, {{userFirstName}}
+      Welcome, {{ userFirstName || 'Guest' }}
     </ion-card-title>
   </ion-card-header>
   <ion-card-content>
@@ -66,38 +33,13 @@
       <p>📅 <strong>Today Expense:</strong> ₹{{ totalTodayExpense }}</p>
       <p>📆 <strong>Month Expense ({{ currentMonth }}):</strong> ₹{{ totalMonthExpense }}</p>
       <p>📅 <strong>Year Expense ({{ currentYear }}):</strong> ₹{{ totalYearExpense }}</p>
-     
-      <ion-button (click)="navigateTo('/single-view-expenses')" [class.active]="activeTab === 'expenses'">
-        <ion-icon name="list-outline"></ion-icon>
-        <ion-label>Expenses</ion-label>
-      </ion-button>
-
-      <ion-button (click)="navigateTo('/multi-view-expense')" [class.active]="activeTab === 'add'">
-        <ion-icon name="add-circle-outline"></ion-icon>
-        <ion-label>Add Expense</ion-label>
-      </ion-button>
-
-
-    </ion-card-content>
-  </ion-card>
-
-  <!-- Saving Summary Card -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Saving Summary</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
       <p>💰 <strong>Monthly Saving:</strong> ₹{{ monthSaving }}</p>
       <p>🏦 <strong>Yearly Saving:</strong> ₹{{ yearSaving }}</p>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- Balance History Card -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Balance History</ion-card-title>
-    </ion-card-header>    
-    <ion-card-content>
+      <p>💰 <strong>Monthly scan:</strong> ₹250</p>
+      <p>🏦 <strong>Yearly scan:</strong> ₹ 2000</p>
+      <p>💰 <strong>Monthly split:</strong> ₹250</p>
+      <p>🏦 <strong>Yearly split:</strong> ₹ 2000</p>
+   
       <h2>₹{{ totalBalance }}</h2>
       <ion-list>
         <ion-item *ngFor="let balance of balances">
@@ -113,44 +55,48 @@
             <ion-button color="danger" (click)="balance._id ? deleteBalance(balance._id) : null">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>                        
-          </ion-buttons>
-
-    
+          </ion-buttons>    
         </ion-item>
       </ion-list>
-      <ion-button (click)="navigateTo('/balance')" [class.active]="activeTab === 'balance'">
-        <ion-icon name="wallet-outline"></ion-icon>
-        <ion-label>Add Balance</ion-label>
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Split Summary</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>💰 <strong>Monthly split:</strong> ₹250</p>
-      <p>🏦 <strong>Yearly split:</strong> ₹ 2000</p>
-      <ion-button (click)="navigateTo('/split-view')" [class.active]="activeTab === 'split'">
-        <ion-icon name="people-outline"></ion-icon>
-        <ion-label>Split</ion-label>
-      </ion-button>
+
     </ion-card-content>
   </ion-card>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Scan Summary</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p>💰 <strong>Monthly scan:</strong> ₹250</p>
-      <p>🏦 <strong>Yearly scan:</strong> ₹ 2000</p>
-      <ion-button (click)="navigateTo('/scan')" [class.active]="activeTab === 'scan'">
-        <ion-icon name="camera-outline"></ion-icon>
-        <ion-label>Scan</ion-label>
+
+<ion-grid>
+  <ion-row>
+    <ion-col size="3" class="quick-action">
+      <ion-button shape="round" fill="solid" color="primary" (click)="navigateTo('/single-view-expenses')">
+        <ion-icon name="list-outline"></ion-icon>
       </ion-button>
-    </ion-card-content>
-  </ion-card>
+      <p>Expenses</p>
+    </ion-col>
+    <ion-col size="3" class="quick-action">
+      <ion-button shape="round" fill="solid" color="primary" (click)="navigateTo('/multi-view-expense')">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label>Multi Expense</ion-label>
+      </ion-button>
+    </ion-col>
+    <ion-col size="3" class="quick-action">
+      <ion-button shape="round" fill="solid" color="success" (click)="navigateTo('/scan')">
+        <ion-icon name="camera-outline"></ion-icon>
+      </ion-button>
+      <p>Scan</p>
+    </ion-col>
+    <ion-col size="3" class="quick-action">
+      <ion-button shape="round" fill="solid" color="warning" (click)="navigateTo('/balance')">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </ion-button>
+      <p>Add Balance</p>
+    </ion-col>
+    <ion-col size="3" class="quick-action">
+      <ion-button shape="round" fill="solid" color="tertiary" (click)="navigateTo('/split-view')">
+        <ion-icon name="people-outline"></ion-icon>
+      </ion-button>
+      <p>Split</p>
+    </ion-col>
+  </ion-row>
+</ion-grid>
 
 </ion-content>
 

@@ -4,17 +4,7 @@
 
 
 export const environment = {
-  production: false,
-  firebase:{
-      apiKey: "AIzaSyD8YSW9Sib-7zmEKZVmjuapp9-oCVrY2hs",
-      authDomain: "paisa-b9ba8.firebaseapp.com",
-      databaseURL: "https://paisa-b9ba8-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "paisa-b9ba8",
-      storageBucket: "paisa-b9ba8.firebasestorage.app",
-      messagingSenderId: "864869608639",
-      appId: "1:864869608639:web:e3516f2629a2e5a75aea0a",
-      measurementId: "G-TM6BGJ5CD5"
-  }
+  apiURL: "http://127.0.0.1:8000/api"
 };
 
 // const app = initializeApp(firebase);

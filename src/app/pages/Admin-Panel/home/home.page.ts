@@ -4,6 +4,7 @@ import { AlertController, NavController, ToastController } from '@ionic/angular'
 import { DatabaseService } from 'src/app/services/database.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -12,6 +13,7 @@ import { MenuService } from 'src/app/services/menu.service';
 })
 export class HomePage implements OnInit {
   email: any;
+  user: any = null;
   currentMonth: string = '';
   currentYear: number = new Date().getFullYear();
   userFirstName: string = '';
@@ -32,15 +34,11 @@ export class HomePage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
- const userStr = localStorage.getItem('user');
-  if (userStr) {
-    const user = JSON.parse(userStr);
-    this.userFirstName = user.first_name || user.name || '';
-  }
 
 
     this.currentMonth = this.getMonthName(new Date().getMonth());
@@ -49,6 +47,19 @@ export class HomePage implements OnInit {
     await this.loadBalance();
     await this.loadExpenses();
     this.calculateSavings();
+    const profile$ = this.authService.getProfile();
+    if (profile$) {
+      profile$.subscribe({
+        next: (res) => {
+          this.user = res.user;
+          this.userFirstName = this.user?.name?.split(' ')[0] || '';
+        },
+        error: (err) => {
+          console.error('Error loading profile:', err);
+          this.user = null;
+        }
+      });
+    }
   }
 
   getMonthName(monthIndex: number): string {

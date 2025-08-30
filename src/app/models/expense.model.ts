@@ -1,15 +1,16 @@
 export interface Expense {
-  _id?: string; // Unique ID assigned by PouchDB
-  _rev?: string; // Revision ID for updates
-  category: string; // Category of the expense
-  transaction_type: string; // Type of transaction (e.g., income or expense)
-  description: string; // Description of the expense
-  amount: number; // Amount spent
-  notes?: string; // Additional notes (optional)
-  date: string; // Date of the expense
-  paidBy: string; // Who paid the expense
-  createdAt?: string;
-  updatedAt?:string;
+   id?: number;          // auto increment id (Laravel default)
+  expense_id?: string;  // UUID
+  user_id?: number;     // will come from backend
+  category: string;
+  transaction_type: string;
+  description: string;
+  amount: number;
+  date: string;         // ISO date string
+  notes?: string;
+  paidBy?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Transaction {
