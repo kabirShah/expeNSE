@@ -1,11 +1,15 @@
-<ion-header color="light">
-  <ion-toolbar color="light">
+<ion-header color="primary">
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button> 
+      <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Pocket Money</ion-title>
+    <ion-title>
+      Pocket Money
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-icon name="power-outline" (click)="logout()"></ion-icon>
+      <ion-button fill="clear" color="light" (click)="logout()">
+        <ion-icon name="power-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -26,7 +30,140 @@
       </ion-card-title>
     </ion-card-header>
     <ion-card-content>
+      <div class="user-info">
+        <p class="user-email"><strong>Email:</strong> {{ email || 'Not available' }}</p>
+        <p class="user-stats">
+          <span class="stat-item">
+            <ion-icon name="receipt-outline"></ion-icon>
+            {{ allExpenses.length || 0 }} Expenses
+          </span>
+          <span class="stat-item">
+            <ion-icon name="wallet-outline"></ion-icon>
+            {{ balances.length || 0 }} Balances
+          </span>
+        </p>
+      </div>
       <p class="subtitle">Here's your financial overview for {{ currentMonth }} {{ currentYear }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Data Counts Section -->
+  <ion-card class="counts-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="stats-chart-outline" color="primary"></ion-icon>
+        Data Overview
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <div class="count-item">
+              <ion-icon name="card-outline" color="success"></ion-icon>
+              <h3>{{ creditCardsCount }}</h3>
+              <p>Credit Cards</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="count-item">
+              <ion-icon name="card-outline" color="warning"></ion-icon>
+              <h3>{{ debitCardsCount }}</h3>
+              <p>Debit Cards</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="count-item">
+              <ion-icon name="document-outline" color="tertiary"></ion-icon>
+              <h3>{{ invoicesCount }}</h3>
+              <p>Invoices</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="count-item">
+              <ion-icon name="people-outline" color="secondary"></ion-icon>
+              <h3>{{ splitExpensesCount }}</h3>
+              <p>Split Expenses</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Expense Categories Section -->
+<ion-card class="categories-card" 
+          *ngIf="objectKeys(expenseCategoriesCount).length > 0">
+  <ion-card-header>
+    <ion-card-title>Expense Categories</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-list>
+      <ion-item *ngFor="let key of objectKeys(expenseCategoriesCount)">
+        {{ key }}: {{ expenseCategoriesCount[key] }}
+      </ion-item>
+    </ion-list>
+  </ion-card-content>
+</ion-card>
+  <!-- Filter Section -->
+  <ion-card class="filter-card" *ngIf="showFilters">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="filter-outline"></ion-icon>
+        Filters
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-item>
+              <ion-label>Month</ion-label>
+              <ion-select [(ngModel)]="selectedMonth" placeholder="Select Month">
+                <ion-select-option *ngFor="let month of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="month">
+                  {{ getMonthName(month - 1) }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item>
+              <ion-label>Year</ion-label>
+              <ion-select [(ngModel)]="selectedYear" placeholder="Select Year">
+                <ion-select-option *ngFor="let year of [2023,2024,2025,2026]" [value]="year">
+                  {{ year }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <ion-item>
+              <ion-label>Category</ion-label>
+              <ion-select [(ngModel)]="selectedCategory" placeholder="Select Category">
+                <ion-select-option *ngFor="let cat of categories" [value]="cat">
+                  {{ cat }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" color="primary" (click)="applyFilters()">
+              <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+              Apply
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="medium" (click)="resetFilters()">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Reset
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-card-content>
   </ion-card>
 
@@ -43,7 +180,7 @@
             </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h2 class="amount">₹{{ totalBalance | number:'1.0-0' }}</h2>
+            <h2 class="amount">₹{{ totalBalance | number:'1.2-2' }}</h2>
             <p class="card-subtitle">Available Funds</p>
           </ion-card-content>
         </ion-card>
@@ -59,7 +196,7 @@
             </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <h2 class="amount">₹{{ totalMonthExpense | number:'1.0-0' }}</h2>
+            <h2 class="amount">₹{{ totalMonthExpense | number:'1.2-2' }}</h2>
             <p class="card-subtitle">{{ currentMonth }} Spending</p>
           </ion-card-content>
         </ion-card>
@@ -76,7 +213,7 @@
           </ion-card-header>
           <ion-card-content>
             <h2 class="amount" [class.positive]="monthSaving >= 0" [class.negative]="monthSaving < 0">
-              ₹{{ monthSaving | number:'1.0-0' }}
+              ₹{{ monthSaving | number:'1.2-2' }}
             </h2>
             <p class="card-subtitle">{{ currentMonth }} Savings</p>
           </ion-card-content>
@@ -92,7 +229,7 @@
             <div class="stat-icon today">
               <ion-icon name="today-outline"></ion-icon>
             </div>
-            <h3>₹{{ totalTodayExpense | number:'1.0-0' }}</h3>
+            <h3>₹{{ totalTodayExpense | number:'1.2-2' }}</h3>
             <p>Today</p>
           </ion-card-content>
         </ion-card>
@@ -104,7 +241,7 @@
             <div class="stat-icon year">
               <ion-icon name="calendar-outline"></ion-icon>
             </div>
-            <h3>₹{{ totalYearExpense | number:'1.0-0' }}</h3>
+            <h3>₹{{ totalYearExpense | number:'1.2-2' }}</h3>
             <p>Year {{ currentYear }}</p>
           </ion-card-content>
         </ion-card>
@@ -116,7 +253,7 @@
             <div class="stat-icon credit">
               <ion-icon name="card-outline"></ion-icon>
             </div>
-            <h3>₹{{ creditTotal | number:'1.0-0' }}</h3>
+            <h3>₹{{ creditTotal | number:'1.2-2' }}</h3>
             <p>Credits</p>
           </ion-card-content>
         </ion-card>
@@ -128,7 +265,7 @@
             <div class="stat-icon debit">
               <ion-icon name="receipt-outline"></ion-icon>
             </div>
-            <h3>₹{{ debitTotal | number:'1.0-0' }}</h3>
+            <h3>₹{{ debitTotal | number:'1.2-2' }}</h3>
             <p>Debits</p>
           </ion-card-content>
         </ion-card>
@@ -149,21 +286,21 @@
         <ion-item *ngFor="let balance of balances" class="balance-item">
           <ion-label>
             <h3>{{ balance.source }}</h3>
-            <p>{{ balance.dateAdded | date: 'MMM dd, yyyy' }}</p>
+            <p>{{ balance.date_added | date: 'MMM dd, yyyy' }}</p>
           </ion-label>
           <ion-note slot="end" color="primary">
-            ₹{{ balance.amount | number:'1.0-0' }}
+            ₹{{ balance.amount | number:'1.2-2' }}
           </ion-note>
           <ion-buttons slot="end">
             <ion-button fill="clear" color="warning" (click)="editBalance(balance)">
               <ion-icon name="create-outline"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" color="danger" (click)="balance._id ? deleteBalance(balance._id) : null">
+            <ion-button fill="clear" color="danger" (click)="balance.id ? deleteBalance(balance.id.toString()) : null">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-item>
-        
+
         <ion-item *ngIf="balances.length === 0">
           <ion-label class="empty-state">
             <ion-icon name="wallet-outline" size="large"></ion-icon>
@@ -186,35 +323,41 @@
     <ion-card-content>
       <ion-grid>
         <ion-row>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="primary" (click)="navigateTo('/single-view-expenses')">
-              <ion-icon name="list-outline"></ion-icon>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="primary" size="large" (click)="navigateTo('/single-view-expenses')" class="quick-action-btn">
+              <ion-icon name="list-outline" size="large"></ion-icon>
             </ion-button>
-            <p>Expenses</p>
+            <p class="action-label">Expenses</p>
           </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="secondary" (click)="navigateTo('/multi-view-expense')">
-              <ion-icon name="add-circle-outline"></ion-icon>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="secondary" size="large" (click)="navigateTo('/multi-view-expense')" class="quick-action-btn">
+              <ion-icon name="add-circle-outline" size="large"></ion-icon>
             </ion-button>
-            <p>Multi Expense</p>
+            <p class="action-label">Multi Expense</p>
           </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="success" (click)="navigateTo('/scan')">
-              <ion-icon name="camera-outline"></ion-icon>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="success" size="large" (click)="navigateTo('/scan')" class="quick-action-btn">
+              <ion-icon name="camera-outline" size="large"></ion-icon>
             </ion-button>
-            <p>Scan</p>
+            <p class="action-label">Scan</p>
           </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="warning" (click)="navigateTo('/balance')">
-              <ion-icon name="wallet-outline"></ion-icon>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="warning" size="large" (click)="navigateTo('/balance')" class="quick-action-btn">
+              <ion-icon name="wallet-outline" size="large"></ion-icon>
             </ion-button>
-            <p>Add Balance</p>
+            <p class="action-label">Add Balance</p>
           </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="tertiary" (click)="navigateTo('/split-view')">
-              <ion-icon name="people-outline"></ion-icon>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="tertiary" size="large" (click)="navigateTo('/split-view')" class="quick-action-btn">
+              <ion-icon name="people-outline" size="large"></ion-icon>
             </ion-button>
-            <p>Split</p>
+            <p class="action-label">Split</p>
+          </ion-col>
+          <ion-col size="4" size-md="2" class="quick-action">
+            <ion-button shape="round" fill="solid" color="medium" size="large" (click)="navigateTo('/cards')" class="quick-action-btn">
+              <ion-icon name="card-outline" size="large"></ion-icon>
+            </ion-button>
+            <p class="action-label">Cards</p>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -224,9 +367,9 @@
 
 <!-- Bottom Navigation Bar -->
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar color="dark">
     <ion-tabs>
-      <ion-tab-bar slot="bottom">
+      <ion-tab-bar slot="bottom" color="dark">
         <ion-tab-button (click)="navigateTo('/cards')" [class.active]="activeTab === 'cards'">
           <ion-icon name="card-outline"></ion-icon>
           <ion-label>Cards</ion-label>

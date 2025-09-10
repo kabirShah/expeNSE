@@ -120,10 +120,53 @@ export class PaymentProviderService extends BaseApiService {
     if (!this.isOnline()) {
       return this.handleOfflineError();
     }
-    
+
     return this.http.post<{ success: boolean; valid: boolean; message?: string }>(
       `${this.paymentProvidersUrl}/${id}/validate-amount`,
       { amount },
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Initiate payment with a provider
+  initiatePayment(providerName: string, paymentData: { amount: number; currency?: string; description?: string; metadata?: any }): Observable<any> {
+    if (!this.isOnline()) {
+      return this.handleOfflineError();
+    }
+
+    return this.http.post<any>(
+      `${this.apiUrl}/payments/initiate/${providerName}`,
+      paymentData,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Verify payment status
+  verifyPayment(providerName: string, transactionId: string): Observable<any> {
+    if (!this.isOnline()) {
+      return this.handleOfflineError();
+    }
+
+    return this.http.get<any>(
+      `${this.apiUrl}/payments/verify/${providerName}/${transactionId}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get supported payment methods for a provider
+  getSupportedMethods(providerName: string): Observable<{ success: boolean; data: { provider: string; supported_methods: string[] } }> {
+    if (!this.isOnline()) {
+      return this.handleOfflineError();
+    }
+
+    return this.http.get<{ success: boolean; data: { provider: string; supported_methods: string[] } }>(
+      `${this.apiUrl}/payments/methods/${providerName}`,
       { headers: this.getAuthHeaders() }
     ).pipe(
       catchError(this.handleError)

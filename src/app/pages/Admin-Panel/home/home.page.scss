@@ -63,6 +63,37 @@
     margin: 0;
     font-size: 0.95rem;
   }
+
+  .user-info {
+    margin-bottom: 1rem;
+
+    .user-email {
+      color: var(--ion-color-primary);
+      font-size: 0.9rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 500;
+    }
+
+    .user-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+        font-weight: 500;
+
+        ion-icon {
+          font-size: 1rem;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
 }
 
 // Summary Cards
@@ -309,4 +340,127 @@ ion-tab-bar {
 .shadow-card {
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(44, 62, 80, 0.12);
+}
+
+// Data Counts Section Styles
+.counts-card {
+  margin-bottom: 16px;
+
+  .count-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 8px;
+
+    ion-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+      color: var(--ion-color-primary);
+    }
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin: 4px 0 0 0;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+  }
+}
+
+// Expense Categories Section Styles
+.categories-card {
+  margin-bottom: 16px;
+
+  .category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    margin: 4px;
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: var(--ion-color-primary);
+    }
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+// Transaction Types Section Styles
+.transaction-types-card {
+  margin-bottom: 16px;
+
+  .transaction-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    margin: 4px;
+
+    ion-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    p {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+// Responsive adjustments for new sections
+@media (max-width: 576px) {
+  .count-item {
+    padding: 12px 4px;
+
+    h3 {
+      font-size: 20px;
+    }
+
+    p {
+      font-size: 11px;
+    }
+  }
+
+  .category-item, .transaction-item {
+    padding: 8px 4px;
+    margin: 2px;
+
+    h4 {
+      font-size: 13px;
+    }
+
+    p {
+      font-size: 11px;
+    }
+  }
 }

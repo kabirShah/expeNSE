@@ -7,6 +7,7 @@ import { MenuService } from 'src/app/services/menu.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ExpenseService } from 'src/app/services/expense.service';
 import { TransactionService } from 'src/app/services/transaction.service';
+import { DatabaseService } from 'src/app/services/database.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -15,6 +16,8 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+  loading = true;
+  dashboard: any = null;
   email: any;
   user: any = null;
   currentMonth: string = '';
@@ -30,8 +33,26 @@ export class HomePage implements OnInit {
   monthSaving: number = 0;
   yearSaving: number = 0;
   balances: Balance[] = [];
-  activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
-  loading: boolean = false;
+  activeTab: string = 'expenses';
+
+  // New count properties
+  creditCardsCount: number = 0;
+  debitCardsCount: number = 0;
+  invoicesCount: number = 0;
+  splitExpensesCount: number = 0;
+  expenseCategoriesCount: { [key: string]: number } = {};
+  transactionTypesCount: { [key: string]: number } = {};
+
+  // Filter properties
+  showFilters: boolean = false;
+  selectedMonth: number = new Date().getMonth() + 1;
+  selectedYear: number = new Date().getFullYear();
+  selectedCategory: string = 'All';
+  categories: string[] = ['All', 'Food', 'Transport', 'Entertainment', 'Shopping', 'Bills', 'Health', 'Education', 'Other'];
+
+  // Raw data for filtering
+  allExpenses: any[] = [];
+  allTransactions: any[] = [];
 
   constructor(
     private router: Router,
@@ -42,91 +63,109 @@ export class HomePage implements OnInit {
     private menuService: MenuService,
     private authService: AuthService,
     private expenseService: ExpenseService,
-    private transactionService: TransactionService
-  ) {}
+    private transactionService: TransactionService,
+    private databaseService: DatabaseService
+  ) {
+    this.loadDashboard();
+  }
 
+  loadDashboard(month?: number, year?: number) {
+    this.loading = true;
+    this.authService.getDashboard(month, year).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dashboard = res;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading dashboard:', err);
+        this.loading = false;
+      }
+    });
+  }
   async ngOnInit() {
     this.currentMonth = this.getMonthName(new Date().getMonth());
     console.log('Current Month:', this.currentMonth);
-    
+
     this.loading = true;
-    
+
     try {
-      // Load profile, balances, and expenses in parallel
-      const profile$ = this.authService.getProfile();
-      const balances$ = this.balanceService.getBalances();
-      const expenses$ = this.expenseService.getExpenses();
-      const transactions$ = this.transactionService.getTransactions();
-      
-      const [profileRes, balanceRes, expenseRes, transactionRes] = await Promise.all([
-        profile$?.toPromise().catch(err => {
-          console.error('Error loading profile:', err);
-          return null;
-        }),
-        balances$?.toPromise().catch(err => {
-          console.error('Error loading balances:', err);
-          return { success: false, data: [] };
-        }),
-        expenses$?.toPromise().catch(err => {
-          console.error('Error loading expenses:', err);
-          return { success: false, data: [] };
-        }),
-        transactions$?.toPromise().catch(err => {
-          console.error('Error loading transactions:', err);
-          return { success: false, data: [] };
-        })
-      ]);
+      // Load dashboard data from the API
+      const dashboardRes = await this.authService.getDashboard().toPromise();
 
-      // Process profile
-      if (profileRes) {
-        this.user = profileRes.user;
+      if (dashboardRes?.success) {
+        this.dashboard = dashboardRes;
+
+        // Map user data
+        this.user = dashboardRes.user;
         this.userFirstName = this.user?.name?.split(' ')[0] || '';
+        this.email = this.user?.email || '';
+
+        // Map financial data
+        this.totalBalance = dashboardRes.totals?.balance || 0;
+        this.totalTodayExpense = dashboardRes.totals?.today_expense || 0;
+        this.totalMonthExpense = dashboardRes.totals?.month_expense || 0;
+        this.totalYearExpense = dashboardRes.totals?.year_expense || 0;
+        this.monthSaving = dashboardRes.totals?.month_saving || 0;
+        this.yearSaving = dashboardRes.totals?.year_saving || 0;
+
+        // Map recent balances
+        this.balances = dashboardRes.recent?.balances || [];
+
+        // Map expenses and transactions for filtering
+        this.allExpenses = dashboardRes.recent?.expenses || [];
+        this.allTransactions = dashboardRes.recent?.transactions || [];
+
+        // Calculate credits and debits from transactions
+        this.updateCalculations();
+
+        // Fetch additional counts from database service
+        await this.loadAdditionalCounts();
+      } else {
+        this.showToast('Failed to load dashboard data', 'danger');
       }
 
-      // Process balances
-      if (balanceRes?.success) {
-        const balanceDocs: Balance[] = balanceRes.data;
-        if (balanceDocs.length > 0) {
-          this.totalBalance = balanceDocs.reduce((sum, record) => sum + (record.amount || 0), 0);
-          this.balances = balanceDocs.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
-        } else {
-          this.totalBalance = 0;
-          this.balances = [];
-        }
-      }
-
-      // Process expenses
-      if (expenseRes?.success) {
-        const expenses = expenseRes.data;
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        
-        this.totalTodayExpense = this.sumExpenses(expenses.filter(exp => 
-          new Date(exp.date).toISOString().split('T')[0] === todayStr
-        ));
-        
-        this.totalMonthExpense = this.sumExpenses(expenses, 'month');
-        this.totalYearExpense = this.sumExpenses(expenses, 'year');
-      }
-
-      // Process transactions for credits/debits
-      if (transactionRes?.success) {
-        const transactions = transactionRes.data;
-        const credits = transactions.filter(t => t.type === 'credit');
-        const debits = transactions.filter(t => t.type === 'debit');
-        
-        this.creditTotal = this.sumExpenses(credits);
-        this.debitTotal = this.sumExpenses(debits);
-        this.userBalance = this.creditTotal - this.debitTotal;
-      }
-
-      this.calculateSavings();
-      
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading dashboard data:', error);
       this.showToast('Failed to load financial data', 'danger');
     } finally {
       this.loading = false;
+    }
+  }
+
+  async loadAdditionalCounts() {
+    try {
+      const [creditCards, debitCards, invoices, splitExpenses] = await Promise.all([
+        this.databaseService.getAllCreditCards(),
+        this.databaseService.getAllDebitCards(),
+        this.databaseService.getInvoices(),
+        this.databaseService.getSplitExpenses()
+      ]);
+
+      this.creditCardsCount = creditCards.length;
+      this.debitCardsCount = debitCards.length;
+      this.invoicesCount = invoices.length;
+      this.splitExpensesCount = splitExpenses.length;
+
+      // Calculate expense categories count
+      this.expenseCategoriesCount = {};
+      this.allExpenses.forEach(exp => {
+        if (exp.category) {
+          this.expenseCategoriesCount[exp.category] = (this.expenseCategoriesCount[exp.category] || 0) + 1;
+        }
+      });
+
+      // Calculate transaction types count
+      this.transactionTypesCount = {};
+      this.allTransactions.forEach(tr => {
+        if (tr.type) {
+          this.transactionTypesCount[tr.type] = (this.transactionTypesCount[tr.type] || 0) + 1;
+        }
+      });
+
+    } catch (error) {
+      console.error('Error loading additional counts:', error);
     }
   }
 
@@ -164,16 +203,70 @@ export class HomePage implements OnInit {
     this.yearSaving = this.totalBalance - this.totalYearExpense;
   }
 
+  toggleFilters() {
+    this.showFilters = !this.showFilters;
+  }
+
+  applyFilters() {
+    this.updateCalculations();
+    this.showFilters = false;
+    this.showToast('Filters applied successfully!');
+  }
+
+  resetFilters() {
+    this.selectedMonth = new Date().getMonth() + 1;
+    this.selectedYear = new Date().getFullYear();
+    this.selectedCategory = 'All';
+    this.updateCalculations();
+    this.showToast('Filters reset!');
+  }
+
+  updateCalculations() {
+    // Filter expenses based on selected month, year, category
+    let filteredExpenses = this.allExpenses.filter(exp => {
+      const expDate = new Date(exp.date);
+      const matchesMonth = expDate.getMonth() + 1 === this.selectedMonth;
+      const matchesYear = expDate.getFullYear() === this.selectedYear;
+      const matchesCategory = this.selectedCategory === 'All' || exp.category === this.selectedCategory;
+      return matchesMonth && matchesYear && matchesCategory;
+    });
+
+    // Recalculate totals
+    this.totalMonthExpense = this.sumExpenses(filteredExpenses);
+    this.totalTodayExpense = this.sumExpenses(filteredExpenses.filter(exp =>
+      new Date(exp.date).toISOString().split('T')[0] === new Date().toISOString().split('T')[0]
+    ));
+
+    // For year, filter by year
+    let yearFiltered = this.allExpenses.filter(exp => new Date(exp.date).getFullYear() === this.selectedYear);
+    this.totalYearExpense = this.sumExpenses(yearFiltered);
+
+    // Transactions similar
+    let filteredTransactions = this.allTransactions.filter(tr => {
+      const trDate = new Date(tr.date);
+      return (trDate.getMonth() + 1 === this.selectedMonth) && (trDate.getFullYear() === this.selectedYear);
+    });
+
+    const credits = filteredTransactions.filter(t => t.type === 'credit');
+    const debits = filteredTransactions.filter(t => t.type === 'debit');
+
+    this.creditTotal = this.sumExpenses(credits);
+    this.debitTotal = this.sumExpenses(debits);
+    this.userBalance = this.creditTotal - this.debitTotal;
+
+    this.calculateSavings();
+  }
+
   // navigateTo(path: string) {
   //   this.router.navigate([path]);
   // }
   
   async editBalance(balance: Balance) {
-    if (!balance._id) {
+    if (!balance.id) {
       this.showToast('Error: Invalid Balance ID');
       return;
     }
-  
+
     const alert = await this.alertCtrl.create({
       header: 'Edit Balance',
       inputs: [
@@ -200,16 +293,13 @@ export class HomePage implements OnInit {
           handler: async (data) => {
             if (data.amount && data.source) {
               try {
-                console.log('Updating Balance:', balance._id, data.amount, data.source);
-                const response = await this.balanceService.updateBalance(balance._id!, {
-                  _id: balance._id!,
-                  _rev: balance._rev,
+                console.log('Updating Balance:', balance.id, data.amount, data.source);
+                const response = await this.balanceService.updateBalance(balance.id!.toString(), {
                   amount: parseFloat(data.amount),
                   source: data.source ?? '',
-                  dateAdded: balance.dateAdded!,
-                  userId: balance.userId!
+                  date_added: balance.date_added!
                 }).toPromise();
-                
+
                 if (response?.success) {
                   // await this.loadBalance(); // Refresh UI
                   this.showToast('Balance updated successfully!');
@@ -339,5 +429,10 @@ export class HomePage implements OnInit {
       color,
     });
     await toast.present();
+  }
+
+  // Utility method to get object keys for template iteration
+  objectKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 }

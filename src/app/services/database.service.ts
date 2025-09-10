@@ -216,8 +216,8 @@ async addAutoExpense(expense: Expense) {
   }
   async updateBalance(balance: Balance) {
     try {
-      if (!balance._id || !balance._rev) {
-        throw new Error("Balance ID and revision (_rev) are required for update");
+      if (!balance.id) {
+        throw new Error("Balance ID is required for update");
       }
       const response = await this.balanceDb.put(balance);
       return response;
@@ -249,7 +249,9 @@ async addAutoExpense(expense: Expense) {
   }
   async saveBalance(balance: Balance) {
     try {
-      balance._id = balance._id || new Date().toISOString();
+      if (!balance.id) {
+        balance.id = Date.now(); // Generate numeric ID
+      }
       const response = await this.balanceDb.put(balance);
       return response;
     } catch (error) {
@@ -260,10 +262,11 @@ async addAutoExpense(expense: Expense) {
   async getAllBalances(): Promise<Balance[]> {
     const result = await this.balanceDb.allDocs({ include_docs: true });
     return result.rows.map(row => ({
-    id: row.doc._id ?? '',
+    id: row.doc.id ?? 0,
     amount: row.doc.amount,
     source: row.doc.source,
-    dateAdded: row.doc.dateAdded
+    date_added: row.doc.date_added,
+    user_id: row.doc.user_id
     }));
   }
 
@@ -273,11 +276,11 @@ async addAutoExpense(expense: Expense) {
     if (!userId) throw new Error('User not logged in');
 
     const newBalance: Balance = {
-      _id: new Date().toISOString(),
+      id: Date.now(),
       amount: balanceData.amount,
       source: balanceData.source,
-      dateAdded: balanceData.dateAdded,
-      userId: userId // ✅ Attach logged-in user's ID
+      date_added: balanceData.dateAdded,
+      user_id: parseInt(userId) // ✅ Attach logged-in user's ID as number
     };
 
     await this.balanceDb.put(newBalance);

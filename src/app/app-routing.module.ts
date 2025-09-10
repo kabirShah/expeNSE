@@ -83,7 +83,15 @@ const routes: Routes = [
   {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
+  },  {
+    path: 'edit-credit',
+    loadChildren: () => import('./cards/credit/edit-credit/edit-credit.module').then( m => m.EditCreditPageModule)
+  },
+  {
+    path: 'edit-debit',
+    loadChildren: () => import('./cards/debit/edit-debit/edit-debit.module').then( m => m.EditDebitPageModule)
   }
+
 
 
 ];

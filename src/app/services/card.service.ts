@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import PouchDB from 'pouchdb';
 import { CreditCard } from '../models/credit-card.model';
 import { DebitCard } from '../models/debit-card.model';
 

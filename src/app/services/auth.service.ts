@@ -166,4 +166,16 @@ export class AuthService {
     localStorage.setItem('auth_token', token);
   }
 
+  getDashboard(month?: number, year?: number): Observable<any> {
+    let url = `${this.API_URL}/dashboard`;
+    const params: any = {};
+
+    if (month) params.month = month;
+    if (year) params.year = year;
+
+    return this.http.get(url, {
+      params,
+      headers: this.getAuthHeaders()
+    });
+  }
 }

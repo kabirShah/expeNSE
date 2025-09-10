@@ -86,7 +86,7 @@ export class BalancePage implements OnInit {
         // Add new balance
         const response = await this.balanceService.createBalance({
           ...balanceData,
-          dateAdded: new Date().toISOString(),
+          date_added: new Date().toISOString(),
         }).toPromise();
 
         if (response?.success) {

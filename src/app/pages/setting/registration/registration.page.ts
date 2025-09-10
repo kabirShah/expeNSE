@@ -84,7 +84,8 @@ export class RegistrationPage implements OnInit {
       await this.showToast('Please fill in all required fields.', 'danger');
       return;
     }
-   // Check internet before hitting server
+
+    // ✅ Check internet before hitting server
     if (!navigator.onLine) {
       await this.showToast('No internet connection. Please try again later.', 'warning');
       return;
@@ -100,24 +101,39 @@ export class RegistrationPage implements OnInit {
       password: this.regForm.value.password,
       password_confirmation: this.regForm.value.password,
     };
-  
-    console.log(formData);
-  
+
     const loading = await this.loadingController.create({ message: 'Registering...' });
     await loading.present();
-  
+
     this.authService?.register(formData)?.subscribe(
       async (res) => {
         await loading.dismiss();
         await this.showToast('Registration successful! Please login to continue.', 'success');
-        this.router.navigateByUrl('/login', { replaceUrl: true });
+        this.router.navigateByUrl('/home', { replaceUrl: true });
       },
       async (err) => {
         await loading.dismiss();
-        await this.showToast('Error: ' + JSON.stringify(err.error), 'danger');
+
+        if (!navigator.onLine) {
+          // Re-check in case internet dropped during request
+          await this.showToast('No internet connection detected.', 'warning');
+          return;
+        }
+
+        if (err.status === 0) {
+          // ✅ Server unreachable
+          await this.showToast('Server not reachable. Please try again later.', 'danger');
+        } else if (err.error && err.error.message) {
+          // API returned proper error
+          await this.showToast('Error: ' + err.error.message, 'danger');
+        } else {
+          // Unknown error fallback
+          await this.showToast('An unexpected error occurred.', 'danger');
+        }
       }
     );
   }
+
   // ✅ Date of Birth - Age Validation
   setMaxDate() {
     const today = new Date();
