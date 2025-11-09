@@ -36,14 +36,18 @@ const routes: Routes = [
     path: 'single-expense/:id',
     loadChildren: () => import('./pages/expense/single-view-expenses/single-expense/single-expense.module').then(m => m.SingleExpensePageModule), canActivate:[AuthGuard]
   },
-  // {
-  //   path: 'multi-expense',
-  //   loadChildren: () => import('./pages/expense/multi-view-expenses/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule), canActivate: [AuthGuard]
-  // },
-  // {
-  //   path: 'multi-view-expense',
-  //   loadChildren: () => import('./pages/expense/multi-view-expenses/multi-view.module').then( m => m.MultiViewPageModule), canActivate: [AuthGuard]
-  // },
+  {
+    path: 'multi-expense',
+    loadChildren: () => import('./pages/expense/multi-view-expenses/multi-expense/multi-expense.module').then( m => m.MultiExpensePageModule), canActivate: [AuthGuard]
+  },
+  {
+    path: 'multi-expense/:id',
+    loadChildren: () => import('./pages/expense/multi-view-expenses/multi-expense/multi-expense.module').then(m => m.MultiExpensePageModule), canActivate: [AuthGuard]
+  },
+  {
+    path: 'multi-view-expense',
+    loadChildren: () => import('./pages/expense/multi-view-expenses/multi-view.module').then( m => m.MultiViewPageModule), canActivate: [AuthGuard]
+  },
   {
     path: 'split',
     loadChildren: () => import('./pages/expense/split-view/split/split.module').then( m => m.SplitPageModule), canActivate: [AuthGuard]
@@ -83,7 +87,8 @@ const routes: Routes = [
   {
     path: '**',
     loadChildren: () => import('./pages/notfound/notfound.module').then(m => m.NotfoundPageModule)
-  },  {
+  },
+  {
     path: 'edit-credit',
     loadChildren: () => import('./cards/credit/edit-credit/edit-credit.module').then( m => m.EditCreditPageModule)
   },

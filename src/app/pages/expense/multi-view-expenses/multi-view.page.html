@@ -2,44 +2,35 @@
   <ion-toolbar color="light">
     <ion-buttons slot="start">
       <ion-button href="/home" color="primary">
-          <ion-icon name="chevron-back" size="medium"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Multi Expense</ion-title>
   </ion-toolbar>
-   <!-- Toolbar with Searchbar and Select in a single row -->
-   <ion-toolbar color="light">
+
+  <ion-toolbar color="light">
     <ion-row class="ion-align-items-center">
-      <ion-col size="10" size-md="4">
+      <ion-col size="9">
         <ion-searchbar
-          labelPlacement="floating"
           [(ngModel)]="searchTerm"
           placeholder="Search"
           (ionInput)="applyFilters()"
           debounce="500"
-          class="transparent-searchbar"
         ></ion-searchbar>
       </ion-col>
-
-      <ion-col size="2" size-md="3">
+      <ion-col size="3">
         <ion-select
           [(ngModel)]="selectedMonth"
           (ionChange)="applyFilters()"
-          placeholder="Filter by Month"
+          placeholder="Month"
         >
           <ion-select-option value="all">All</ion-select-option>
-          <ion-select-option value="January">January</ion-select-option>
-          <ion-select-option value="February">February</ion-select-option>
-          <ion-select-option value="March">March</ion-select-option>
-          <ion-select-option value="April">April</ion-select-option>
-          <ion-select-option value="May">May</ion-select-option>
-          <ion-select-option value="June">June</ion-select-option>
-          <ion-select-option value="July">July</ion-select-option>
-          <ion-select-option value="August">August</ion-select-option>
-          <ion-select-option value="September">September</ion-select-option>
-          <ion-select-option value="October">October</ion-select-option>
-          <ion-select-option value="November">November</ion-select-option>
-          <ion-select-option value="December">December</ion-select-option>
+          <ion-select-option *ngFor="let m of [
+              'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+            ]" [value]="m">
+            {{ m }}
+          </ion-select-option>
         </ion-select>
       </ion-col>
     </ion-row>
@@ -47,25 +38,45 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-card *ngIf="filteredExpenses.length; else noData">
-    <ion-card-content *ngFor="let expense of filteredExpenses">
-      <ion-card-title>{{ expense.description }}</ion-card-title>
-      <p>Amount: {{ expense.amount }}₹</p>
-      <p>Description: {{ expense.description }}</p>
-      <p>Date: {{ expense.date | date:'medium' }}</p>
-      <p>Paid By: {{ expense.paidBy }}</p>
-      <ion-button color="primary" (click)="editAutoExpense(expense._id)">
-        Edit
-      </ion-button>
-      <ion-button color="danger" (click)="deleteAutoExpense(expense._id)">
-        Delete
-      </ion-button>
+  <!-- 💰 Total Display -->
+  <ion-card *ngIf="filteredExpenses.length > 0">
+    <ion-card-content class="ion-text-center">
+      <h2>Total Expense: ₹{{ totalFilteredAmount | number:'1.2-2' }}</h2>
     </ion-card-content>
   </ion-card>
-<ng-template #noData>
-  <ion-label >No expenses found.</ion-label>
-</ng-template>
+
+  <ion-spinner *ngIf="loading" name="crescent" class="ion-margin"></ion-spinner>
+
+  <ion-list *ngIf="filteredExpenses.length > 0 && !loading">
+    <ion-item *ngFor="let multiExpense of filteredExpenses" lines="full">
+      <ion-label>
+        <h2>{{ multiExpense.title }}</h2>
+        <p>{{ multiExpense.description }}</p>
+        <p><b>Category:</b> {{ multiExpense.category }}</p>
+        <p><b>Date:</b> {{ multiExpense.created_at | date:'medium' }}</p>
+        <p><b>Amount:</b> ₹{{ multiExpense.total_amount }}</p>
+      </ion-label>
+
+      <ion-buttons slot="end">
+        <ion-button fill="clear" color="primary" (click)="editAutoExpense(multiExpense.id!)">
+          <ion-icon name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" color="danger" (click)="deleteAutoExpense(multiExpense.id!)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+
+  <ion-text *ngIf="!loading && filteredExpenses.length === 0" class="ion-text-center ion-margin-top">
+    <p>No expenses found.</p>
+  </ion-text>
 </ion-content>
+
 <ion-footer>
-  <ion-button size="default" color="primary" (click)="navigateToMultiExpense()">Add Multiple Expense</ion-button>
+  <ion-toolbar>
+    <ion-button expand="block" color="primary" (click)="navigateToMultiExpense()">
+      Add Multi Expense
+    </ion-button>
+  </ion-toolbar>
 </ion-footer>

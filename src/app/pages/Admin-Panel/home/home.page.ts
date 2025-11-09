@@ -66,7 +66,7 @@ export class HomePage implements OnInit {
     private transactionService: TransactionService,
     private databaseService: DatabaseService
   ) {
-    this.loadDashboard();
+
   }
 
   loadDashboard(month?: number, year?: number) {

@@ -67,9 +67,9 @@ export class DatabaseService {
       }
     }
 
-  // async getAutoExpense(databaseName:string, id:string){
-  //   return await this.autoDb.get(id);
-  // }
+  async getAutoExpense(databaseName:string, id:string){
+    return await this.autoDb.get(id);
+  }
 
 
   // async getAllManualExpenses(): Promise<Expense[]> {
@@ -107,18 +107,18 @@ async addAutoExpense(expense: Expense) {
   }
 }
 
-//   async getAllAutoExpenses(): Promise<Expense[]> {
-//   try {
-//     const userId = this.getUserId();
-//     const result = await this.autoDb.allDocs({ include_docs: true });
-//     return result.rows
-//       .map((row) => row.doc as Expense)
-//       .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
-//   } catch (error) {
-//     this.handleError(error);
-//     return [];
-//   }
-// }
+  async getAllAutoExpenses(): Promise<Expense[]> {
+  try {
+    const userId = this.getUserId();
+    const result = await this.autoDb.allDocs({ include_docs: true });
+    return result.rows
+      .map((row) => row.doc as Expense)
+      .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
+  } catch (error) {
+    this.handleError(error);
+    return [];
+  }
+}
 
 
 
@@ -526,6 +526,17 @@ async getUserBalances(): Promise<Balance[]> {
       }
       return null;
     }
+    async deleteAutoExpense(id: string) {
+      try {
+        const doc = await this.autoDb.get(id);
+        await this.autoDb.remove(doc);
+        console.log('Auto expense deleted:', id);
+      } catch (error) {
+        console.error('Error deleting auto expense:', error);
+        throw error;
+      }
+    }
+
     getUserId(): string {
       const userId = localStorage.getItem('user_id');
       if (!userId) throw new Error('No user logged in');
