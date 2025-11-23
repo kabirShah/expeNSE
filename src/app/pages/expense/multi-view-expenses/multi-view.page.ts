@@ -11,9 +11,12 @@ export class MultiViewPage implements OnInit {
 
   multiExpenses: MultiExpense[] = [];
   filteredExpenses: MultiExpense[] = [];
+
   searchTerm: string = '';
   selectedMonth: string = 'all';
-  totalFilteredAmount: number = 0;
+
+  totalExpense: number = 0;            // Total for ALL items
+  totalFilteredAmount: number = 0;     // Total AFTER filters
   loading: boolean = false;
 
   constructor(
@@ -29,10 +32,19 @@ export class MultiViewPage implements OnInit {
     this.loading = true;
     try {
       const response = await this.multiExpenseService.getMultiExpenses().toPromise();
+
       if (response && response.success) {
         this.multiExpenses = response.data;
+
+        // Total of ALL multi expenses
+        this.totalExpense = this.multiExpenses.reduce(
+          (sum, e) => sum + Number(e.total_amount ?? 0),
+          0
+        );
+
         this.applyFilters();
       }
+
     } catch (error) {
       console.error('Error loading multi-expenses:', error);
     } finally {
@@ -41,32 +53,41 @@ export class MultiViewPage implements OnInit {
   }
 
   applyFilters() {
-    this.filteredExpenses = this.multiExpenses.filter((multiExpense) => {
+    this.filteredExpenses = this.multiExpenses.filter((exp) => {
       let matchesSearch = true;
       let matchesMonth = true;
 
-      // 🔍 Apply Search Filter
+      // SEARCH FILTER
       if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
+        const s = this.searchTerm.toLowerCase();
         matchesSearch =
-          multiExpense.title.toLowerCase().includes(searchLower) ||
-          (multiExpense.description?.toLowerCase().includes(searchLower) ?? false);
+          exp.title.toLowerCase().includes(s) ||
+          (exp.description?.toLowerCase().includes(s) ?? false);
       }
 
-      // 📅 Apply Month Filter
-      if (this.selectedMonth && this.selectedMonth !== 'all') {
-        const expenseMonth = new Date(multiExpense.created_at || '').toLocaleString('default', { month: 'long' });
+      // MONTH FILTER
+      if (this.selectedMonth !== 'all') {
+        const expenseMonth = exp.created_at
+          ? new Date(exp.created_at).toLocaleString('default', { month: 'long' })
+          : '';
+
         matchesMonth = expenseMonth === this.selectedMonth;
       }
 
       return matchesSearch && matchesMonth;
     });
 
-    // 💰 Calculate total after filtering
+    // Total for filtered results
     this.totalFilteredAmount = this.filteredExpenses.reduce(
-      (sum, exp) => sum + (exp.total_amount || 0),
+      (sum, e) => sum + Number(e.total_amount ?? 0),
       0
     );
+
+    console.log("Filtered total:", this.totalFilteredAmount);
+  }
+
+  trackById(index: number, item: MultiExpense) {
+    return item.id;
   }
 
   async editAutoExpense(id: number | string) {

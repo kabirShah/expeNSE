@@ -1,57 +1,67 @@
-<ion-content class="login-content">
-  <div class="login-card">
-    <h2>Pocket Money</h2>
-    <p class="tagline">Smart Way to budget</p>
+<ion-content class="login-light">
+
+  <div class="top-graphic"></div>
+
+  <div class="login-container">
+
+    <!-- Branding -->
+    <div class="logo-box">
+      <ion-icon name="wallet-outline"></ion-icon>
+      <h1>Pocket Money</h1>
+      <p class="subtitle">Smart way to manage your finances</p>
+    </div>
 
     <!-- Login Form -->
-    <form [formGroup]="logForm" (ngSubmit)="login()">
+    <form [formGroup]="logForm" (ngSubmit)="login()" class="white-card">
+
       <!-- Email -->
-      <ion-item class="custom-input">
-        <ion-icon name="mail-outline" slot="start"></ion-icon>
-        <ion-input type="email" formControlName="email" placeholder="Enter your email" required></ion-input>
+      <ion-item class="input-item">
+        <ion-icon slot="start" name="mail-outline"></ion-icon>
+        <ion-input formControlName="email" type="email" placeholder="Email"></ion-input>
       </ion-item>
 
       <!-- Password -->
-      <ion-item class="custom-input">
-        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-        <ion-input [type]="passwordType" formControlName="password" placeholder="Enter password" required></ion-input>
+      <ion-item class="input-item">
+        <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+        <ion-input
+          formControlName="password"
+          [type]="passwordType"
+          placeholder="Password">
+        </ion-input>
+
         <ion-icon 
-          [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'" 
-          slot="end" 
+          slot="end"
+          [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'"
           (click)="togglePasswordVisibility()">
         </ion-icon>
       </ion-item>
 
-      <!-- Remember Me + Forgot Password -->
-      <div class="login-options">
+      <!-- Options -->
+      <div class="options-row">
         <ion-checkbox formControlName="rememberMe"></ion-checkbox>
-        <ion-label>Remember Me</ion-label>
-        <span class="forgot-password">
-          <a routerLink="/forgot-password">Forgot Password?</a>
-        </span>
+        <span class="remember-label">Remember Me</span>
+
+        <a class="forgot" routerLink="/forgot-password">Forgot Password?</a>
       </div>
 
-      <!-- Sign In Button -->
-      <ion-button expand="block" type="submit" class="signin-btn" [disabled]="logForm.invalid">
+      <!-- Submit -->
+      <ion-button expand="block" type="submit" class="btn-blue" [disabled]="logForm.invalid">
         <ion-spinner *ngIf="isLoading"></ion-spinner>
-        <ion-icon *ngIf="!isLoading" name="log-in-outline"></ion-icon>
         <span *ngIf="!isLoading">Sign In</span>
       </ion-button>
     </form>
 
-    <!-- 🚀 Register placed OUTSIDE the form -->
-    <p class="register-link">
-      Don't have an account?
+    <!-- Register Link -->
+    <p class="register-text">
+      Don’t have an account? 
       <a routerLink="/register">Register</a>
-    </p>      
+    </p>
 
-
-    <!-- Biometric Login -->
-    <div class="biometric-login">
-      <ion-button fill="clear" (click)="loginWithBiometric()">
-        <ion-icon name="finger-print" size="large"></ion-icon>
-      </ion-button>
-      <p>Sign in with Biometrics</p>
+    <!-- Biometrics -->
+    <div class="bio-login" (click)="loginWithBiometric()">
+      <ion-icon name="finger-print-outline"></ion-icon>
+      <p>Login with Biometrics</p>
     </div>
+
   </div>
 </ion-content>

@@ -169,6 +169,9 @@ export class SingleViewExpensesPage implements OnInit {
       console.error('Error saving PDF:', error);
     }
   }
+    getCategoryName(expense: any): string {
+  return expense.category?.name || '';
+}
   private async sharePDF(filePath: string, fileName: string) {
     try {
       await Share.share({

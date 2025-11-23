@@ -15,20 +15,17 @@
           [(ngModel)]="searchTerm"
           placeholder="Search"
           (ionInput)="applyFilters()"
-          debounce="500"
-        ></ion-searchbar>
+          debounce="500">
+        </ion-searchbar>
       </ion-col>
+
       <ion-col size="3">
-        <ion-select
-          [(ngModel)]="selectedMonth"
-          (ionChange)="applyFilters()"
-          placeholder="Month"
-        >
+        <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
           <ion-select-option value="all">All</ion-select-option>
           <ion-select-option *ngFor="let m of [
-              'January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'
-            ]" [value]="m">
+            'January','February','March','April','May','June',
+            'July','August','September','October','November','December'
+          ]" [value]="m">
             {{ m }}
           </ion-select-option>
         </ion-select>
@@ -38,39 +35,47 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <!-- 💰 Total Display -->
-  <ion-card *ngIf="filteredExpenses.length > 0">
-    <ion-card-content class="ion-text-center">
-      <h2>Total Expense: ₹{{ totalFilteredAmount | number:'1.2-2' }}</h2>
-    </ion-card-content>
-  </ion-card>
 
   <ion-spinner *ngIf="loading" name="crescent" class="ion-margin"></ion-spinner>
 
+  <!-- Expense List -->
   <ion-list *ngIf="filteredExpenses.length > 0 && !loading">
-    <ion-item *ngFor="let multiExpense of filteredExpenses" lines="full">
+    <ion-item *ngFor="let exp of filteredExpenses; trackBy: trackById" lines="full">
+
       <ion-label>
-        <h2>{{ multiExpense.title }}</h2>
-        <p>{{ multiExpense.description }}</p>
-        <p><b>Category:</b> {{ multiExpense.category }}</p>
-        <p><b>Date:</b> {{ multiExpense.created_at | date:'medium' }}</p>
-        <p><b>Amount:</b> ₹{{ multiExpense.total_amount }}</p>
+        <h2>{{ exp.title }}</h2>
+        <p>{{ exp.description }}</p>
+        <p><b>Category:</b> {{ exp.category }}</p>
+        <p><b>Date:</b> {{ exp.created_at | date:'medium' }}</p>
+        <p><b>Amount:</b> ₹{{ exp.total_amount }}</p>
       </ion-label>
 
       <ion-buttons slot="end">
-        <ion-button fill="clear" color="primary" (click)="editAutoExpense(multiExpense.id!)">
+        <ion-button fill="clear" color="primary" (click)="editAutoExpense(exp.id!)">
           <ion-icon name="create-outline"></ion-icon>
         </ion-button>
-        <ion-button fill="clear" color="danger" (click)="deleteAutoExpense(multiExpense.id!)">
+
+        <ion-button fill="clear" color="danger" (click)="deleteAutoExpense(exp.id!)">
           <ion-icon name="trash-outline"></ion-icon>
         </ion-button>
       </ion-buttons>
+
     </ion-item>
   </ion-list>
 
   <ion-text *ngIf="!loading && filteredExpenses.length === 0" class="ion-text-center ion-margin-top">
     <p>No expenses found.</p>
   </ion-text>
+
+  <!-- BOTTOM TOTAL CARD -->
+  <div style="height: 20px;"></div>
+
+  <ion-card *ngIf="filteredExpenses.length > 0">
+    <ion-card-content class="ion-text-center">
+      <h2>Total Expense: ₹{{ totalFilteredAmount | number:'1.2-2' }}</h2>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
 
 <ion-footer>
