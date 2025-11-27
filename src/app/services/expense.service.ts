@@ -19,6 +19,11 @@ export class ExpenseService {
       'Accept': 'application/json'
     });
   }
+  getCategories() {
+    return this.http.get(`${environment.apiURL}/categories`, {
+      headers: this.getAuthHeaders()
+    });
+  }
 
   // ✅ Get all expenses
   getExpenses() {

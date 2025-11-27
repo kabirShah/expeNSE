@@ -1,199 +1,225 @@
-/* 🔹 Fullscreen Background */
-.login-content {
-   --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;    /* Always full screen */
-  height: 100%;
-  width: 100%;
-  padding: 5%;
-  box-sizing: border-box;
+/* =========================================
+   VARIABLES (Strict Enterprise Palette)
+   ========================================= */
+:host {
+  /* Brand Colors */
+  --color-primary: #2563eb;      /* Standard Tech Blue (Intercom/Stripe style) */
+  --color-primary-hover: #1d4ed8;
+  
+  /* Text Colors */
+  --text-main: #111827;          /* Near Black for headings */
+  --text-body: #4b5563;          /* Gray for subtitles */
+  --text-placeholder: #9ca3af;
+  
+  /* Borders & Backgrounds */
+  --border-color: #e5e7eb;
+  --bg-page: #ffffff;            /* Pure white background for cleanliness */
+  --bg-input: #ffffff;
 }
 
-/* 🔹 Center Card */
-.login-card {
- background: #fff;  /* Solid white instead of glass */
-  padding: 35px 30px;
-  border-radius: 18px;
-  text-align: center;
-  width: 100%;
-  max-width: 450px;
-  // box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.5s ease-in-out;
-  margin: auto;   /* ✅ Keeps it centered always */
+/* =========================================
+   LAYOUT & CONTAINER
+   ========================================= */
+ion-content.auth-content {
+  --background: var(--bg-page);
 }
 
-/* 🔹 Title & Tagline */
-h2 {
-  font-size: 26px;
-  font-weight: bold;
-  color: #111;
-  margin-bottom: 6px;
-}
-
-.tagline {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 18px;
-}
-
-/* 🔹 Input Fields */
-.custom-input {
-  border-radius: 10px;
-  margin-bottom: 12px;
-  background: #fafafa;
-  color: #222;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-.register-link {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 14px;
-  color: var(--ion-color-medium);
-
-  a {
-    color: var(--ion-color-primary);
-    font-weight: 600;
-    text-decoration: none;
-    margin-left: 5px;
-  }
-
-  a:hover {
-    text-decoration: underline;
-  }
-}
-
-.custom-input ion-icon {
-  font-size: 20px;
-  color: #777;
-}
-
-.custom-input:focus-within {
-  border-color: #007bff;
-  background: #fff;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
-}
-
-/* 🔹 Remember Me + Forgot Password */
-.login-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  font-size: 13px;
-  color: #555;
-}
-
-.forgot-password a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
-}
-.forgot-password a:hover {
-  text-decoration: underline;
-}
-
-/* 🔹 Sign In Button */
-.signin-btn {
-  background: linear-gradient(135deg, #017cff, #2ec5d8);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 10px;
-  height: 48px;
-  margin-top: 5px;
-  transition: 0.25s;
-}
-.signin-btn:hover {
-  background: linear-gradient(135deg, #017cff, #2ec5d8);
-}
-
-/* 🔹 Social Login Buttons */
-.social-login ion-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 10px;
-  height: 45px;
-  transition: 0.3s;
-  width: 100%;
-  margin-top: 10px;
-}
-
-.fb-btn {
-  --background: #0866ff;
-  --color: #fff;
-  --border-radius: 10px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --height: 45px;
-  --box-shadow: none;
-  font-weight: bold;
-}
-
-.google-btn {
-  --background: #fff;
-  --color: #000;
-  --border-radius: 10px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --height: 45px;
-  --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  font-weight: bold;
-}
-
-
-.fb-btn:hover, .google-btn:hover {
-  filter: brightness(1.15);
-}
-
-/* 🔹 Register */
-.register-link {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #444;
-}
-.register-link a {
-  color: #007bff;
-  font-weight: 600;
-  text-decoration: none;
-}
-.register-link a:hover {
-  text-decoration: underline;
-}
-
-/* 🔹 Biometric Login */
-.biometric-login {
+.auth-container {
+  max-width: 400px; /* Limits width on tablets/desktop for clean look */
+  margin: 0 auto;
+  padding: 40px 24px;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  justify-content: center; /* Centers content vertically */
+}
+
+/* =========================================
+   HEADER SECTION
+   ========================================= */
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    background: #eff6ff; /* Very light blue bg */
+    color: var(--color-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    
+    ion-icon { font-size: 24px; }
+  }
+
+  .auth-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .auth-subtitle {
+    font-size: 14px;
+    color: var(--text-body);
+    margin: 0;
+  }
+}
+
+/* =========================================
+   FORM STYLING
+   ========================================= */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  ion-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+  }
+}
+
+/* High-Contrast Input Wrapper */
+.input-wrapper {
+  display: flex;
   align-items: center;
-  margin-top: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Standard radius */
+  background: var(--bg-input);
+  padding: 0 12px;
+  height: 44px; /* Standard touch target size */
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Focus ring */
+  }
+
+  .input-icon {
+    font-size: 18px;
+    color: var(--text-placeholder);
+    margin-right: 10px;
+  }
+
+  .custom-input {
+    flex: 1;
+    --padding-start: 0;
+    --padding-end: 0;
+    --placeholder-color: var(--text-placeholder);
+    --placeholder-opacity: 1;
+    font-size: 14px;
+    color: var(--text-main);
+  }
+
+  .eye-btn {
+    margin: 0;
+    height: 100%;
+    --padding-start: 8px;
+    --padding-end: 0;
+    color: var(--text-body);
+    
+    ion-icon { font-size: 18px; }
+  }
 }
 
-.biometric-login ion-icon {
-  font-size: 46px;
-  animation: pulse 1.6s infinite;
-  transition: 0.3s;
-}
-.biometric-login ion-icon:hover {
-  transform: scale(1.1);
+/* =========================================
+   ACTIONS ROW (Checkbox & Forgot)
+   ========================================= */
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+
+  ion-checkbox {
+    --size: 16px;
+    --checkbox-background-checked: var(--color-primary);
+    --border-color-checked: var(--color-primary);
+    --label-color: var(--text-body);
+    font-size: 13px;
+  }
+
+  .link-btn {
+    text-decoration: none;
+    color: var(--color-primary);
+    font-weight: 600;
+    
+    &:hover { text-decoration: underline; }
+  }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+/* =========================================
+   BUTTONS
+   ========================================= */
+.primary-btn {
+  --background: var(--color-primary);
+  --background-hover: var(--color-primary-hover);
+  --border-radius: 8px;
+  --box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Subtle button shadow */
+  height: 44px;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
 }
 
-/* 🔹 Responsive */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 20px;
-    max-width: 100%;
+.secondary-btn {
+  --color: var(--text-main);
+  --border-color: var(--border-color);
+  --border-radius: 8px;
+  height: 44px;
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: none;
+  margin: 0;
+}
+
+/* Divider Line */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  span {
+    padding: 0 10px;
+    font-size: 12px;
+    color: var(--text-placeholder);
+    font-weight: 500;
+  }
+}
+
+/* =========================================
+   FOOTER
+   ========================================= */
+.auth-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-body);
+
+  a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
   }
 }

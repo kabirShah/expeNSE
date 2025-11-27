@@ -6,6 +6,7 @@ import { AlertController, LoadingController, NavController, ToastController } fr
 import { BiometricService } from '../../../services/biometric.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Capacitor } from '@capacitor/core';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 @Component({
   selector: 'app-login',
@@ -48,6 +49,7 @@ export class LoginPage {
   }
 
 async loginWithBiometric() {
+  await Haptics.impact({ style: ImpactStyle.Light });
   try {
     const isAuthenticated = await this.biometricService.verifyIdentity();
 
@@ -75,8 +77,10 @@ async loginWithBiometric() {
 
 
 togglePasswordVisibility() {
-    this.passwordType = this.passwordType === 'password' ? 'text' : 'password';
-  }
+  this.passwordType =
+    this.passwordType === 'password' ? 'text' : 'password';
+}
+
 
   async login() {
     if (!navigator.onLine) {

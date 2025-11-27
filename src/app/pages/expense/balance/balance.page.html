@@ -1,26 +1,54 @@
-<ion-header>
+<ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']" color="light">
-        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      <ion-button [routerLink]="['/home']" class="back-btn">
+        <ion-icon name="close-outline" size="large"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Add Balance</ion-title>
+    <ion-title>Add Funds</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <form [formGroup]="balanceForm" (ngSubmit)="saveBalance()">
-    <ion-item>
-      <ion-label position="floating">Balance Amount</ion-label>
-      <ion-input formControlName="amount" type="number"></ion-input>
-    </ion-item>
+<ion-content class="form-bg-content">
+  
+  <div class="center-container">
+    <form [formGroup]="balanceForm" (ngSubmit)="saveBalance()">
 
-    <ion-item>
-      <ion-label position="floating">Balance Source</ion-label>
-      <ion-textarea formControlName="source" placeholder="E.g., Salary, Bonus, Gift, etc."></ion-textarea>
-    </ion-item>
+      <div class="amount-hero-section">
+        <div class="currency-wrapper">
+          <span class="currency-symbol">₹</span>
+          <ion-input 
+            formControlName="amount" 
+            type="number" 
+            placeholder="0" 
+            class="big-amount-input">
+          </ion-input>
+        </div>
+        <p class="helper-text">Enter amount to add to wallet</p>
+      </div>
 
-    <ion-button expand="block" type="submit" [disabled]="balanceForm.invalid">Save Balance</ion-button>
-  </form>
+      <div class="form-card">
+        
+        <div class="input-group">
+          <ion-item lines="none" class="custom-input-item large-input">
+            <ion-icon slot="start" name="wallet-outline"></ion-icon>
+            <ion-label position="floating">Source of Funds</ion-label>
+            <ion-textarea 
+              formControlName="source" 
+              placeholder="E.g. Salary, Bonus..."
+              rows="2">
+            </ion-textarea>
+          </ion-item>
+        </div>
+
+        <ion-button expand="block" type="submit" class="main-button" [disabled]="balanceForm.invalid">
+          <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+          Add Balance
+        </ion-button>
+        
+      </div>
+
+    </form>
+  </div>
+
 </ion-content>

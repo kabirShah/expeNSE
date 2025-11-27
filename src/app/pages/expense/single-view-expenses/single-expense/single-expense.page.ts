@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,17 +7,17 @@ import { ExpenseService } from 'src/app/services/expense.service';
 @Component({
   selector: 'app-single-expense',
   templateUrl: './single-expense.page.html',
+  styleUrls: ['./single-expense.page.scss'],
+  encapsulation: ViewEncapsulation.None // Critical for custom styles
 })
 export class SingleExpensePage implements OnInit {
   expenseForm!: FormGroup;
-  expenseCategories = [
-    'Utilities', 'Clothes Shopping', 'Entertainment', 'Groceries',
-    'Miscellaneous', 'Rent', 'Transport', 'Healthcare',
-    'Dining Out', 'Education', 'Personal Care', 'Savings & Investments',
-    'Subscriptions', 'Household Supplies', 'Travel'
-  ];
-  transactionTypes = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Bank Transfer', 'Mobile Wallet'];
   expenseId: string | null = null;
+  
+  // Stores the processed categories (id, displayName)
+  categories: any[] = []; 
+  
+  transactionTypes = ['Cash', 'Credit Card', 'Debit Card', 'UPI', 'Bank Transfer', 'Mobile Wallet'];
 
   constructor(
     private fb: FormBuilder,
@@ -30,6 +30,8 @@ export class SingleExpensePage implements OnInit {
 
   ngOnInit() {
     this.createForm();
+    this.loadCategories(); // Load DB categories first
+    
     this.expenseId = this.route.snapshot.paramMap.get('id');
     if (this.expenseId) {
       this.loadExpense(this.expenseId);
@@ -39,73 +41,100 @@ export class SingleExpensePage implements OnInit {
   createForm() {
     this.expenseForm = this.fb.group({
       date: [new Date().toISOString(), Validators.required],
-      category: ['', Validators.required],
+      category_id: ['', Validators.required], // Matches backend requirement
       transaction_type: ['', Validators.required],
       description: ['', [Validators.required, Validators.minLength(3)]],
-      amount: [0, [Validators.required, Validators.min(1)]],
+      amount: [null, [Validators.required, Validators.min(1)]],
       notes: [''],
     });
   }
 
-async loadExpense(id: string) {
-  try {
+  // --- 1. Load & Format Categories from DB ---
+  loadCategories() {
+    this.expService.getCategories().subscribe({
+      next: (res: any) => {
+        // Handle API response (adjust 'res.data' if your API wraps the array)
+        const rawData = Array.isArray(res) ? res : res.data;
+        this.categories = this.formatCategoryList(rawData);
+      },
+      error: (err) => {
+        console.error('Failed to load categories', err);
+        this.showToast('Could not load categories', 'warning');
+      }
+    });
+  }
+
+  // Logic to turn "Groceries" (id:2, parent:1) into "Food & Drinks › Groceries"
+  formatCategoryList(data: any[]): any[] {
+    if (!data) return [];
+
+    // Create a Map for fast parent lookup (ID -> Name)
+    const categoryMap = new Map();
+    data.forEach(cat => categoryMap.set(cat.id, cat.name));
+
+    return data.map(cat => {
+      let displayName = cat.name;
+      
+      // If it has a parent, prepend the Parent Name
+      if (cat.parent_id && categoryMap.has(cat.parent_id)) {
+        const parentName = categoryMap.get(cat.parent_id);
+        displayName = `${parentName} › ${cat.name}`;
+      }
+
+      return {
+        id: cat.id,
+        displayName: displayName
+      };
+    }).sort((a, b) => a.displayName.localeCompare(b.displayName)); // Sort alphabetically
+  }
+
+  // --- 2. Load Existing Expense (For Edit Mode) ---
+  async loadExpense(id: string) {
     this.expService.getExpenseById(id).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.expenseForm.patchValue(response.data);
+          this.expenseForm.patchValue({
+            ...response.data,
+            // Ensure date is valid ISO string for ion-datetime
+            date: response.data.date || new Date().toISOString()
+          });
         }
       },
-      error: (err) => {
-        console.error('Error loading expense:', err);
-      }
+      error: (err) => console.error(err)
     });
-  } catch (error) {
-    console.error('Unexpected error:', error);
   }
-}
 
-
+  // --- 3. Save Logic ---
   saveExpense() {
     if (this.expenseForm.invalid) {
-      this.showToast('Please enter a valid expense!', 'danger');
+      this.showToast('Please fill all required fields', 'danger');
       return;
     }
 
-    const expense = this.expenseForm.value;
+    const payload = this.expenseForm.value;
 
-    if (this.expenseId) {
-      // Update expense
-      this.expService.updateExpense(this.expenseId, expense).subscribe({
-        next: () => {
-          this.showToast('Expense updated successfully', 'success');
-          this.navCtrl.navigateBack('/single-view-expenses');
-        },
-        error: (err) => {
-          console.error('Error updating expense', err);
-          this.showToast('Failed to update expense', 'danger');
-        },
-      });
-    } else {
-      // Create expense
-      this.expService.createExpense(expense).subscribe({
-        next: () => {
-          this.showToast('Expense added successfully', 'success');
-          this.navCtrl.navigateBack('/single-view-expenses');
-        },
-        error: (err) => {
-          console.error('Error creating expense', err);
-          this.showToast('Failed to save expense', 'danger');
-        },
-      });
-    }
+    // Send to Backend
+    const request = this.expenseId 
+      ? this.expService.updateExpense(this.expenseId, payload)
+      : this.expService.createExpense(payload);
+
+    request.subscribe({
+      next: () => {
+        this.showToast('Transaction saved successfully', 'success');
+        this.navCtrl.navigateBack('/single-view-expenses');
+      },
+      error: (err) => {
+        console.error('Save Error:', err);
+        // Show exact error from backend if available (e.g., validation error)
+        const msg = err.error?.message || 'Failed to save transaction';
+        this.showToast(msg, 'danger');
+      }
+    });
   }
 
   async showToast(message: string, color: string) {
     const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color,
+      message, duration: 2000, position: 'top', color
     });
     await toast.present();
   }

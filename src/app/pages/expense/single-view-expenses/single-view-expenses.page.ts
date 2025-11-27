@@ -17,6 +17,7 @@ import { Expense } from 'src/app/models/expense.model';
 @Component({
   selector: 'app-view-expenses',
   templateUrl: './single-view-expenses.page.html',
+  styleUrls: ['./single-view-expenses.page.scss'],
 })
 export class SingleViewExpensesPage implements OnInit {
   arr:any[]=[];
@@ -172,6 +173,10 @@ export class SingleViewExpensesPage implements OnInit {
     getCategoryName(expense: any): string {
   return expense.category?.name || '';
 }
+get totalFilteredAmount(): number {
+    if (!this.filteredExpenses) return 0;
+    return this.filteredExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  }
   private async sharePDF(filePath: string, fileName: string) {
     try {
       await Share.share({
@@ -196,6 +201,10 @@ export class SingleViewExpensesPage implements OnInit {
 
   navigateToAddExpense() {
     this.router.navigate(['/single-expense']);
+  }
+
+  trackById(index: number, item: any): any {
+    return item.id;
   }
 
 }

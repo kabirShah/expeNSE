@@ -1,140 +1,190 @@
-<ion-content class="login-content">
-  <div class="register-card">
-    <h2>Pocket Money</h2>
-    <p class="tagline">Smart Way to budget</p>
-    <form [formGroup]="regForm" (ngSubmit)="register()">
-      
-      <!-- First Name -->
-      <ion-item class="custom-input">
-        <ion-input
-          labelPlacement="stacked"
-          label="First Name"
-          placeholder="Enter your first name"
-          formControlName="firstName"
-          required
-        ></ion-input>
-      </ion-item>
-      <ion-note color="danger" *ngIf="regForm.get('firstName')?.invalid && regForm.get('firstName')?.touched">
-        First Name is required.
-      </ion-note>
+<ion-content class="auth-content">
+  <div class="auth-container">
+    
+    <!-- 1. Header Section -->
+    <div class="auth-header">
+      <div class="brand-logo">
+        <ion-icon name="wallet"></ion-icon>
+      </div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join Pocket Money to manage your finances.</p>
+    </div>
 
-      <!-- Last Name -->
-      <ion-item class="custom-input">
-        <ion-input
-          labelPlacement="stacked"
-          label="Last Name"
-          placeholder="Enter your last name"
-          formControlName="lastName"
-          required
-        ></ion-input>
-      </ion-item>
-      <ion-note color="danger" *ngIf="regForm.get('lastName')?.invalid && regForm.get('lastName')?.touched">
-        Last Name is required.
-      </ion-note>
+    <!-- 2. Registration Form -->
+    <form [formGroup]="regForm" (ngSubmit)="register()" class="auth-form">
+      
+      <!-- Name Row -->
+      <div class="form-row">
+        <div class="form-group half-width">
+          <ion-label>First Name</ion-label>
+          <div class="input-wrapper">
+            <ion-input 
+              formControlName="firstName" 
+              placeholder="First Name" 
+              class="custom-input">
+            </ion-input>
+          </div>
+          <div class="error-msg" *ngIf="regForm.get('firstName')?.invalid && regForm.get('firstName')?.touched">
+            Required.
+          </div>
+        </div>
+
+        <div class="form-group half-width">
+          <ion-label>Last Name</ion-label>
+          <div class="input-wrapper">
+            <ion-input 
+              formControlName="lastName" 
+              placeholder="Last Name" 
+              class="custom-input">
+            </ion-input>
+          </div>
+          <div class="error-msg" *ngIf="regForm.get('lastName')?.invalid && regForm.get('lastName')?.touched">
+            Required.
+          </div>
+        </div>
+      </div>
 
       <!-- Email -->
-      <ion-item class="custom-input">
-        <ion-input
-          labelPlacement="stacked"
-          label="Email"
-          placeholder="Enter your email"
-          formControlName="email"
-          type="email"
-          required
-        ></ion-input>
-      </ion-item>
-      <ion-note color="danger" *ngIf="regForm.get('email')?.invalid && regForm.get('email')?.touched">
-        Enter a valid email address.
-      </ion-note>
+      <div class="form-group">
+        <ion-label>Email Address</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            formControlName="email" 
+            type="email" 
+            placeholder="Enter your email" 
+            class="custom-input">
+          </ion-input>
+        </div>
+        <div class="error-msg" *ngIf="regForm.get('email')?.invalid && regForm.get('email')?.touched">
+          Please enter a valid email.
+        </div>
+      </div>
 
       <!-- Phone Number -->
-      <ion-item class="custom-input">
-        <ion-input
-          labelPlacement="stacked"
-          label="Phone Number"
-          placeholder="Enter your phone number"
-          formControlName="phone"
-          type="tel"
-          required
-        ></ion-input>
-      </ion-item>
-      <ion-note color="danger" *ngIf="regForm.get('phone')?.invalid && regForm.get('phone')?.touched">
-        Enter a valid 10-digit phone number.
-      </ion-note>
+      <div class="form-group">
+        <ion-label>Phone Number</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="call-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            formControlName="phone" 
+            type="tel" 
+            placeholder="10-digit number" 
+            maxlength="10"
+            class="custom-input">
+          </ion-input>
+        </div>
+        <div class="error-msg" *ngIf="regForm.get('phone')?.invalid && regForm.get('phone')?.touched">
+          Enter valid 10-digit number.
+        </div>
+      </div>
 
-      <!-- Date of Birth -->
-      <ion-item class="custom-input">
-        <ion-input
-          labelPlacement="stacked"
-          type="text"
-          [value]="regForm.get('dob')?.value"
-          readonly
-          (click)="openDatePicker()"
-          placeholder="Select Date of Birth"
-        ></ion-input>
-      </ion-item>
-      <ion-datetime
-        *ngIf="isDatePickerOpen"
-        presentation="date"
-        (ionChange)="onDateChange($event)"
-        [showDefaultButtons]="true"
-      ></ion-datetime>
+      <!-- Date of Birth & Gender Row -->
+      <div class="form-row">
+        
+        <!-- DOB (Manual + Picker) -->
+        <div class="form-group half-width">
+          <ion-label>Date of Birth</ion-label>
+          <div class="input-wrapper">
+            <ion-input 
+              formControlName="dob"
+              placeholder="MM/DD/YYYY" 
+              class="custom-input"
+              type="tel"
+              maxlength="10"
+              (ionInput)="formatDateInput($event)">
+            </ion-input>
+            <ion-button fill="clear" class="icon-btn" (click)="openDatePicker()">
+              <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+          <div class="error-msg" *ngIf="regForm.get('dob')?.invalid && regForm.get('dob')?.touched">
+            Required.
+          </div>
+        </div>
 
-      <!-- Gender -->
-      <ion-item class="custom-input">
-        <ion-select formControlName="gender" label="Gender">
-          <ion-select-option value="male">Male</ion-select-option>
-          <ion-select-option value="female">Female</ion-select-option>
-          <ion-select-option value="other">Other</ion-select-option>
-        </ion-select>
-      </ion-item>
+        <!-- Gender -->
+        <div class="form-group half-width">
+          <ion-label>Gender</ion-label>
+          <div class="input-wrapper select-wrapper">
+            <ion-select formControlName="gender" placeholder="Select" interface="popover">
+              <ion-select-option value="male">Male</ion-select-option>
+              <ion-select-option value="female">Female</ion-select-option>
+              <ion-select-option value="other">Other</ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date Picker Modal -->
+      <ion-modal [isOpen]="isDatePickerOpen" (didDismiss)="isDatePickerOpen = false">
+        <ng-template>
+          <ion-content>
+            <ion-datetime 
+              presentation="date" 
+              [max]="maxDate"
+              (ionChange)="onDateSelected($event)" 
+              [showDefaultButtons]="true">
+            </ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
 
       <!-- Password -->
-    <ion-item class="custom-input">
-      <ion-input
-        labelPlacement="stacked"
-        [type]="passwordType"
-        formControlName="password"
-        placeholder="Enter Password">
-      </ion-input>
-        <ion-icon 
-          [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'" 
-          slot="end" 
-          (click)="togglePasswordVisibility()">
-        </ion-icon>
-    </ion-item>
-    <ion-text color="danger" *ngIf="regForm.hasError('pattern','password')">
-      Password must be at least 8 characters, include upper, lower, number & special character.
-    </ion-text>
-    
-    <!-- Confirm Password -->
-    <ion-item class="custom-input">
-      <ion-input
-        labelPlacement="stacked"
-        [type]="passwordType"
-        formControlName="confirmPassword"
-        placeholder="Re-enter Password">
-      </ion-input>
-    </ion-item>
-    <ion-text color="danger" *ngIf="regForm.hasError('mismatch')">
-      Passwords do not match.
-    </ion-text>
+      <div class="form-group">
+        <ion-label>Password</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            formControlName="password" 
+            [type]="passwordType" 
+            placeholder="Create password" 
+            class="custom-input">
+          </ion-input>
+          <ion-button fill="clear" class="eye-btn" (click)="togglePasswordVisibility()">
+            <ion-icon [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="error-msg" *ngIf="regForm.hasError('pattern', 'password') && regForm.get('password')?.touched">
+          Must contain Uppercase, Lowercase, Number & Symbol.
+        </div>
+      </div>
 
-      <!-- Remember Me -->
-      <ion-item lines="none">
-        <ion-label>Remember Me</ion-label>
-        <ion-checkbox formControlName="rememberMe"></ion-checkbox>
-      </ion-item>
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <ion-label>Confirm Password</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input 
+            formControlName="confirmPassword" 
+            [type]="passwordType" 
+            placeholder="Re-enter password" 
+            class="custom-input">
+          </ion-input>
+        </div>
+        <div class="error-msg" *ngIf="regForm.hasError('mismatch') && regForm.get('confirmPassword')?.touched">
+          Passwords do not match.
+        </div>
+      </div>
+
+      <!-- Terms Checkbox -->
+      <div class="actions-row">
+        <ion-checkbox mode="md" formControlName="rememberMe" labelPlacement="end">
+          I agree to the <span class="link-text">Terms & Conditions</span>
+        </ion-checkbox>
+      </div>
 
       <!-- Submit Button -->
-      <ion-button expand="block" type="submit" class="register-btn" [disabled]="regForm.invalid">
-        Register
+      <ion-button expand="block" type="submit" class="primary-btn" [disabled]="regForm.invalid">
+        Create Account
       </ion-button>
 
-      <!-- Back to Login -->
-      <div class="login-link">
-        Already have an account? <a (click)="goToLogin()">Login</a>
-      </div>
     </form>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      <p>Already have an account? <a (click)="goToLogin()">Log in</a></p>
+    </div>
+
   </div>
 </ion-content>
