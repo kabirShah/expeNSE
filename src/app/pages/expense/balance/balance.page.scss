@@ -1,166 +1,162 @@
-/* add-balance.page.scss */
+// Variables
+$bg-color: #ffffff;
+$primary-text: #2d3436;
+$secondary-text: #b2bec3;
+$accent-green: #00b894; // Green for "Adding Money"
+$input-bg: #f5f6fa;
 
-/* =========================================
-   VARIABLES & THEME
-   ========================================= */
-:host {
-  --page-bg: #f8fafc;
-  --primary: #4338ca;
-  --accent: #6366f1;
-  --text-main: #1e293b;
-  --text-gray: #64748b;
-  --input-bg: #ffffff; 
-  --shadow-color: rgba(0,0,0,0.06);
+ion-content {
+  --background: #{$bg-color};
 }
 
-ion-content.form-bg-content {
-  --background: var(--page-bg);
+// 1. Header Styling
+.clean-header {
+  ion-toolbar {
+    --background: #{$bg-color};
+    --border-width: 0;
+  }
+  ion-title {
+    font-weight: 700;
+    color: $primary-text;
+    font-size: 18px;
+  }
+  .close-btn {
+    --color: #{$primary-text};
+    background: $input-bg;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+  }
 }
 
-/* =========================================
-   HEADER
-   ========================================= */
-.clean-header ion-toolbar {
-  --background: var(--page-bg);
-  --border-width: 0;
-  --color: var(--text-main);
-
-  ion-title { font-weight: 700; }
-}
-
-.back-btn { --color: var(--text-main); }
-
-/* =========================================
-   HERO AMOUNT SECTION (The Big Input)
-   ========================================= */
-.center-container {
+.money-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 20px;
 }
 
-.amount-hero-section {
-  text-align: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
+.main-container {
+  padding: 20px 24px;
+}
 
-  .currency-wrapper {
+// 2. Hero Amount Section
+.amount-hero {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 50px;
+
+  .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $secondary-text;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .input-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
-  }
-
-  .currency-symbol {
-    font-size: 40px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-right: 4px;
-    margin-top: -8px; /* Alignment tweak */
-  }
-
-  /* The Massive Input */
-  .big-amount-input {
-    --background: transparent;
-    --padding-start: 0;
-    --padding-end: 0;
-    font-size: 56px;
-    font-weight: 800;
-    --color: var(--primary);
-    --placeholder-color: #cbd5e1;
-    text-align: center;
-    max-width: 250px; /* Prevents it from getting too wide */
     
-    /* Remove default underline */
-    border-bottom: none;
-    --highlight-color-focused: transparent;
+    .currency {
+      font-size: 42px;
+      font-weight: 700;
+      color: $primary-text;
+      margin-right: 4px;
+      margin-top: -8px; // Slight visual alignment adjustment
+    }
+
+    // The Massive Input
+    .super-input {
+      --padding-start: 0;
+      --padding-end: 0;
+      --background: transparent;
+      font-size: 56px;
+      font-weight: 700;
+      color: $primary-text;
+      max-width: 250px; // Prevent it from stretching too wide
+      text-align: center;
+      
+      // Target the native input to center text and remove outlines
+      ::ng-deep input {
+        text-align: center; 
+        caret-color: $accent-green; // Green cursor
+      }
+    }
   }
-  
-  /* Hides Spin Buttons on number input */
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+}
+
+// 3. Custom Field Styling (Replacing ion-item)
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.custom-field {
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $primary-text;
+    margin-bottom: 10px;
+    margin-left: 4px;
+  }
+
+  .field-box {
+    background: $input-bg;
+    border-radius: 16px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center; // Vertically center icon and input
+    height: 60px;
+    transition: box-shadow 0.2s;
+    border: 1px solid transparent;
+
+    &:focus-within {
+      background: white;
+      border-color: $accent-green;
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.15);
+    }
+
+    .field-icon {
+      font-size: 22px;
+      color: $secondary-text;
+      margin-right: 12px;
+    }
+
+    ion-textarea, ion-input {
+      --padding-start: 0;
+      --background: transparent;
+      font-size: 16px;
+      font-weight: 500;
+      color: $primary-text;
+      --placeholder-color: #b2bec3;
+      --placeholder-opacity: 1;
+    }
+    
+    ion-textarea {
+      margin-top: 0; // Fix standard ionic textarea margin
+    }
+  }
+}
+
+// 4. Footer & Button
+.clean-footer {
+  background: transparent;
+  padding: 0 24px 30px 24px; // Bottom padding for safe area
+  --border-width: 0;
+  background: linear-gradient(to top, rgba(255,255,255,1) 80%, rgba(255,255,255,0)); // Fade out effect
+
+  .submit-btn {
+    --background: #{$primary-text}; // Dark button for contrast
+    --color: white;
+    --border-radius: 16px;
+    height: 56px;
+    font-weight: 700;
+    font-size: 16px;
+    --box-shadow: 0 10px 20px rgba(45, 52, 54, 0.2);
     margin: 0;
   }
-
-  .helper-text {
-    margin-top: 10px;
-    color: var(--text-gray);
-    font-size: 14px;
-  }
-}
-
-/* =========================================
-   FORM CARD
-   ========================================= */
-.form-card {
-  background: white;
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 10px 40px var(--shadow-color);
-}
-
-.input-group {
-  margin-bottom: 24px;
-}
-
-/* =========================================
-   INPUT FIELD STYLING (Consistent with App)
-   ========================================= */
-::ng-deep .custom-input-item {
-  --background: var(--page-bg) !important; /* Slightly darker inside white card */
-  --border-radius: 16px !important;
-  --inner-padding-end: 16px !important;
-  --inner-border-width: 0 !important;
-  
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-  
-  /* Height fix for floating label */
-  --min-height: 70px !important;
-
-  ion-icon {
-    color: var(--text-gray);
-    margin-right: 12px;
-    font-size: 22px;
-    margin-top: 20px; /* Align icon with textarea top */
-  }
-
-  ion-label {
-    color: var(--text-gray) !important;
-    font-weight: 500;
-    margin-top: 10px;
-  }
-
-  ion-textarea {
-    --color: var(--text-main);
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 15px; /* Push text down */
-  }
-
-  /* Focus State */
-  &.item-has-focus {
-    border-color: var(--primary) !important;
-    background: #fff !important;
-    box-shadow: 0 4px 12px rgba(67, 56, 202, 0.1);
-    
-    ion-icon { color: var(--primary) !important; }
-  }
-}
-
-/* =========================================
-   BUTTONS
-   ========================================= */
-.main-button {
-  --background: linear-gradient(135deg, var(--primary), var(--accent));
-  --border-radius: 16px;
-  --box-shadow: 0 10px 25px rgba(67, 56, 202, 0.3);
-  height: 56px;
-  font-weight: 700;
-  font-size: 16px;
-  text-transform: none;
-  
-  ion-icon { margin-right: 8px; }
 }

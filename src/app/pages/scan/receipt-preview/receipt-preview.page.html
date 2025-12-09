@@ -1,14 +1,60 @@
-<ion-header>
+<ion-header class="clean-header">
   <ion-toolbar>
-    <ion-title>Receipt Preview</ion-title>
+    <ion-title>Receipt Details</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="closeModal()">
-        <ion-icon name="close"></ion-icon>
+      <ion-button (click)="closeModal()" class="close-btn">
+        <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-img [src]="imageUrl" class="full-screen-image"></ion-img>
+<ion-content class="preview-content">
+  
+  <div class="image-container">
+    <img [src]="receipt.image_url" class="receipt-full" />
+  </div>
+
+  <div class="details-sheet">
+    
+    <div class="sheet-handle"></div>
+
+    <div class="sheet-header">
+      <p class="receipt-date">{{ receipt.date | date:'dd MMM yyyy • h:mm a' }}</p>
+      <h1 class="total-amount">₹{{ (receipt.total_amount || receipt.price) | number:'1.2-2' }}</h1>
+      <p class="receipt-note">
+        <ion-icon name="document-text-outline"></ion-icon> 
+        {{ receipt.notes || 'No merchant notes' }}
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div *ngIf="receipt.parsed_items?.length > 0; else noItems" class="items-section">
+      <h3 class="section-label">Itemized Breakdown</h3>
+
+      <div class="receipt-paper">
+        <div *ngFor="let item of receipt.parsed_items" class="receipt-row">
+          <span class="item-name">{{ item.description }}</span>
+          <span class="item-dots"></span>
+          <span class="item-price">₹{{ item.amount | number:'1.2-2' }}</span>
+        </div>
+        
+        <div class="receipt-row total-row">
+          <span class="item-name">Total</span>
+          <span class="item-dots"></span>
+          <span class="item-price">₹{{ (receipt.total_amount || receipt.price) | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noItems>
+      <div class="no-items-state">
+        <ion-icon name="scan-outline"></ion-icon>
+        <p>No individual items detected.</p>
+      </div>
+    </ng-template>
+
+  </div>
+
 </ion-content>

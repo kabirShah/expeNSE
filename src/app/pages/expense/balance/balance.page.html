@@ -1,54 +1,73 @@
 <ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']" class="back-btn">
-        <ion-icon name="close-outline" size="large"></ion-icon>
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Add Funds</ion-title>
+    <ion-title>{{ isEdit ? 'Edit Transaction' : 'Add Money' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="form-bg-content">
+<ion-content class="money-content">
   
-  <div class="center-container">
+  <div class="main-container">
     <form [formGroup]="balanceForm" (ngSubmit)="saveBalance()">
 
-      <div class="amount-hero-section">
-        <div class="currency-wrapper">
-          <span class="currency-symbol">₹</span>
+      <div class="amount-hero">
+        <p class="label">Enter Amount</p>
+        <div class="input-wrapper">
+          <span class="currency">₹</span>
           <ion-input 
             formControlName="amount" 
             type="number" 
             placeholder="0" 
-            class="big-amount-input">
+            class="super-input">
           </ion-input>
         </div>
-        <p class="helper-text">Enter amount to add to wallet</p>
       </div>
 
-      <div class="form-card">
+      <div class="details-grid">
         
-        <div class="input-group">
-          <ion-item lines="none" class="custom-input-item large-input">
-            <ion-icon slot="start" name="wallet-outline"></ion-icon>
-            <ion-label position="floating">Source of Funds</ion-label>
+        <div class="custom-field">
+          <label>Source / Description</label>
+          <div class="field-box">
+            <ion-icon name="wallet-outline" class="field-icon"></ion-icon>
             <ion-textarea 
               formControlName="source" 
-              placeholder="E.g. Salary, Bonus..."
-              rows="2">
+              placeholder="e.g. Salary, Freelance..." 
+              rows="1"
+              autoGrow="true">
             </ion-textarea>
-          </ion-item>
+          </div>
         </div>
 
-        <ion-button expand="block" type="submit" class="main-button" [disabled]="balanceForm.invalid">
-          <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-          Add Balance
-        </ion-button>
-        
+        <div class="custom-field">
+          <label>Date Received</label>
+          <div class="field-box">
+            <ion-icon name="calendar-clear-outline" class="field-icon"></ion-icon>
+            <ion-input 
+              formControlName="date_added"
+              type="date"
+              class="date-input">
+            </ion-input>
+          </div>
+        </div>
+
       </div>
 
     </form>
   </div>
 
 </ion-content>
+
+<ion-footer class="clean-footer">
+  <ion-button 
+    expand="block" 
+    type="submit" 
+    class="submit-btn" 
+    (click)="saveBalance()" 
+    [disabled]="balanceForm.invalid">
+    {{ isEdit ? 'Update Balance' : 'Add Funds' }}
+  </ion-button>
+</ion-footer>

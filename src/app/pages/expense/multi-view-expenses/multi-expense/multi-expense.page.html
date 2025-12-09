@@ -1,43 +1,70 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>{{ isEditMode ? 'Edit Multi Expense' : 'Add Multi Expense' }}</ion-title>
+<ion-header class="clean-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/multi-view-expenses"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>
+      {{ isEditMode ? 'Edit Multi Expense' : 'New Multi Expense' }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <form [formGroup]="multiForm" (ngSubmit)="submitForm()">
-    
-    <ion-item>
-      <ion-label position="floating">Title</ion-label>
-      <ion-input formControlName="title"></ion-input>
-    </ion-item>
+<ion-content class="form-bg-content">
 
-    <ion-item>
-      <ion-label position="floating">Description (each item on new line)</ion-label>
-      <ion-textarea
-        formControlName="message"
-        rows="6"
-        placeholder="Example:
+  <div class="form-container">
+    <form [formGroup]="multiForm" (ngSubmit)="submitForm()" class="form-card">
+
+      <!-- TITLE -->
+      <div class="input-group">
+        <ion-label class="field-label">Title</ion-label>
+        <ion-item lines="none" class="custom-input-item">
+          <ion-icon name="text-outline" slot="start"></ion-icon>
+          <ion-input 
+            placeholder="Expense Title"
+            formControlName="title">
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <!-- MULTI EXPENSE TEXT -->
+      <div class="input-group">
+        <ion-label class="field-label">Multi Expense Text</ion-label>
+        <ion-item lines="none" class="custom-input-item textarea-item">
+          <ion-icon name="document-text-outline" slot="start"></ion-icon>
+          <ion-textarea
+            formControlName="message"
+            rows="6"
+            placeholder="Example:
 200₹ Groceries
 500₹ Transport
-150₹ Snacks"
-      ></ion-textarea>
-    </ion-item>
+150₹ Snacks">
+          </ion-textarea>
+        </ion-item>
+      </div>
 
-    <ion-item>
-      <ion-label position="floating">Category</ion-label>
-      <ion-input formControlName="category"></ion-input>
-    </ion-item>
+      <!-- CATEGORY -->
+      <div class="input-group">
+        <ion-label class="field-label">Category</ion-label>
+        <ion-item lines="none" class="custom-input-item">
+          <ion-icon name="layers-outline" slot="start"></ion-icon>
+          <ion-input
+            placeholder="Category"
+            formControlName="category">
+          </ion-input>
+        </ion-item>
+      </div>
 
-    <ion-button
-      expand="block"
-      color="success"
-      type="submit"
-      [disabled]="isProcessing || multiForm.invalid"
-      class="ion-margin-top"
-    >
-      {{ isEditMode ? 'Update Expense' : 'Save Expense' }}
-    </ion-button>
+      <!-- SUBMIT BUTTON -->
+      <ion-button
+        expand="block"
+        type="submit"
+        class="main-button"
+        [disabled]="isProcessing || multiForm.invalid">
+        {{ isEditMode ? 'Update Expense' : 'Save Expense' }}
+      </ion-button>
 
-  </form>
+    </form>
+  </div>
+
 </ion-content>

@@ -1,0 +1,24 @@
+.page-bg {
+  --background: var(--ion-color-step-50);
+}
+
+.group-avatar {
+  --size: 44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: var(--ion-color-primary-tint);
+  border-radius: 8px;
+}
+
+.avatar-icon {
+  font-size: 20px;
+  color: var(--ion-color-primary-contrast);
+}
+
+.empty {
+  text-align: center;
+  margin-top: 18%;
+  color: var(--ion-color-medium);
+  ion-icon { font-size: 38px; margin-bottom: 10px; color: var(--ion-color-primary); }
+}

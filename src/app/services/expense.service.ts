@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Expense } from '../models/expense.model';
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,13 @@ export class ExpenseService {
       headers: this.getAuthHeaders()
     });
   }
+  getGroupExpenses(groupId: number): Observable<any> {
+  return this.http.get(
+    `${this.apiUrl}/groups/${groupId}/expenses`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+
 
   // ✅ Get all expenses
   getExpenses() {

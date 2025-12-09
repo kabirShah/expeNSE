@@ -31,9 +31,6 @@ import { CardService } from './services/card.service';
     CardService,
     File,
     SocialSharing,
-    // provideFirestore(() => getFirestore()), // Provide Firestore
-    // provideFirebaseApp(() => initializeApp(environment.firebase)), // Initialize Firebase
-    // provideAuth(() => getAuth()), // Provide Firebase Auth
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent],

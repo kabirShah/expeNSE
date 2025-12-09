@@ -68,6 +68,9 @@ const routes: Routes = [
     path: 'split-view',
     loadChildren: () => import('./pages/expense/split-view/split-view.module').then( m => m.SplitViewPageModule), canActivate: [AuthGuard]
   },
+  //  { path: 'groups', loadChildren: () => import('./pages/expense/split-view/groups/groups.module').then(m => m.GroupsPageModule) },
+  // { path: 'group-add', loadChildren: () => import('./pages/expense/split-view/group-add/group-add.module').then(m => m.GroupAddPageModule) },
+  // { path: 'group/:id', loadChildren: () => import('./pages/expense/split-view/group-detail/group-detail.module').then(m => m.GroupDetailPageModule) },
   {
     path: 'cards',
     loadChildren: () => import('./pages/cards/cards.module').then( m => m.CardsPageModule), canActivate: [AuthGuard]

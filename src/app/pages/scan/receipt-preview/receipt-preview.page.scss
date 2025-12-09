@@ -1,7 +1,164 @@
-.full-screen-image {
-    width: 100%;
-    height: auto;
-    max-height: 90vh;
-    object-fit: contain;
+$primary-color: #2d3436;
+$accent-color: #0984e3;
+
+// Remove default header border
+.clean-header {
+  ion-toolbar {
+    --background: #1e272e; // Dark background to match image area
+    --color: white;
+    --border-width: 0;
   }
   
+  .close-btn {
+    --color: white;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    margin-right: 10px;
+  }
+}
+
+.preview-content {
+  --background: #1e272e; // Dark background behind everything
+}
+
+// 1. Image Area
+.image-container {
+  height: 45vh; // Takes up top 45% of screen
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #1e272e;
+  
+  .receipt-full {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); // Deep shadow
+  }
+}
+
+// 2. Details Sheet
+.details-sheet {
+  min-height: 60vh; // Ensure it covers bottom
+  background: #f8f9fa;
+  border-radius: 30px 30px 0 0; // Round top corners
+  padding: 10px 25px 50px 25px;
+  position: relative;
+  margin-top: -20px; // Pull up slightly over image
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #dfe6e9;
+    border-radius: 2px;
+    margin: 10px auto 25px auto;
+  }
+
+  // Header Typography
+  .sheet-header {
+    text-align: center;
+    margin-bottom: 25px;
+
+    .receipt-date {
+      color: #b2bec3;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .total-amount {
+      font-size: 36px;
+      font-weight: 800;
+      color: $primary-color;
+      margin: 5px 0;
+      letter-spacing: -1px;
+    }
+
+    .receipt-note {
+      color: #636e72;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      
+      ion-icon { color: $accent-color; }
+    }
+  }
+  
+  .divider {
+    height: 1px;
+    background: #e3e8ec;
+    margin-bottom: 25px;
+  }
+
+  // 3. Itemized List (The "Paper Receipt" look)
+  .items-section {
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #b2bec3;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+    }
+
+    .receipt-paper {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: 1px solid #f1f2f6;
+    }
+
+    .receipt-row {
+      display: flex;
+      align-items: flex-end; // Align baseline text
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: $primary-color;
+
+      .item-name {
+        font-weight: 500;
+        max-width: 60%;
+      }
+
+      // The dots between name and price
+      .item-dots {
+        flex: 1;
+        border-bottom: 1px dashed #dfe6e9;
+        margin: 0 8px 4px 8px; // 4px bottom margin to align with text baseline
+      }
+
+      .item-price {
+        font-weight: 600;
+      }
+      
+      &.total-row {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid $primary-color;
+        font-size: 16px;
+        font-weight: 800;
+        
+        .item-dots { border-bottom: none; }
+      }
+    }
+  }
+
+  .no-items-state {
+    text-align: center;
+    color: #b2bec3;
+    margin-top: 30px;
+    
+    ion-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+    p { font-size: 14px; margin: 0; }
+  }
+}

@@ -34,3 +34,29 @@ export interface TransactionType {
   id: string; // Unique transaction type ID
   method: string; // Payment method name (e.g., "Credit Card")
 }
+export interface ExpenseContribution {
+  member_id: number;
+  amount_paid: number;
+}
+
+export interface ExpenseShare {
+  member_id: number;
+  share_amount: number;
+  amount_settled?: number;
+  status?: string;
+}
+
+export interface GroupExpense {
+  id?: number;
+  expense_uuid?: string;
+  group_id?: number;
+  created_by?: number;
+  title: string;
+  total_amount: number;
+  split_type: 'equal' | 'custom' | 'weight';
+  date?: string;
+  note?: string;
+  contributions?: ExpenseContribution[];
+  shares?: ExpenseShare[];
+  created_at?: string;
+}

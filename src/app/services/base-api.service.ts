@@ -1,7 +1,7 @@
+// src/app/services/base-api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -12,35 +12,26 @@ export class BaseApiService {
 
   constructor(protected http: HttpClient) {}
 
+  // Return HttpHeaders (not an options object)
   protected getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || '';
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
     });
   }
 
   protected handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
-    
-    if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Server-side error
+    if (error.error instanceof ErrorEvent) errorMessage = `Error: ${error.error.message}`;
+    else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      
       if (error.status === 401) {
-        // Unauthorized - token expired or invalid
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('user_name');
-        localStorage.removeItem('token_timestamp');
+        localStorage.clear();
         window.location.reload();
       }
     }
-    
     console.error('API Error:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
@@ -50,8 +41,8 @@ export class BaseApiService {
   }
 
   protected handleOfflineError(): Observable<never> {
-    const errorMessage = 'Internet connection required. Please check your connection and try again.';
-    console.error('Offline Error:', errorMessage);
-    return throwError(() => new Error(errorMessage));
+    const err = new Error('Internet connection required. Please check your connection and try again.');
+    console.error('Offline Error:', err.message);
+    return throwError(() => err);
   }
 }

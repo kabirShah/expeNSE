@@ -270,25 +270,25 @@ async addAutoExpense(expense: Expense) {
     }));
   }
 
-  async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
-  try {
-    const userId = localStorage.getItem('user_id');
-    if (!userId) throw new Error('User not logged in');
+//   async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
+//   try {
+//     const userId = localStorage.getItem('user_id');
+//     if (!userId) throw new Error('User not logged in');
 
-    const newBalance: Balance = {
-      id: Date.now(),
-      amount: balanceData.amount,
-      source: balanceData.source,
-      date_added: balanceData.dateAdded,
-      user_id: parseInt(userId) // ✅ Attach logged-in user's ID as number
-    };
+//     const newBalance: Balance = {
+//       id: Date.now(),
+//       amount: balanceData.amount,
+//       source: balanceData.source,
+//       date_added: balanceData.dateAdded,
+//       user_id: parseInt(userId) // ✅ Attach logged-in user's ID as number
+//     };
 
-    await this.balanceDb.put(newBalance);
-    console.log('Balance added successfully:', newBalance);
-  } catch (error) {
-    console.error('Error adding balance:', error);
-  }
-}
+//     await this.balanceDb.put(newBalance);
+//     console.log('Balance added successfully:', newBalance);
+//   } catch (error) {
+//     console.error('Error adding balance:', error);
+//   }
+// }
 
   
   
