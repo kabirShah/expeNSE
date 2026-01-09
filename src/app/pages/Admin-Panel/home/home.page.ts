@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, NavController, ToastController, Platform } from '@ionic/angular';
+import {
+  AlertController,
+  NavController,
+  ToastController,
+  Platform
+} from '@ionic/angular';
+
 import { BalanceService } from 'src/app/services/balance.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
@@ -15,44 +21,66 @@ import { DatabaseService } from 'src/app/services/database.service';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+
+  /* -----------------------------
+   * UI STATE
+   * ----------------------------- */
   loading = true;
-  dashboard: any = null;
-  email: string = '';
-  user: any = null;
-  currentMonth: string = '';
-  currentYear: number = new Date().getFullYear();
-  userFirstName: string = '';
-  totalTodayExpense: number = 0;
-  totalMonthExpense: number = 0;
-  totalYearExpense: number = 0;
-  totalBalance: number = 0;
-  creditTotal: number = 0;
-  debitTotal: number = 0;
-  monthSaving: number = 0;
-  yearSaving: number = 0;
-  balances: Balance[] = [];
   activeTab: string = 'expenses';
 
-  // counts
+  /* -----------------------------
+   * USER & DATE
+   * ----------------------------- */
+  user: any = null;
+  email: string = '';
+  userFirstName: string = '';
+  currentMonth: string = '';
+  currentYear: number = new Date().getFullYear();
+
+  /* -----------------------------
+   * TOTALS
+   * ----------------------------- */
+  totalTodayExpense = 0;
+  totalMonthExpense = 0;
+  totalYearExpense = 0;
+  totalBalance = 0;
+  monthSaving = 0;
+  yearSaving = 0;
+
+  /* -----------------------------
+   * COUNTS
+   * ----------------------------- */
   creditCardsCount = 0;
   debitCardsCount = 0;
   invoicesCount = 0;
   splitExpensesCount = 0;
 
-  // category counts by name
+  /* -----------------------------
+   * DATA
+   * ----------------------------- */
+  balances: Balance[] = [];
+  allExpenses: any[] = [];
+  allTransactions: any[] = [];
+
+  /* -----------------------------
+   * CATEGORY & TYPE COUNTS
+   * ----------------------------- */
   expenseCategoriesCount: { [categoryName: string]: number } = {};
   transactionTypesCount: { [key: string]: number } = {};
 
-  // filters & lists
+  /* -----------------------------
+   * APP-WISE SPENDING (CORE FEATURE)
+   * ----------------------------- */
+  spendingByApp: { name: string; amount: number }[] = [];
+  private appSpendMap: { [key: string]: number } = {};
+
+  /* -----------------------------
+   * FILTERS (OPTIONAL)
+   * ----------------------------- */
   showFilters = false;
   selectedMonth = new Date().getMonth() + 1;
   selectedYear = new Date().getFullYear();
   selectedCategory: number | 'All' = 'All';
-  categoriesList: { id: number; name: string }[] = [];
-
-  // raw data
-  allExpenses: any[] = [];
-  allTransactions: any[] = [];
 
   constructor(
     private router: Router,
@@ -68,24 +96,33 @@ export class HomePage implements OnInit {
     private platform: Platform
   ) {}
 
+  /* ============================================================
+   * LIFECYCLE
+   * ============================================================ */
   ngOnInit() {
     this.currentMonth = this.getMonthName(new Date().getMonth());
     this.loadDashboard();
   }
 
+  /* ============================================================
+   * DASHBOARD LOAD
+   * ============================================================ */
   async loadDashboard(month?: number, year?: number) {
     this.loading = true;
+
     try {
-      const res: any = await this.authService.getDashboard(month, year).toPromise();
+      const res: any = await this.authService
+        .getDashboard(month, year)
+        .toPromise();
+
       if (!res || !res.success) {
         this.showToast('Failed to load dashboard', 'danger');
-        this.loading = false;
         return;
       }
 
-      this.dashboard = res;
       this.mapDashboard(res);
       await this.loadAdditionalCounts();
+
     } catch (err) {
       console.error('Dashboard load error', err);
       this.showToast('Failed to load dashboard', 'danger');
@@ -94,11 +131,17 @@ export class HomePage implements OnInit {
     }
   }
 
+  /* ============================================================
+   * MAP DASHBOARD RESPONSE
+   * ============================================================ */
   private mapDashboard(res: any) {
+
+    /* USER */
     this.user = res.user || null;
     this.userFirstName = (this.user?.name || '').split(' ')[0] || '';
     this.email = this.user?.email || '';
 
+    /* TOTALS */
     const totals = res.totals || {};
     this.totalBalance = +totals.balance || 0;
     this.totalTodayExpense = +totals.today_expense || 0;
@@ -107,42 +150,91 @@ export class HomePage implements OnInit {
     this.monthSaving = +totals.month_saving || 0;
     this.yearSaving = +totals.year_saving || 0;
 
+    /* RECENT DATA */
     this.balances = res.recent?.balances || [];
-
-    // recent expenses contain category object; keep full objects
     this.allExpenses = res.recent?.expenses || [];
     this.allTransactions = res.recent?.transactions || [];
 
-    // Build unique categoriesList from expenses (using category object)
-    const catsMap = new Map<number, { id: number; name: string }>();
-    this.allExpenses.forEach(e => {
-      if (e.category && e.category.id) {
-        catsMap.set(e.category.id, { id: e.category.id, name: e.category.name });
-      }
-    });
-    this.categoriesList = Array.from(catsMap.values());
-
-    // Build category counts by category name (safe: use name)
+    /* CATEGORY COUNTS */
     this.expenseCategoriesCount = {};
     this.allExpenses.forEach(e => {
-      const catName = e.category?.name || 'Uncategorized';
-      this.expenseCategoriesCount[catName] = (this.expenseCategoriesCount[catName] || 0) + 1;
+      const name = e.category?.name || 'Uncategorized';
+      this.expenseCategoriesCount[name] =
+        (this.expenseCategoriesCount[name] || 0) + 1;
     });
 
-    // transaction type counts (if available)
+    /* TRANSACTION TYPE COUNTS */
     this.transactionTypesCount = {};
     this.allTransactions.forEach(t => {
       const type = t.type || 'unknown';
-      this.transactionTypesCount[type] = (this.transactionTypesCount[type] || 0) + 1;
+      this.transactionTypesCount[type] =
+        (this.transactionTypesCount[type] || 0) + 1;
     });
 
-    // Recompute derived totals if needed
+    /* DERIVED TOTALS */
     this.calculateSavings();
+
+    /* CORE FEATURE */
+    this.calculateSpendingByApp();
   }
 
+  /* ============================================================
+   * APP-WISE SPENDING AGGREGATION
+   * ============================================================ */
+  private calculateSpendingByApp() {
+    this.appSpendMap = {};
+
+    this.allExpenses.forEach(expense => {
+      const amount = +expense.amount || 0;
+
+      const source =
+        expense.source_app ||
+        expense.payment_app ||
+        expense.payment_method ||
+        'Other';
+
+      const key = source.toLowerCase();
+
+      if (!this.appSpendMap[key]) {
+        this.appSpendMap[key] = 0;
+      }
+
+      this.appSpendMap[key] += amount;
+    });
+
+    this.spendingByApp = Object.keys(this.appSpendMap).map(key => ({
+      name: this.formatAppName(key),
+      amount: this.appSpendMap[key]
+    }));
+
+    this.spendingByApp.sort((a, b) => b.amount - a.amount);
+  }
+
+  private formatAppName(key: string): string {
+    switch (key) {
+      case 'phonepe': return 'PhonePe';
+      case 'gpay':
+      case 'googlepay': return 'Google Pay';
+      case 'amazonpay': return 'Amazon Pay';
+      case 'paytm': return 'Paytm';
+      case 'card': return 'Cards';
+      case 'cash': return 'Cash';
+      default:
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+  }
+
+  /* ============================================================
+   * ADDITIONAL COUNTS
+   * ============================================================ */
   async loadAdditionalCounts() {
     try {
-      const [creditCards, debitCards, invoices, splitExpenses] = await Promise.all([
+      const [
+        creditCards,
+        debitCards,
+        invoices,
+        splitExpenses
+      ] = await Promise.all([
         this.databaseService.getAllCreditCards(),
         this.databaseService.getAllDebitCards(),
         this.databaseService.getInvoices(),
@@ -153,46 +245,35 @@ export class HomePage implements OnInit {
       this.debitCardsCount = (debitCards || []).length;
       this.invoicesCount = (invoices || []).length;
       this.splitExpensesCount = (splitExpenses || []).length;
+
     } catch (err) {
-      console.warn('Error fetching additional counts', err);
+      console.warn('Additional counts failed', err);
     }
   }
 
-  getMonthName(monthIndex: number): string {
+  /* ============================================================
+   * HELPERS
+   * ============================================================ */
+  calculateSavings() {
+    this.monthSaving = this.totalBalance - this.totalMonthExpense;
+    this.yearSaving = this.totalBalance - this.totalYearExpense;
+  }
+
+  getMonthName(index: number): string {
     const months = [
       'January','February','March','April','May','June',
       'July','August','September','October','November','December'
     ];
-    return months[monthIndex] || 'Unknown';
-  }
-
-  toggleFilters() {
-    this.showFilters = !this.showFilters;
-  }
-
-  applyFilters() {
-    // For dashboard short-list we can request backend with filters or filter locally.
-    // Here we simply update UI; user can expand this to call API with filters.
-    this.showFilters = false;
-    this.showToast('Filters applied', 'success');
-  }
-
-  resetFilters() {
-    this.selectedMonth = new Date().getMonth() + 1;
-    this.selectedYear = new Date().getFullYear();
-    this.selectedCategory = 'All';
-    this.showToast('Filters reset', 'success');
-  }
-
-  calculateSavings() {
-    this.monthSaving = +(this.totalBalance - this.totalMonthExpense);
-    this.yearSaving = +(this.totalBalance - this.totalYearExpense);
+    return months[index] || 'Unknown';
   }
 
   objectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
   }
 
+  /* ============================================================
+   * NAVIGATION
+   * ============================================================ */
   navigateTo(route: string) {
     this.navCtrl.navigateRoot(route);
     this.activeTab = this.getTabName(route);
@@ -202,13 +283,15 @@ export class HomePage implements OnInit {
     switch (route) {
       case '/single-view-expenses': return 'expenses';
       case '/multi-view-expense': return 'add';
-      case '/split-view': return 'split';
       case '/scan': return 'scan';
       case '/balance': return 'balance';
       default: return 'expenses';
     }
   }
 
+  /* ============================================================
+   * LOGOUT
+   * ============================================================ */
   async logout() {
     const alert = await this.alertCtrl.create({
       header: 'Logout',
@@ -216,7 +299,8 @@ export class HomePage implements OnInit {
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Logout', handler: () => {
+          text: 'Logout',
+          handler: () => {
             localStorage.removeItem('auth_token');
             localStorage.removeItem('user');
             this.router.navigateByUrl('/login', { replaceUrl: true });
@@ -227,18 +311,17 @@ export class HomePage implements OnInit {
     await alert.present();
   }
 
+  /* ============================================================
+   * TOAST
+   * ============================================================ */
   async showToast(message: string, color: string = 'primary') {
-    const t = await this.toastCtrl.create({ message, duration: 2000, color, position: 'top' });
-    await t.present();
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 
-  // small helpers for template actions
-  editBalance(balance: Balance) { /* open edit modal / navigate */ }
-  deleteBalance(id?: string) { /* delete flow */ }
-
-  getCategoryName(expense: any): string {
-  return expense.category?.name || '';
 }
-}
-
-

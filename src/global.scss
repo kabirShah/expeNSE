@@ -4,30 +4,41 @@
    1. IONIC CORE IMPORTS
    ========================================= */
 @import "@ionic/angular/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
-@import '@ionic/angular/css/display.css';
+@import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils */
-@import '@ionic/angular/css/padding.css';
-@import '@ionic/angular/css/float-elements.css';
-@import '@ionic/angular/css/text-alignment.css';
-@import '@ionic/angular/css/text-transformation.css';
-@import '@ionic/angular/css/flex-utils.css';
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Dark Mode System
- * We handle this in variables.scss mostly, but we include system support here.
- */
+/* Dark mode system support */
 @import "@ionic/angular/css/palettes/dark.system.css";
 
 /* =========================================
-   2. GLOBAL RESET & FONTS
+   2. GLOBAL VARIABLES (SAFE DEFAULTS)
    ========================================= */
-/* Use Inter or System Fonts for a premium tech feel */
+:root {
+  --primary: #4338ca;
+  --accent: #6366f1;
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  --page-bg: #f8fafc;
+  --card-bg: #ffffff;
+
+  --text-main: #1e293b;
+  --text-light: #64748b;
+
+  --dock-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* =========================================
+   3. GLOBAL RESET & FONT
+   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 * {
@@ -35,128 +46,152 @@
   box-sizing: border-box;
 }
 
-/* Apply the variables from variables.scss globally */
-body, ion-content{
+body {
   background-color: var(--page-bg);
   color: var(--text-main);
+}
+
+ion-content {
   --background: var(--page-bg);
 }
 
-/* Hide Scrollbars for a cleaner mobile app look */
+/* Hide scrollbars (mobile UX) */
 ::-webkit-scrollbar {
   display: none;
 }
 
 /* =========================================
-   3. GLOBAL COMPONENT OVERRIDES
-   (This transforms default Ionic into "Fintech UI")
+   4. GLOBAL IONIC OVERRIDES (FINTECH LOOK)
    ========================================= */
 
-/* TOOLBARS: Reset to clean/transparent by default */
+/* Toolbar */
 ion-toolbar {
-  --background: var(--page-bg); /* Matches page background */
+  --background: var(--page-bg);
   --color: var(--text-main);
-  --border-width: 0; /* Remove default hairline border */
-  --min-height: 50px
+  --border-width: 0;
+  --min-height: 50px;
 }
 
-/* MODALS & POPOVERS: Rounded corners */
-ion-modal, ion-popover {
-  --border-radius: 24px !important;
+/* Modals & Popovers */
+ion-modal,
+ion-popover {
+  --border-radius: 24px;
   --background: var(--card-bg);
 }
 
-/* LISTS: Remove default lines */
+/* Lists */
 ion-list {
-  background: transparent !important;
+  background: transparent;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-/* ITEMS: Rounded Cards instead of flat rows */
+/* Items as cards */
 ion-item {
   --background: var(--card-bg);
   --color: var(--text-main);
   --border-radius: 16px;
-  --inner-border-width: 0; /* Removes the ugly line */
-  --detail-icon-opacity: 0.3;
+  --inner-border-width: 0;
   margin-bottom: 10px;
 }
 
-/* SEARCHBAR: Floating Pill Shape */
+/* Searchbar */
 ion-searchbar {
-  --background: var(--card-bg) !important;
-  --color: var(--text-main) !important;
-  --placeholder-color: var(--text-light) !important;
-  --icon-color: var(--ion-color-primary) !important;
-  --border-radius: 14px !important;
-  --box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
-  padding-start: 0 !important;
-  padding-end: 0 !important;
+  --background: var(--card-bg);
+  --color: var(--text-main);
+  --placeholder-color: var(--text-light);
+  --icon-color: var(--primary);
+  --border-radius: 14px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-/* INPUTS: Clean styling */
-ion-input, ion-textarea {
+/* Inputs */
+ion-input,
+ion-textarea {
   --background: transparent;
   --color: var(--text-main);
-  --padding-start: 0;
 }
 
-/* ALERTS: Custom rounded look */
+/* Alerts */
 .alert-wrapper {
-  border-radius: 20px !important;
-  background: var(--card-bg) !important;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
-}
-.alert-head h2 { color: var(--text-main) !important; font-weight: 700; }
-.alert-message { color: var(--text-light) !important; }
-
-/* =========================================
-   4. UTILITY CLASSES (Use these in HTML)
-   ========================================= */
-
-/* Gradient Text (e.g. <h1 class="text-gradient">) */
-.text-gradient {
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-/* The Floating Dock Container (Bottom Menu) */
-.floating-dock-container {
-  position: fixed;
-  bottom: 24px;
-  left: 20px;
-  right: 20px;
-  height: 70px;
-  background: var(--dock-bg);
-  backdrop-filter: blur(12px);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-  z-index: 999;
+  border-radius: 20px;
+  background: var(--card-bg);
 }
 
 /* =========================================
-   5. PAGE SPECIFIC FORCING (The "Fixes")
+   5. REUSABLE UI COMPONENTS
    ========================================= */
 
-/* Force Single View Page to look correct even if component styles fail */
-app-view-expenses ion-content {
-  --background: var(--page-bg) !important;
+/* Hero / Total Card */
+.total-hero-card {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 20px;
+  padding: 24px;
+  margin: 10px 16px 24px;
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
 }
 
-app-view-expenses .summary-banner {
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary)) !important;
-  color: #ffffff !important;
-  box-shadow: 0 10px 20px rgba(67, 56, 202, 0.3) !important;
+/* Expense Card */
+.expense-card {
+  --border-radius: 18px;
+  --min-height: 90px;
+
+  .icon-box {
+    width: 42px;
+    height: 42px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .price-tag {
+    color: var(--danger);
+    font-weight: 700;
+  }
+
+  .cat-badge {
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+  }
 }
 
-/* Force Home Page Hero Card */
-app-home .hero-card {
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary)) !important;
-  color: #ffffff !important;
+/* Swipe buttons */
+.opt-btn.edit {
+  --background: #fbbf24;
+  color: #fff;
+}
+
+.opt-btn.delete {
+  --background: var(--danger);
+  color: #fff;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+
+  h3 {
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--text-light);
+  }
+}
+
+/* Primary button */
+.main-btn {
+  --background: linear-gradient(135deg, var(--primary), var(--accent));
+  --border-radius: 16px;
+  height: 56px;
+  font-weight: 600;
+  font-size: 16px;
 }

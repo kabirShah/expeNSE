@@ -3,7 +3,9 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+
     <ion-title>Pocket Money</ion-title>
+
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="logout()">
         <ion-icon name="power-outline"></ion-icon>
@@ -13,20 +15,23 @@
 </ion-header>
 
 <ion-content class="page-content">
+
+  <!-- Loader -->
   <div *ngIf="loading" class="loading-wrap">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
-  <!-- Welcome -->
+  <!-- Welcome Card -->
   <ion-card class="card welcome">
     <ion-card-content>
       <div class="welcome-row">
         <div class="avatar">
           <ion-icon name="person-circle-outline"></ion-icon>
         </div>
+
         <div class="welcome-text">
-          <h2>Welcome, {{ userFirstName || 'Guest' }}</h2>
-          <p class="muted">{{ email || 'No email available' }}</p>
+          <h2>Welcome, {{ userFirstName || 'User' }}</h2>
+          <p class="muted">{{ email }}</p>
         </div>
       </div>
 
@@ -35,11 +40,14 @@
           <small>Expenses</small>
           <h3>{{ allExpenses.length || 0 }}</h3>
         </div>
+
         <div>
           <small>Balances</small>
           <h3>{{ balances.length || 0 }}</h3>
         </div>
+
         <div class="spacer"></div>
+
         <div class="month-label">
           {{ currentMonth }} {{ currentYear }}
         </div>
@@ -47,15 +55,15 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Top summary cards -->
+  <!-- Financial Snapshot -->
   <div class="summary-grid">
-    <ion-card class="summary-card gradient-blue">
+    <ion-card class="summary-card gradient">
       <ion-card-content>
         <div class="card-head">
-          <div>Total Balance</div>
+          <span>Total Balance</span>
           <ion-icon name="wallet-outline"></ion-icon>
         </div>
-        <h2>₹{{ totalBalance | number:'1.2-2' }}</h2>
+        <h2>₹{{ totalBalance | number:'1.0-0' }}</h2>
         <p class="muted">Available funds</p>
       </ion-card-content>
     </ion-card>
@@ -63,10 +71,10 @@
     <ion-card class="summary-card">
       <ion-card-content>
         <div class="card-head">
-          <div>Monthly Expense</div>
+          <span>Monthly Expense</span>
           <ion-icon name="cash-outline"></ion-icon>
         </div>
-        <h2>₹{{ totalMonthExpense | number:'1.2-2' }}</h2>
+        <h2>₹{{ totalMonthExpense | number:'1.0-0' }}</h2>
         <p class="muted">{{ currentMonth }} spending</p>
       </ion-card-content>
     </ion-card>
@@ -74,20 +82,42 @@
     <ion-card class="summary-card">
       <ion-card-content>
         <div class="card-head">
-          <div>Monthly Savings</div>
+          <span>Monthly Savings</span>
           <ion-icon name="trending-up-outline"></ion-icon>
         </div>
-        <h2 [class.positive]="monthSaving>=0" [class.negative]="monthSaving<0">₹{{ monthSaving | number:'1.2-2' }}</h2>
+        <h2 [class.positive]="monthSaving>=0"
+            [class.negative]="monthSaving<0">
+          ₹{{ monthSaving | number:'1.0-0' }}
+        </h2>
         <p class="muted">After expenses</p>
       </ion-card-content>
     </ion-card>
   </div>
 
-  <!-- Data overview -->
-  <ion-card class="card small-card">
+  <!-- Spending by App -->
+  <ion-card class="card spending-app">
     <ion-card-header>
-      <ion-card-title>Data Overview</ion-card-title>
+      <ion-card-title>This Month Spending</ion-card-title>
     </ion-card-header>
+
+    <ion-card-content>
+      <div class="total-spent">
+        ₹{{ totalMonthExpense | number:'1.0-0' }}
+      </div>
+
+      <div class="app-row" *ngFor="let app of spendingByApp">
+        <span class="app-name">{{ app.name }}</span>
+        <span class="app-amount">₹{{ app.amount | number:'1.0-0' }}</span>
+      </div>
+
+      <div class="view-more" (click)="navigateTo('/analytics')">
+        View detailed analytics →
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Data Overview -->
+  <ion-card class="card small-card">
     <ion-card-content>
       <div class="overview-grid">
         <div class="overview-item">
@@ -95,16 +125,19 @@
           <div class="num">{{ creditCardsCount }}</div>
           <div class="label">Credit</div>
         </div>
+
         <div class="overview-item">
           <ion-icon name="card-outline"></ion-icon>
           <div class="num">{{ debitCardsCount }}</div>
           <div class="label">Debit</div>
         </div>
+
         <div class="overview-item">
           <ion-icon name="document-outline"></ion-icon>
           <div class="num">{{ invoicesCount }}</div>
           <div class="label">Invoices</div>
         </div>
+
         <div class="overview-item">
           <ion-icon name="people-outline"></ion-icon>
           <div class="num">{{ splitExpensesCount }}</div>
@@ -114,44 +147,31 @@
     </ion-card-content>
   </ion-card>
 
-  <!-- Categories (fixed — show name not object) -->
-  <ion-card *ngIf="objectKeys(expenseCategoriesCount).length" class="card categories-card">
-    <ion-card-header>
-      <ion-card-title>Top Categories</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="chips">
-        <ng-container *ngFor="let key of objectKeys(expenseCategoriesCount)">
-          <div class="chip">
-            <div class="chip-name">{{ key }}</div>
-            <div class="chip-count">{{ expenseCategoriesCount[key] }}</div>
-          </div>
-        </ng-container>
-      </div>
-    </ion-card-content>
-  </ion-card>
-
   <!-- Quick Actions -->
   <ion-card class="card quick-actions">
     <ion-card-content>
       <div class="actions-grid">
-        <button ion-button class="action-btn" (click)="navigateTo('/single-view-expenses')">
+        <button class="action-btn" (click)="navigateTo('/single-view-expenses')">
           <ion-icon name="list-outline"></ion-icon>
           <span>Expenses</span>
         </button>
-        <button ion-button class="action-btn" (click)="navigateTo('/multi-view-expense')">
-          <ion-icon name="add-circle-outline"></ion-icon>
+
+        <button class="action-btn" (click)="navigateTo('/multi-view-expense')">
+          <ion-icon name="layers-outline"></ion-icon>
           <span>Multi</span>
         </button>
-        <button ion-button class="action-btn" (click)="navigateTo('/scan')">
+
+        <button class="action-btn scan" (click)="navigateTo('/scan')">
           <ion-icon name="camera-outline"></ion-icon>
           <span>Scan</span>
         </button>
-        <button ion-button class="action-btn" (click)="navigateTo('/balance')">
+
+        <button class="action-btn" (click)="navigateTo('/balance')">
           <ion-icon name="wallet-outline"></ion-icon>
           <span>Balance</span>
         </button>
       </div>
     </ion-card-content>
   </ion-card>
+
 </ion-content>
