@@ -1,0 +1,31 @@
+.biometric-modal {
+  text-align: center;
+  padding: 24px;
+
+  .icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 40px auto 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 40px;
+      color: #ffffff;
+    }
+  }
+
+  h2 {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+}

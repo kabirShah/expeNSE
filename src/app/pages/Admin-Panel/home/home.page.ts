@@ -4,16 +4,19 @@ import {
   AlertController,
   NavController,
   ToastController,
-  Platform
+  Platform,
+  ModalController
 } from '@ionic/angular';
 
-import { BalanceService } from 'src/app/services/balance.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ExpenseService } from 'src/app/services/expense.service';
 import { TransactionService } from 'src/app/services/transaction.service';
 import { DatabaseService } from 'src/app/services/database.service';
+import { BalanceService } from 'src/app/services/balance.service';
+
+import { BiometricConsentComponent } from 'src/app/components/biometric-consent/biometric-consent.component';
 
 @Component({
   selector: 'app-home',
@@ -22,24 +25,24 @@ import { DatabaseService } from 'src/app/services/database.service';
 })
 export class HomePage implements OnInit {
 
-  /* -----------------------------
+  /* =============================
    * UI STATE
-   * ----------------------------- */
+   * ============================= */
   loading = true;
   activeTab: string = 'expenses';
 
-  /* -----------------------------
+  /* =============================
    * USER & DATE
-   * ----------------------------- */
+   * ============================= */
   user: any = null;
-  email: string = '';
-  userFirstName: string = '';
-  currentMonth: string = '';
+  email = '';
+  userFirstName = '';
+  currentMonth = '';
   currentYear: number = new Date().getFullYear();
 
-  /* -----------------------------
+  /* =============================
    * TOTALS
-   * ----------------------------- */
+   * ============================= */
   totalTodayExpense = 0;
   totalMonthExpense = 0;
   totalYearExpense = 0;
@@ -47,67 +50,82 @@ export class HomePage implements OnInit {
   monthSaving = 0;
   yearSaving = 0;
 
-  /* -----------------------------
+  /* =============================
    * COUNTS
-   * ----------------------------- */
+   * ============================= */
   creditCardsCount = 0;
   debitCardsCount = 0;
   invoicesCount = 0;
   splitExpensesCount = 0;
 
-  /* -----------------------------
+  /* =============================
    * DATA
-   * ----------------------------- */
+   * ============================= */
   balances: Balance[] = [];
   allExpenses: any[] = [];
   allTransactions: any[] = [];
 
-  /* -----------------------------
+  /* =============================
    * CATEGORY & TYPE COUNTS
-   * ----------------------------- */
-  expenseCategoriesCount: { [categoryName: string]: number } = {};
+   * ============================= */
+  expenseCategoriesCount: { [key: string]: number } = {};
   transactionTypesCount: { [key: string]: number } = {};
 
-  /* -----------------------------
-   * APP-WISE SPENDING (CORE FEATURE)
-   * ----------------------------- */
+  /* =============================
+   * APP-WISE SPENDING
+   * ============================= */
   spendingByApp: { name: string; amount: number }[] = [];
   private appSpendMap: { [key: string]: number } = {};
 
-  /* -----------------------------
-   * FILTERS (OPTIONAL)
-   * ----------------------------- */
-  showFilters = false;
-  selectedMonth = new Date().getMonth() + 1;
-  selectedYear = new Date().getFullYear();
-  selectedCategory: number | 'All' = 'All';
-
   constructor(
     private router: Router,
-    private balanceService: BalanceService,
+    private navCtrl: NavController,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private navCtrl: NavController,
-    private menuService: MenuService,
+    private modalCtrl: ModalController,
+    private platform: Platform,
+
     private authService: AuthService,
+    private balanceService: BalanceService,
     private expenseService: ExpenseService,
     private transactionService: TransactionService,
     private databaseService: DatabaseService,
-    private platform: Platform
+    private menuService: MenuService
   ) {}
 
   /* ============================================================
    * LIFECYCLE
    * ============================================================ */
-  ngOnInit() {
+  ngOnInit(): void {
     this.currentMonth = this.getMonthName(new Date().getMonth());
-    this.loadDashboard();
+
+    this.loadDashboard().then(() => {
+      this.checkBiometricConsent();
+    });
+  }
+
+  /* ============================================================
+   * BIOMETRIC CONSENT (ONE TIME)
+   * ============================================================ */
+  async checkBiometricConsent(): Promise<void> {
+    const promptShown = localStorage.getItem('biometric_prompt_shown');
+
+    if (promptShown === 'true') {
+      return;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: BiometricConsentComponent,
+      backdropDismiss: false
+    });
+
+    await modal.present();
   }
 
   /* ============================================================
    * DASHBOARD LOAD
    * ============================================================ */
-  async loadDashboard(month?: number, year?: number) {
+  async loadDashboard(month?: number, year?: number): Promise<void> {
     this.loading = true;
 
     try {
@@ -134,7 +152,7 @@ export class HomePage implements OnInit {
   /* ============================================================
    * MAP DASHBOARD RESPONSE
    * ============================================================ */
-  private mapDashboard(res: any) {
+  private mapDashboard(res: any): void {
 
     /* USER */
     this.user = res.user || null;
@@ -171,22 +189,18 @@ export class HomePage implements OnInit {
         (this.transactionTypesCount[type] || 0) + 1;
     });
 
-    /* DERIVED TOTALS */
     this.calculateSavings();
-
-    /* CORE FEATURE */
     this.calculateSpendingByApp();
   }
 
   /* ============================================================
-   * APP-WISE SPENDING AGGREGATION
+   * APP-WISE SPENDING
    * ============================================================ */
-  private calculateSpendingByApp() {
+  private calculateSpendingByApp(): void {
     this.appSpendMap = {};
 
     this.allExpenses.forEach(expense => {
       const amount = +expense.amount || 0;
-
       const source =
         expense.source_app ||
         expense.payment_app ||
@@ -194,20 +208,15 @@ export class HomePage implements OnInit {
         'Other';
 
       const key = source.toLowerCase();
-
-      if (!this.appSpendMap[key]) {
-        this.appSpendMap[key] = 0;
-      }
-
-      this.appSpendMap[key] += amount;
+      this.appSpendMap[key] = (this.appSpendMap[key] || 0) + amount;
     });
 
-    this.spendingByApp = Object.keys(this.appSpendMap).map(key => ({
-      name: this.formatAppName(key),
-      amount: this.appSpendMap[key]
-    }));
-
-    this.spendingByApp.sort((a, b) => b.amount - a.amount);
+    this.spendingByApp = Object.keys(this.appSpendMap)
+      .map(key => ({
+        name: this.formatAppName(key),
+        amount: this.appSpendMap[key]
+      }))
+      .sort((a, b) => b.amount - a.amount);
   }
 
   private formatAppName(key: string): string {
@@ -227,7 +236,7 @@ export class HomePage implements OnInit {
   /* ============================================================
    * ADDITIONAL COUNTS
    * ============================================================ */
-  async loadAdditionalCounts() {
+  async loadAdditionalCounts(): Promise<void> {
     try {
       const [
         creditCards,
@@ -241,10 +250,10 @@ export class HomePage implements OnInit {
         this.databaseService.getSplitExpenses()
       ]);
 
-      this.creditCardsCount = (creditCards || []).length;
-      this.debitCardsCount = (debitCards || []).length;
-      this.invoicesCount = (invoices || []).length;
-      this.splitExpensesCount = (splitExpenses || []).length;
+      this.creditCardsCount = creditCards?.length || 0;
+      this.debitCardsCount = debitCards?.length || 0;
+      this.invoicesCount = invoices?.length || 0;
+      this.splitExpensesCount = splitExpenses?.length || 0;
 
     } catch (err) {
       console.warn('Additional counts failed', err);
@@ -254,7 +263,7 @@ export class HomePage implements OnInit {
   /* ============================================================
    * HELPERS
    * ============================================================ */
-  calculateSavings() {
+  calculateSavings(): void {
     this.monthSaving = this.totalBalance - this.totalMonthExpense;
     this.yearSaving = this.totalBalance - this.totalYearExpense;
   }
@@ -267,14 +276,10 @@ export class HomePage implements OnInit {
     return months[index] || 'Unknown';
   }
 
-  objectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
   /* ============================================================
    * NAVIGATION
    * ============================================================ */
-  navigateTo(route: string) {
+  navigateTo(route: string): void {
     this.navCtrl.navigateRoot(route);
     this.activeTab = this.getTabName(route);
   }
@@ -290,9 +295,9 @@ export class HomePage implements OnInit {
   }
 
   /* ============================================================
-   * LOGOUT
+   * LOGOUT (CLEAN & CENTRALIZED)
    * ============================================================ */
-  async logout() {
+  async logout(): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Logout',
       message: 'Do you want to logout?',
@@ -301,20 +306,20 @@ export class HomePage implements OnInit {
         {
           text: 'Logout',
           handler: () => {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
+            this.authService.logout();
             this.router.navigateByUrl('/login', { replaceUrl: true });
           }
         }
       ]
     });
+
     await alert.present();
   }
 
   /* ============================================================
    * TOAST
    * ============================================================ */
-  async showToast(message: string, color: string = 'primary') {
+  async showToast(message: string, color: string = 'primary'): Promise<void> {
     const toast = await this.toastCtrl.create({
       message,
       duration: 2000,
@@ -323,5 +328,4 @@ export class HomePage implements OnInit {
     });
     await toast.present();
   }
-
 }

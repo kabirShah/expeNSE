@@ -9,34 +9,40 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router) {}
 
   canActivate(): boolean {
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-    const loginTime = localStorage.getItem('loginTime') || sessionStorage.getItem('loginTime');;
-    const rememberMe = localStorage.getItem('rememberMe')|| sessionStorage.getItem('rememberMe');; // '1y' or '1d'
+    const token =
+      localStorage.getItem('auth_token') ||
+      sessionStorage.getItem('auth_token');
 
-    if (token && loginTime) {
-      const now = new Date().getTime();
-      const expiry =
-        rememberMe === '7d'
-          ? 1000 * 60 * 60 * 24 * 7   // 7 days if remember me
-          : 1000 * 60 * 60 * 24;      // 1 day otherwise
+    const loginTime = localStorage.getItem('loginTime');
+    const rememberMe = localStorage.getItem('rememberMe'); // '7d' or '1d'
 
-      if (now - parseInt(loginTime, 10) < expiry) {
-        return true; // ✅ Still valid
-      } else {
-        this.clearAuth();
-        this.router.navigate(['/login']);
-        return false;
-      }
+    if (!token || !loginTime) {
+      this.clearAuth();
+      this.router.navigate(['/login']);
+      return false;
     }
 
-    // ❌ No token found
-    this.router.navigate(['/login']);
-    return false;
+    const now = Date.now();
+    const expiry =
+      rememberMe === '7d'
+        ? 1000 * 60 * 60 * 24 * 7
+        : 1000 * 60 * 60 * 24;
+
+    if (now - Number(loginTime) > expiry) {
+      this.clearAuth();
+      this.router.navigate(['/login']);
+      return false;
+    }
+
+    return true;
   }
+
   private clearAuth() {
-  localStorage.removeItem('auth_token');
-  sessionStorage.removeItem('auth_token');
-  localStorage.removeItem('loginTime');
-  localStorage.removeItem('rememberMe');
-}
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('loginTime');
+    localStorage.removeItem('rememberMe');
+    localStorage.removeItem('token_timestamp');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+  }
 }
