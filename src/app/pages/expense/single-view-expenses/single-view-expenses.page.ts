@@ -114,39 +114,70 @@ export class SingleViewExpensesPage implements OnInit {
   }
 
  // PDF Export Function
- async exportToPDF() {
-  const doc = new jsPDF();
+async exportToPDF() {
+  const doc = new jsPDF('p', 'mm', 'a4');
 
-    doc.text('Expense Report', 105, 10, { align: 'center' });
+  doc.setFontSize(16);
+  doc.text('Expense Report', 105, 15, { align: 'center' });
 
-    // Table Data
-    const tableData = this.expenses.map(
-      (expense, index) => [
-        index + 1,
-        expense.description,
-        `₹${Number(expense.amount).toFixed(2)}`,
-        new Date(expense.date).toLocaleDateString(),
-        expense.category,
-      ]
-    );
+  doc.setFontSize(10);
+  doc.text(
+    `Generated on: ${new Date().toLocaleString()}`,
+    105,
+    22,
+    { align: 'center' }
+  );
 
-    autoTable(doc, {
-      head: [['#', 'Description', 'Amount', 'Date', 'Category']],
-      body: tableData,
-      startY: 20,
-    });
+  const sourceData =
+    this.filteredExpenses.length > 0
+      ? this.filteredExpenses
+      : this.expenses;
 
-    // Save PDF
-    const pdfOutput = doc.output('blob');
-    const fileName = 'Expense_Report.pdf';
-    if (this.platform.is('cordova') || this.platform.is('capacitor')) {
-      // Save PDF to device
-      await this.savePDFToDevice(pdfOutput, fileName);
-    } else {
-      // Browser Download (Fallback for Web)
-      doc.save(fileName);
-    }
+  if (!sourceData.length) {
+    alert('No data available to export');
+    return;
   }
+
+  const tableData = sourceData.map((expense, index) => [
+    index + 1,
+    expense.description || '-',
+    expense.category || '-',
+    new Date(expense.date).toLocaleDateString(),
+    `₹${Number(expense.amount).toFixed(2)}`
+  ]);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [['#', 'Description', 'Category', 'Date', 'Amount']],
+    body: tableData,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [41, 98, 255] },
+    columnStyles: {
+      0: { cellWidth: 10 },
+      4: { halign: 'right' }
+    }
+  });
+
+  const total = sourceData.reduce(
+    (sum, e) => sum + Number(e.amount || 0),
+    0
+  );
+
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(11);
+  doc.text(`Total Amount: ₹${total.toFixed(2)}`, 140, finalY);
+
+  const pdfBlob = doc.output('blob');
+  const fileName = 'Expense_Report.pdf';
+
+  if (this.platform.is('capacitor') || this.platform.is('cordova')) {
+    await this.savePDFToDevice(pdfBlob, fileName);
+  } else {
+    doc.save(fileName);
+  }
+}
+
+
   async savePDFToDevice(pdfBlob: Blob, fileName: string){
     const arrayBuffer = await pdfBlob.arrayBuffer();
     const base64Data = btoa(

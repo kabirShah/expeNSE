@@ -1,22 +1,89 @@
-<ion-header>
+<ion-header class="header-clean ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button> 
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
     </ion-buttons>
     <ion-title>Analytics</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-select [(ngModel)]="selectedMonth" (ionChange)="applyFilters()">
-    <ion-select-option *ngFor="let month of months" [value]="month.value">{{ month.name }}</ion-select-option>
-  </ion-select>
-  
-  <ion-select [(ngModel)]="selectedCategory" (ionChange)="applyFilters()">
-    <ion-select-option *ngFor="let category of categories" [value]="category">{{ category }}</ion-select-option>
-  </ion-select>
-  
-  <div id="manualExpensesContainer" style="width: 100%; height: 400px;"></div>
-  <div id="autoExpensesContainer" style="width: 100%; height: 400px;"></div>
+<ion-content class="page-content">
+
+  <!-- MONTH NAVIGATOR -->
+  <div class="month-navigator">
+    <ion-button fill="clear" (click)="prevMonth()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </ion-button>
+
+    <div class="current-month">
+      <span class="label">Month</span>
+      <h2>{{ selectedMonthName }} {{ selectedYear }}</h2>
+    </div>
+
+    <ion-button fill="clear" (click)="nextMonth()">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- METRICS STRIP -->
+  <div class="metrics-strip">
+    <div class="metric-card">
+      <span class="label">Total Spent</span>
+      <h3>₹{{ totalSpent | number:'1.0-0' }}</h3>
+    </div>
+
+    <div class="metric-card">
+      <span class="label">Manual</span>
+      <h3>₹{{ manualTotal | number:'1.0-0' }}</h3>
+    </div>
+
+    <div class="metric-card">
+      <span class="label">Auto</span>
+      <h3>₹{{ autoTotal | number:'1.0-0' }}</h3>
+    </div>
+  </div>
+
+  <!-- CATEGORY FILTER -->
+  <div class="filter-scroll-container">
+    <div class="filter-row">
+      <ion-chip
+        *ngFor="let category of categories"
+        [class.active]="selectedCategory === category"
+        (click)="selectCategory(category)">
+        {{ category }}
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- MANUAL CHART -->
+  <ion-card class="chart-card">
+    <ion-card-header>
+      <ion-card-title>Manual Expenses</ion-card-title>
+      <ion-card-subtitle>Category-wise spending</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div id="manualExpensesContainer" class="chart-container"></div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- AUTO CHART -->
+  <ion-card class="chart-card">
+    <ion-card-header>
+      <ion-card-title>Auto Expenses</ion-card-title>
+      <ion-card-subtitle>Recurring & subscriptions</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div id="autoExpensesContainer" class="chart-container"></div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- INSIGHT -->
+  <div class="insight-summary" *ngIf="insightText">
+    {{ insightText }}
+  </div>
+
+  <div class="bottom-spacer"></div>
 
 </ion-content>

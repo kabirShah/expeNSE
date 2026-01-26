@@ -1,44 +1,55 @@
-<ion-header>
+<ion-header class="header-clean ion-no-border">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
     <ion-title>Settings</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="settings-bg">
+<ion-content>
+  <div class="settings-profile-card" (click)="updateProfile()">
+    <div class="profile-avatar">
+      <img src="assets/profile.png" onerror="this.src='https://ionicframework.com/docs/img/demos/avatar.svg'" />
+    </div>
 
-  <!-- Profile -->
-  <div class="settings-profile">
-    <img src="assets/profile.png" class="profile-img" alt="Profile" />
-    <h2>Olivia Bennett</h2>
-    <p>olivia.bennett.mail.com</p>
+    <div class="profile-info">
+      <h2>Jay Shah</h2>
+      <p>jay.shah</p>
+    </div>
+
+    <div class="edit-btn">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </div>
   </div>
 
-  <ion-list>
-
-    <!-- Profile -->
-    <ion-item>
-      <ion-label>Profile</ion-label>
-      <ion-button expand="full" (click)="updateProfile()">Update</ion-button>
+  <div class="section-title">Account</div>
+  <div class="settings-group">
+    <ion-item button detail (click)="updateProfile()">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <ion-label>Personal Info</ion-label>
     </ion-item>
 
-    <!-- Notifications -->
-    <ion-item>
-      <ion-label>Notifications</ion-label>
-      <ion-toggle
-        slot="end"
-        [(ngModel)]="notificationsEnabled">
-      </ion-toggle>
+    <ion-item button detail (click)="manageAccount()">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="card-outline"></ion-icon>
+      </div>
+      <ion-label>Payment Methods</ion-label>
     </ion-item>
+  </div>
 
-    <!-- Biometric Login -->
+  <div class="section-title">App Settings</div>
+  <div class="settings-group">
     <ion-item>
-      <ion-icon name="finger-print-outline" slot="start"></ion-icon>
-
+      <div class="icon-slot active" slot="start">
+        <ion-icon name="finger-print-outline"></ion-icon>
+      </div>
       <ion-label>
         <h2>Biometric Login</h2>
-        <p>Use Face ID / Fingerprint to sign in</p>
+        <p>Use Face ID / Fingerprint</p>
       </ion-label>
-
       <ion-toggle
         slot="end"
         [checked]="biometricEnabled"
@@ -46,8 +57,18 @@
       </ion-toggle>
     </ion-item>
 
-    <!-- Dark Mode -->
     <ion-item>
+      <div class="icon-slot" slot="start">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </div>
+      <ion-label>Push Notifications</ion-label>
+      <ion-toggle slot="end" [(ngModel)]="notificationsEnabled"></ion-toggle>
+    </ion-item>
+
+    <ion-item lines="none">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="moon-outline"></ion-icon>
+      </div>
       <ion-label>Dark Mode</ion-label>
       <ion-toggle
         slot="end"
@@ -55,25 +76,33 @@
         (ionChange)="toggleDarkMode($event)">
       </ion-toggle>
     </ion-item>
+  </div>
 
-    <!-- Account Management -->
-    <ion-item>
-      <ion-label>Account Management</ion-label>
-      <ion-button expand="full" (click)="manageAccount()">Manage</ion-button>
-    </ion-item>
-
-    <!-- Privacy Policy -->
-    <ion-item>
+  <div class="section-title">Legal</div>
+  <div class="settings-group">
+    <ion-item button detail (click)="viewPrivacyPolicy()">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
       <ion-label>Privacy Policy</ion-label>
-      <ion-button expand="full" (click)="viewPrivacyPolicy()">View</ion-button>
     </ion-item>
 
-    <!-- Terms -->
-    <ion-item>
+    <ion-item button detail lines="none" (click)="viewTerms()">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="document-text-outline"></ion-icon>
+      </div>
       <ion-label>Terms of Service</ion-label>
-      <ion-button expand="full" (click)="viewTerms()">View</ion-button>
     </ion-item>
+  </div>
 
-  </ion-list>
+  <div class="settings-group danger-zone">
+    <ion-item button lines="none" (click)="logout()">
+      <div class="icon-slot danger" slot="start">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </div>
+      <ion-label color="danger">Logout</ion-label>
+    </ion-item>
+  </div>
 
+  <div class="version-text">Version 1.0.0</div>
 </ion-content>

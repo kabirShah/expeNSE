@@ -163,11 +163,16 @@ const routes: Routes = [
         .then(m => m.IntegrationPageModule)
   },
   {
+    path: 'reset-password',
+    loadChildren: () => import('./pages/setting/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
+  },
+  {
     path: '**',
     loadChildren: () =>
       import('./pages/notfound/notfound.module')
         .then(m => m.NotfoundPageModule)
   }
+
 ];
 
 @NgModule({

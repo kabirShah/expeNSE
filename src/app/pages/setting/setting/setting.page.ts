@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth.service';
 import { BiometricService } from 'src/app/services/biometric.service';
 
 @Component({
@@ -22,7 +23,8 @@ export class SettingPage implements OnInit {
     private router: Router,
     private biometricService: BiometricService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private authService: AuthService
   ) {
     this.isDarkMode = localStorage.getItem('dark-mode') === 'true';
   }
@@ -98,12 +100,34 @@ export class SettingPage implements OnInit {
   viewTerms() {
     console.log('View Terms of Service clicked');
   }
+  /* ============================================================
+   * LOGOUT (CLEAN & CENTRALIZED)
+   * ============================================================ */
+  async logout(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Logout',
+      message: 'Do you want to logout?',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Logout',
+          handler: () => {
+            this.authService.logout();
+            this.router.navigateByUrl('/login', { replaceUrl: true });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 
   toggleDarkMode(event: any) {
     const enabled = event.detail.checked;
     document.body.classList.toggle('dark-theme', enabled);
     localStorage.setItem('dark-mode', String(enabled));
   }
+  
 
   /* =========================
    * TOAST

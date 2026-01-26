@@ -1,41 +1,43 @@
 /* =========================================
-   VARIABLES (Strict Enterprise Palette)
+   VARIABLES (ENTERPRISE LIGHT PALETTE)
    ========================================= */
 :host {
-  /* Brand Colors */
-  --color-primary: #2563eb;      /* Standard Tech Blue (Intercom/Stripe style) */
+  --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
-  
-  /* Text Colors */
-  --text-main: #111827;          /* Near Black for headings */
-  --text-body: #4b5563;          /* Gray for subtitles */
+
+  --text-main: #111827;
+  --text-body: #4b5563;
   --text-placeholder: #9ca3af;
-  
-  /* Borders & Backgrounds */
+
   --border-color: #e5e7eb;
-  --bg-page: #ffffff;            /* Pure white background for cleanliness */
+  --bg-page: #ffffff;
   --bg-input: #ffffff;
+}
+
+/* =========================================
+   GLOBAL SAFETY (IONIC TEXT FIX)
+   ========================================= */
+ion-content {
+  --background: var(--bg-page);
+  --color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont;
 }
 
 /* =========================================
    LAYOUT & CONTAINER
    ========================================= */
-ion-content.auth-content {
-  --background: var(--bg-page);
-}
-
 .auth-container {
-  max-width: 400px; /* Limits width on tablets/desktop for clean look */
+  max-width: 400px;
   margin: 0 auto;
   padding: 40px 24px;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  justify-content: center; /* Centers content vertically */
+  justify-content: center;
 }
 
 /* =========================================
-   HEADER SECTION
+   HEADER
    ========================================= */
 .auth-header {
   text-align: center;
@@ -44,15 +46,17 @@ ion-content.auth-content {
   .brand-logo {
     width: 48px;
     height: 48px;
-    background: #eff6ff; /* Very light blue bg */
+    background: #eff6ff;
     color: var(--color-primary);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 16px;
-    
-    ion-icon { font-size: 24px; }
+
+    ion-icon {
+      font-size: 24px;
+    }
   }
 
   .auth-title {
@@ -60,7 +64,6 @@ ion-content.auth-content {
     font-weight: 700;
     color: var(--text-main);
     margin: 0 0 8px;
-    letter-spacing: -0.5px;
   }
 
   .auth-subtitle {
@@ -71,7 +74,7 @@ ion-content.auth-content {
 }
 
 /* =========================================
-   FORM STYLING
+   FORM
    ========================================= */
 .auth-form {
   display: flex;
@@ -82,30 +85,31 @@ ion-content.auth-content {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 
   ion-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    --color: var(--text-main);
   }
 }
 
-/* High-Contrast Input Wrapper */
+/* =========================================
+   INPUT WRAPPER
+   ========================================= */
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border-color);
-  border-radius: 8px; /* Standard radius */
-  background: var(--bg-input);
+  height: 44px;
   padding: 0 12px;
-  height: 44px; /* Standard touch target size */
-  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-input);
+  transition: 0.2s ease;
 
   &:focus-within {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Focus ring */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
   .input-icon {
@@ -116,27 +120,31 @@ ion-content.auth-content {
 
   .custom-input {
     flex: 1;
-    --padding-start: 0;
-    --padding-end: 0;
+
+    /* 🔑 IONIC REQUIRED */
+    --color: var(--text-main);
     --placeholder-color: var(--text-placeholder);
     --placeholder-opacity: 1;
+
+    --padding-start: 0;
+    --padding-end: 0;
+
     font-size: 14px;
-    color: var(--text-main);
   }
 
   .eye-btn {
     margin: 0;
     height: 100%;
-    --padding-start: 8px;
-    --padding-end: 0;
     color: var(--text-body);
-    
-    ion-icon { font-size: 18px; }
+
+    ion-icon {
+      font-size: 18px;
+    }
   }
 }
 
 /* =========================================
-   ACTIONS ROW (Checkbox & Forgot)
+   ACTIONS ROW
    ========================================= */
 .actions-row {
   display: flex;
@@ -149,63 +157,31 @@ ion-content.auth-content {
     --checkbox-background-checked: var(--color-primary);
     --border-color-checked: var(--color-primary);
     --label-color: var(--text-body);
-    font-size: 13px;
+    color: var(--text-body);
   }
 
   .link-btn {
-    text-decoration: none;
     color: var(--color-primary);
     font-weight: 600;
-    
-    &:hover { text-decoration: underline; }
+    text-decoration: none;
   }
 }
 
 /* =========================================
-   BUTTONS
+   BUTTON
    ========================================= */
 .primary-btn {
+  height: 44px;
+  margin-top: 4px;
+
   --background: var(--color-primary);
   --background-hover: var(--color-primary-hover);
   --border-radius: 8px;
-  --box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Subtle button shadow */
-  height: 44px;
+  --color: #ffffff;
+
+  font-size: 14px;
   font-weight: 600;
-  font-size: 14px;
   text-transform: none;
-  letter-spacing: 0;
-  margin: 0;
-}
-
-.secondary-btn {
-  --color: var(--text-main);
-  --border-color: var(--border-color);
-  --border-radius: 8px;
-  height: 44px;
-  font-weight: 500;
-  font-size: 14px;
-  text-transform: none;
-  margin: 0;
-}
-
-/* Divider Line */
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-  
-  &::before, &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--border-color);
-  }
-  
-  span {
-    padding: 0 10px;
-    font-size: 12px;
-    color: var(--text-placeholder);
-    font-weight: 500;
-  }
 }
 
 /* =========================================
@@ -221,5 +197,22 @@ ion-content.auth-content {
     color: var(--color-primary);
     font-weight: 600;
     text-decoration: none;
+  }
+}
+
+/* =========================================
+   BIOMETRIC LOADING
+   ========================================= */
+.biometric-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin-top: 12px;
+    color: var(--text-body);
+    font-size: 14px;
   }
 }

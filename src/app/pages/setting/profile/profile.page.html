@@ -1,79 +1,106 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>Profile</ion-title>
+    <ion-title>Edit Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-    <ion-grid>
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="12" class="ion-text-center">
-        <ion-avatar>
-          <img [src]="user?.profile_image || 'assets/default-avatar.png'" alt="Profile" />
-        </ion-avatar>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <!-- Loader -->
-  <ion-spinner *ngIf="isLoading" class="spinner-center"></ion-spinner>
+<ion-content>
+
+  <ion-spinner
+    *ngIf="isLoading"
+    name="crescent"
+    class="spinner-center">
+  </ion-spinner>
 
   <div *ngIf="!isLoading && user">
-    <!-- Profile Image Upload -->
-    <div class="profile-container">
+
+    <!-- PROFILE IMAGE -->
+    <div class="avatar-container">
       <img
-        [src]="user.profile_image ? apiBase + '/storage/' + user.profile_image : 'assets/profile.png'"
+        [src]="previewImage
+          ? previewImage
+          : (user.profile_image
+              ? apiBase + '/storage/' + user.profile_image
+              : 'assets/profile.png')"
+        (error)="onImageError($event)"
         alt="Profile"
-        class="profile-img"
       />
-      <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden #fileInput />
-      <ion-button size="small" (click)="fileInput.click()">Change Photo</ion-button>
+
+      <div class="edit-badge" (click)="fileInput.click()">
+        <ion-icon name="camera"></ion-icon>
+      </div>
+
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        #fileInput
+        (change)="onFileSelected($event)"
+      />
     </div>
 
-    <!-- Profile Info -->
-    <ion-list>
-      <ion-item>
-        <ion-label>Email</ion-label>
-        <ion-text>{{ user.email }}</ion-text>
-      </ion-item>
+    <!-- FORM -->
+    <ion-item>
+      <ion-input
+        label="Email"
+        label-placement="floating"
+        [value]="user.email"
+        readonly>
+      </ion-input>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">First Name</ion-label>
-        <ion-input [(ngModel)]="user.first_name"></ion-input>
-      </ion-item>
+    <ion-item>
+      <ion-input
+        label="First Name"
+        label-placement="floating"
+        [(ngModel)]="user.first_name">
+      </ion-input>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Last Name</ion-label>
-        <ion-input [(ngModel)]="user.last_name"></ion-input>
-      </ion-item>
+    <ion-item>
+      <ion-input
+        label="Last Name"
+        label-placement="floating"
+        [(ngModel)]="user.last_name">
+      </ion-input>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Phone</ion-label>
-        <ion-input [(ngModel)]="user.phone"></ion-input>
-      </ion-item>
+    <ion-item>
+      <ion-input
+        label="Phone"
+        label-placement="floating"
+        [(ngModel)]="user.phone">
+      </ion-input>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">DOB</ion-label>
-        <ion-input type="date" [(ngModel)]="user.dob"></ion-input>
-      </ion-item>
+    <ion-item>
+      <ion-input
+        type="date"
+        label="Date of Birth"
+        label-placement="floating"
+        [(ngModel)]="user.dob">
+      </ion-input>
+    </ion-item>
 
-      <ion-item>
-        <ion-label>Gender</ion-label>
-        <ion-select [(ngModel)]="user.gender">
-          <ion-select-option value="Male">Male</ion-select-option>
-          <ion-select-option value="Female">Female</ion-select-option>
-          <ion-select-option value="Other">Other</ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-list>
+    <ion-item>
+      <ion-select
+        label="Gender"
+        label-placement="floating"
+        [(ngModel)]="user.gender">
+        <ion-select-option value="Male">Male</ion-select-option>
+        <ion-select-option value="Female">Female</ion-select-option>
+        <ion-select-option value="Other">Other</ion-select-option>
+      </ion-select>
+    </ion-item>
 
-    <!-- Save Button -->
-    <ion-button expand="block" (click)="updateProfile()">Save Changes</ion-button>
+    <ion-button expand="block" (click)="updateProfile()">
+      Save Changes
+    </ion-button>
+
   </div>
 
-  <div *ngIf="!isLoading && !user">
-    <p class="ion-text-center">No user found. Please login.</p>
+  <div *ngIf="!isLoading && !user" class="ion-text-center">
+    No user data found
   </div>
+
 </ion-content>

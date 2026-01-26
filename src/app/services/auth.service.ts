@@ -3,6 +3,30 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+/* ===============================
+   TYPES
+   =============================== */
+
+export interface LoginResponse {
+  token: string;
+  user: any;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,47 +41,51 @@ export class AuthService {
      AUTH API CALLS
      =============================== */
 
-  loginLaravel(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/login`, { email, password });
+  loginLaravel(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${this.API_URL}/login`,
+      { email, password }
+    );
   }
 
   register(userData: any): Observable<any> {
     return this.http.post<any>(`${this.API_URL}/register`, userData);
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/forgot-password`, { email });
+  forgotPassword(email: string): Observable<ForgotPasswordResponse> {
+    return this.http.post<ForgotPasswordResponse>(
+      `${this.API_URL}/forgot-password`,
+      { email }
+    );
   }
 
-  resetPassword(data: any): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/reset-password`, data);
+  resetPassword(
+    payload: ResetPasswordPayload
+  ): Observable<ResetPasswordResponse> {
+    return this.http.post<ResetPasswordResponse>(
+      `${this.API_URL}/reset-password`,
+      payload
+    );
   }
 
   /* ===============================
-     SESSION HANDLING (SINGLE SOURCE)
+     SESSION HANDLING
      =============================== */
 
   saveSession(token: string, user: any, rememberMe: boolean): void {
     const now = Date.now().toString();
 
-    if (rememberMe) {
-      localStorage.setItem('auth_token', token);
-      localStorage.setItem('loginTime', now);
-    } else {
-      sessionStorage.setItem('auth_token', token);
-      sessionStorage.setItem('loginTime', now);
-    }
+    const storage = rememberMe ? localStorage : sessionStorage;
+
+    storage.setItem('auth_token', token);
+    storage.setItem('loginTime', now);
 
     localStorage.setItem('user', JSON.stringify(user));
   }
 
   clearSession(): void {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('loginTime');
-    localStorage.removeItem('user');
-
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('loginTime');
+    localStorage.clear();
+    sessionStorage.clear();
   }
 
   getToken(): string | null {
@@ -72,36 +100,29 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
-  /* ===============================
-     SESSION VALIDATION
-     =============================== */
-
   isSessionValid(): boolean {
     const token = this.getToken();
     const loginTime =
       localStorage.getItem('loginTime') ||
       sessionStorage.getItem('loginTime');
 
-    if (!token || !loginTime) {
-      return false;
-    }
+    if (!token || !loginTime) return false;
 
     const diffDays =
-      (Date.now() - Number(loginTime)) /
-      (1000 * 60 * 60 * 24);
+      (Date.now() - Number(loginTime)) / (1000 * 60 * 60 * 24);
 
     return diffDays <= this.TOKEN_EXPIRY_DAYS;
   }
 
   /* ===============================
-     HEADERS
+     HEADERS (SAFE)
      =============================== */
 
-  getAuthHeaders(): HttpHeaders {
+  private authHeaders(): HttpHeaders {
     const token = this.getToken();
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
+    return token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
   }
 
   /* ===============================
@@ -110,7 +131,7 @@ export class AuthService {
 
   getProfile(): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/user`, {
-      headers: this.getAuthHeaders()
+      headers: this.authHeaders()
     });
   }
 
@@ -121,12 +142,19 @@ export class AuthService {
 
     return this.http.get<any>(`${this.API_URL}/dashboard`, {
       params,
-      headers: this.getAuthHeaders()
+      headers: this.authHeaders()
     });
   }
+  updateProfile(formData: FormData) {
+    return this.http.post(
+      `${this.API_URL}/settings/update-profile`,
+      formData
+    );
+  }
+
 
   /* ===============================
-     LOGOUT (NO NAVIGATION)
+     LOGOUT
      =============================== */
 
   logout(): void {

@@ -99,9 +99,16 @@
   </div>
 
   <ion-modal [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime id="datetime" presentation="date" formControlName="date"></ion-datetime>
-    </ng-template>
-  </ion-modal>
+  <ng-template>
+    <ion-datetime
+      id="expenseDate"
+      presentation="date"
+      [value]="expenseForm.get('date')?.value"
+      (ionChange)="onDateChange($event)">
+    </ion-datetime>
+  </ng-template>
+</ion-modal>
+
+
 
 </ion-content>

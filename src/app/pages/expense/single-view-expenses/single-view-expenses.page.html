@@ -6,6 +6,14 @@
       </ion-button>
     </ion-buttons>
     <ion-title>Single Expense</ion-title>
+    <ion-buttons slot="end">
+      <ion-button expand="block" color="primary" (click)="exportToPDF()">
+        <ion-icon name="download-outline"></ion-icon>
+      </ion-button>
+      <ion-button expand="block" color="primary" (click)="importPDF()">
+        <ion-icon name="cloud-download-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 
   <ion-toolbar class="filter-toolbar">

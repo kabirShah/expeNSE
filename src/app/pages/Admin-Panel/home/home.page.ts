@@ -294,27 +294,6 @@ export class HomePage implements OnInit {
     }
   }
 
-  /* ============================================================
-   * LOGOUT (CLEAN & CENTRALIZED)
-   * ============================================================ */
-  async logout(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: 'Logout',
-      message: 'Do you want to logout?',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Logout',
-          handler: () => {
-            this.authService.logout();
-            this.router.navigateByUrl('/login', { replaceUrl: true });
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
 
   /* ============================================================
    * TOAST

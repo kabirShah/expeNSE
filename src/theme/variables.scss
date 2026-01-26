@@ -1,12 +1,16 @@
-/* src/theme/variables.scss */
+/* =========================================================
+   POCKET MONEY – LIGHT & DARK THEME (SINGLE FILE)
+   ========================================================= */
 
-/* =========================================
+/* =========================================================
    LIGHT THEME (DEFAULT)
-   ========================================= */
+   ========================================================= */
 :root {
-  /** * PRIMARY: Deep Indigo 
-   * Represents Trust, Wealth, and Stability.
-   */
+  /* ===============================
+     IONIC CORE COLORS
+     =============================== */
+
+  /* Primary – Trust / Stability */
   --ion-color-primary: #4338ca;
   --ion-color-primary-rgb: 67, 56, 202;
   --ion-color-primary-contrast: #ffffff;
@@ -14,182 +18,111 @@
   --ion-color-primary-shade: #3b31b2;
   --ion-color-primary-tint: #564cd0;
 
-  /** * SECONDARY: Vibrant Violet
-   * Used for Gradients and Accents.
-   */
+  /* Secondary – Accent */
   --ion-color-secondary: #6366f1;
   --ion-color-secondary-rgb: 99, 102, 241;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #575ad4;
-  --ion-color-secondary-tint: #7375f2;
 
-  /** * TERTIARY: Slate
-   * Used for neutral elements.
-   */
+  /* Tertiary / Neutral */
   --ion-color-tertiary: #475569;
   --ion-color-tertiary-rgb: 71, 85, 105;
   --ion-color-tertiary-contrast: #ffffff;
-  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #3f4b5d;
-  --ion-color-tertiary-tint: #596678;
 
-  /** * SUCCESS: Growth Green 
-   */
-  --ion-color-success: #10b981;
-  --ion-color-success-rgb: 16, 185, 129;
-  --ion-color-success-contrast: #ffffff;
-  --ion-color-success-contrast-rgb: 255, 255, 255;
-  --ion-color-success-shade: #0e1924;
-  --ion-color-success-tint: #28c08e;
-
-  /** * WARNING: Amber
-   */
-  --ion-color-warning: #f59e0b;
-  --ion-color-warning-rgb: 245, 158, 11;
-  --ion-color-warning-contrast: #000000;
-  --ion-color-warning-contrast-rgb: 0, 0, 0;
-  --ion-color-warning-shade: #d88b0a;
-  --ion-color-warning-tint: #f6a823;
-
-  /** * DANGER: Alert Red
-   */
-  --ion-color-danger: #ef4444;
-  --ion-color-danger-rgb: 239, 68, 68;
-  --ion-color-danger-contrast: #ffffff;
-  --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade: #d23c3c;
-  --ion-color-danger-tint: #f15757;
-
-  /** * STANDARD IONIC COLORS
-   */
   --ion-color-dark: #1e293b;
-  --ion-color-dark-rgb: 30, 41, 59;
-  --ion-color-dark-contrast: #ffffff;
-  --ion-color-dark-contrast-rgb: 255, 255, 255;
-  --ion-color-dark-shade: #1a2434;
-  --ion-color-dark-tint: #353e4f;
-
   --ion-color-medium: #64748b;
-  --ion-color-medium-rgb: 100, 116, 139;
-  --ion-color-medium-contrast: #ffffff;
-  --ion-color-medium-contrast-rgb: 255, 255, 255;
-  --ion-color-medium-shade: #58667a;
-  --ion-color-medium-tint: #748297;
-
   --ion-color-light: #f1f5f9;
-  --ion-color-light-rgb: 241, 245, 249;
-  --ion-color-light-contrast: #000000;
-  --ion-color-light-contrast-rgb: 0, 0, 0;
-  --ion-color-light-shade: #d4d8db;
-  --ion-color-light-tint: #f2f6fa;
 
-  /* =========================================
-     CUSTOM APP VARIABLES (Light Mode)
-     These are used in your pages (Home, Single View)
-     ========================================= */
-  --page-bg: #f8fafc;       /* Slate 50 (Not pure white) */
-  --card-bg: #ffffff;       /* Pure White Cards */
-  --text-main: #1e293b;     /* Slate 800 */
-  --text-light: #64748b;    /* Slate 500 */
-  --input-bg: #f1f5f9;      /* Light Gray Input */
-  --dock-bg: rgba(30, 41, 59, 0.95); /* Dark Footer Dock */
-  --text-sub: #64748b;
+  /* Status */
+  --ion-color-success: #10b981;
+  --ion-color-warning: #f59e0b;
+  --ion-color-danger: #ef4444;
+
+  /* ===============================
+     APP SEMANTIC TOKENS (LIGHT)
+     =============================== */
+
+  /* Backgrounds */
+  --page-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+
+  /* Text */
+  --text-main: #1e293b;
+  --text-light: #64748b;
+
+  /* Borders & Dividers */
   --border-color: #e2e8f0;
+
+  /* Financial semantics */
+  --amount-positive: #10b981;
+  --amount-negative: #ef4444;
+  --amount-neutral: #64748b;
+
+  /* Elevation */
+  --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --card-border: none;
+
+  /* Bottom Dock */
+  --dock-bg: rgba(255, 255, 255, 0.95);
 }
 
-
-
-/* =========================================
-   DARK THEME (AUTOMATIC)
-   ========================================= */
+/* =========================================================
+   DARK THEME (SYSTEM AUTO)
+   ========================================================= */
 @media (prefers-color-scheme: dark) {
-  /*
-   * Dark Colors
-   */
   body {
-    /* Primary becomes lighter to pop against dark bg */
+    /* ===============================
+       IONIC CORE COLORS (DARK)
+       =============================== */
+
     --ion-color-primary: #818cf8;
     --ion-color-primary-rgb: 129, 140, 248;
     --ion-color-primary-contrast: #000000;
     --ion-color-primary-contrast-rgb: 0, 0, 0;
-    --ion-color-primary-shade: #727bda;
-    --ion-color-primary-tint: #8e98f9;
 
     --ion-color-secondary: #a5b4fc;
-    --ion-color-secondary-rgb: 165, 180, 252;
-    --ion-color-secondary-contrast: #000000;
-    --ion-color-secondary-contrast-rgb: 0, 0, 0;
-    --ion-color-secondary-shade: #919ede;
-    --ion-color-secondary-tint: #aebcfc;
-
     --ion-color-tertiary: #94a3b8;
-    --ion-color-tertiary-rgb: 148, 163, 184;
-    --ion-color-tertiary-contrast: #000000;
-    --ion-color-tertiary-contrast-rgb: 0, 0, 0;
-    --ion-color-tertiary-shade: #828fa2;
-    --ion-color-tertiary-tint: #9facbf;
 
     --ion-color-success: #34d399;
-    --ion-color-success-rgb: 52, 211, 153;
-    --ion-color-success-contrast: #000000;
-    --ion-color-success-contrast-rgb: 0, 0, 0;
-    --ion-color-success-shade: #2eb086;
-    --ion-color-success-tint: #48d7a3;
-
     --ion-color-warning: #fbbf24;
-    --ion-color-warning-rgb: 251, 191, 36;
-    --ion-color-warning-contrast: #000000;
-    --ion-color-warning-contrast-rgb: 0, 0, 0;
-    --ion-color-warning-shade: #dda820;
-    --ion-color-warning-tint: #fcc53a;
-
     --ion-color-danger: #f87171;
-    --ion-color-danger-rgb: 248, 113, 113;
-    --ion-color-danger-contrast: #000000;
-    --ion-color-danger-contrast-rgb: 0, 0, 0;
-    --ion-color-danger-shade: #da6363;
-    --ion-color-danger-tint: #f97f7f;
 
     --ion-color-dark: #f8fafc;
-    --ion-color-dark-rgb: 248, 250, 252;
-    --ion-color-dark-contrast: #000000;
-    --ion-color-dark-contrast-rgb: 0, 0, 0;
-    --ion-color-dark-shade: #dadede;
-    --ion-color-dark-tint: #f9fbfc;
-
     --ion-color-medium: #94a3b8;
-    --ion-color-medium-rgb: 148, 163, 184;
-    --ion-color-medium-contrast: #000000;
-    --ion-color-medium-contrast-rgb: 0, 0, 0;
-    --ion-color-medium-shade: #828fa2;
-    --ion-color-medium-tint: #9facbf;
-
     --ion-color-light: #1e293b;
-    --ion-color-light-rgb: 30, 41, 59;
-    --ion-color-light-contrast: #ffffff;
-    --ion-color-light-contrast-rgb: 255, 255, 255;
-    --ion-color-light-shade: #1a2434;
-    --ion-color-light-tint: #353e4f;
 
-    /* =========================================
-       CUSTOM APP VARIABLES (Dark Mode)
-       The app will automatically switch to these colors
-       ========================================= */
-    --page-bg: #0f172a;       /* Deep Slate (Almost Black) */
-    --card-bg: #1e293b;       /* Dark Blue/Gray Cards */
-    --text-main: #f8fafc;     /* White Text */
-    --text-light: #94a3b8;    /* Muted Gray Text */
-    --input-bg: #1e293b;      /* Dark Input Background */
-    --dock-bg: rgba(15, 23, 42, 0.95); /* Deep Footer Dock */
+    /* ===============================
+       APP SEMANTIC TOKENS (DARK)
+       =============================== */
+
+    /* Backgrounds */
+    --page-bg: #0f172a;
+    --card-bg: #1e293b;
+    --input-bg: #1e293b;
+
+    /* Text */
+    --text-main: #f8fafc;
+    --text-light: #94a3b8;
+
+    /* Borders & Dividers */
+    --border-color: #334155;
+
+    /* Financial semantics */
+    --amount-positive: #34d399;
+    --amount-negative: #f87171;
+    --amount-neutral: #94a3b8;
+
+    /* Elevation */
+    --card-shadow: none;
+    --card-border: 1px solid #334155;
+
+    /* Bottom Dock */
+    --dock-bg: rgba(15, 23, 42, 0.95);
   }
 
-  /* Override standard Ionic Backgrounds */
-  .ios body {
-    background-color: var(--page-bg);
-    color: var(--text-main);
-  }
-
+  /* Normalize Ionic background */
+  .ios body,
   .md body {
     background-color: var(--page-bg);
     color: var(--text-main);

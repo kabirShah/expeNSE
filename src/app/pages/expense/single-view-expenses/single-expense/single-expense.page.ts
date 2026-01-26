@@ -104,6 +104,12 @@ export class SingleExpensePage implements OnInit {
     });
   }
 
+  onDateChange(event: any) {
+    this.expenseForm.patchValue({
+      date: event.detail.value
+    });
+  }
+
   // --- 3. Save Logic ---
   saveExpense() {
     if (this.expenseForm.invalid) {

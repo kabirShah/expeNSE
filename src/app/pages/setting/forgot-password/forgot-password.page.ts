@@ -1,22 +1,46 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.page.html',
-  styleUrls: ['./forgot-password.page.scss'],
 })
 export class ForgotPasswordPage {
+  email = '';
+  loading = false;
 
-  email: string = '';
+  constructor(
+    private authApi: AuthService,
+    private toast: ToastController
+  ) {}
 
-  constructor(private authService: AuthService) {}
+  submit() {
+    if (!this.email) {
+      this.showToast('Please enter your email');
+      return;
+    }
 
-  sendResetLink() {
-    this.authService.forgotPassword(this.email).subscribe({
-      next: (res) => alert(res.message),
-      error: (err) => alert('Error: ' + err.error.message),
+    this.loading = true;
+
+    this.authApi.forgotPassword(this.email).subscribe({
+      next: () => {
+        this.showToast('Reset link sent to your email');
+        this.loading = false;
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || 'Something went wrong');
+        this.loading = false;
+      },
     });
   }
 
+  async showToast(message: string) {
+    const t = await this.toast.create({
+      message,
+      duration: 2500,
+      position: 'top',
+    });
+    t.present();
+  }
 }
