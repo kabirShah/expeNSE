@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { AlertController, NavController, ToastController } from '@ionic/angular';
+﻿import { Component, OnInit } from '@angular/core';
+import { AlertController, NavController } from '@ionic/angular';
 import { DebitCard } from 'src/app/models/debit-card.model';
 import { CardApiService } from 'src/app/services/card-api.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-debit',
@@ -17,7 +18,7 @@ export class DebitPage implements OnInit {
     private cardApiService: CardApiService,
     private navCtrl: NavController,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
   ) {}
 
   async ngOnInit() {
@@ -82,14 +83,10 @@ export class DebitPage implements OnInit {
     await alert.present();
   }
   
-  private async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium') {
+    await this.uiToast.show(message, color);
   }
 
 }
+
+

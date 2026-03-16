@@ -1,245 +1,267 @@
-<ion-header color="light">
-  <ion-toolbar color="light">
+﻿<ion-header class="header-clean ion-no-border">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button> 
+      <ion-menu-button color="dark"></ion-menu-button>
     </ion-buttons>
+
     <ion-title>Pocket Money</ion-title>
+
     <ion-buttons slot="end">
-      <ion-icon name="power-outline" (click)="logout()"></ion-icon>
+      <ion-button class="notif-btn" (click)="openNotifications()">
+        <ion-icon slot="icon-only" name="notifications-outline" color="dark"></ion-icon>
+        <ion-badge class="notif-badge" color="danger" *ngIf="unreadNotificationCount > 0">
+          {{ unreadNotificationCount > 99 ? '99+' : unreadNotificationCount }}
+        </ion-badge>
+      </ion-button>
+      <ion-button (click)="navigateTo('/setting')">
+        <ion-icon slot="icon-only" name="settings-outline" color="dark"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <!-- Loading Indicator -->
-  <div *ngIf="loading" class="loading-container">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading your financial data...</p>
-  </div>
+<ion-content class="page-content" [fullscreen]="true">
+  <div class="content-wrapper">
 
-  <!-- Welcome Section -->
-  <ion-card class="welcome-card">
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="person-circle-outline" color="primary"></ion-icon>
-        Welcome, {{ userFirstName || 'Guest' }}
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <p class="subtitle">Here's your financial overview for {{ currentMonth }} {{ currentYear }}</p>
-    </ion-card-content>
-  </ion-card>
+    <!-- ── LOADING STATE ── -->
+    <div class="loader-center" *ngIf="isLoading">
+      <div class="loader-card">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Loading dashboard…</p>
+      </div>
+    </div>
 
-  <!-- Financial Summary Cards -->
-  <ion-grid>
-    <ion-row>
-      <!-- Total Balance Card -->
-      <ion-col size="12" size-md="6" size-lg="4">
-        <ion-card class="summary-card balance-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="wallet-outline"></ion-icon>
-              Total Balance
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <h2 class="amount">₹{{ totalBalance | number:'1.0-0' }}</h2>
-            <p class="card-subtitle">Available Funds</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+    <!-- ── ERROR STATE ── -->
+    <div class="load-error" *ngIf="!isLoading && hasError">
+      <div class="error-icon-wrap">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+      </div>
+      <h3>Couldn't load dashboard</h3>
+      <p>{{ errorMessage || 'Please check your connection and try again.' }}</p>
+      <ion-button class="retry-btn" shape="round" (click)="retryDashboard()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Retry
+      </ion-button>
+    </div>
 
-      <!-- Monthly Expenses Card -->
-      <ion-col size="12" size-md="6" size-lg="4">
-        <ion-card class="summary-card expense-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="cash-outline"></ion-icon>
-              Monthly Expenses
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <h2 class="amount">₹{{ totalMonthExpense | number:'1.0-0' }}</h2>
-            <p class="card-subtitle">{{ currentMonth }} Spending</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+    <ng-container *ngIf="!isLoading && !hasError">
 
-      <!-- Monthly Savings Card -->
-      <ion-col size="12" size-md="6" size-lg="4">
-        <ion-card class="summary-card savings-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="trending-up-outline"></ion-icon>
-              Monthly Savings
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <h2 class="amount" [class.positive]="monthSaving >= 0" [class.negative]="monthSaving < 0">
-              ₹{{ monthSaving | number:'1.0-0' }}
-            </h2>
-            <p class="card-subtitle">{{ currentMonth }} Savings</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
+      <!-- ════════════════════════════════
+           1. HERO WELCOME CARD
+           ════════════════════════════════ -->
+      <div class="welcome-card">
+        <div class="welcome-card__glow"></div>
+        <div class="welcome-card__circle"></div>
 
-    <!-- Quick Stats Row -->
-    <ion-row>
-      <ion-col size="6" size-md="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <div class="stat-icon today">
-              <ion-icon name="today-outline"></ion-icon>
+        <div class="wc-top">
+          <div class="wc-avatar">
+            <ion-icon name="person-circle"></ion-icon>
+          </div>
+          <div class="wc-info">
+            <h2 class="wc-name">Hi, {{ userFirstName || 'User' }} 👋</h2>
+            <p class="wc-email">{{ email }}</p>
+          </div>
+        </div>
+
+        <div class="wc-stats-row">
+          <div class="wc-stat">
+            <span class="wc-stat__label">Expenses</span>
+            <span class="wc-stat__value">{{ allExpenses.length || 0 }}</span>
+          </div>
+          <div class="wc-stat-divider"></div>
+          <div class="wc-stat">
+            <span class="wc-stat__label">Balances</span>
+            <span class="wc-stat__value">{{ balances.length || 0 }}</span>
+          </div>
+          <div class="wc-stat-spacer"></div>
+          <div class="wc-month">
+            <span>{{ currentMonth }}</span>
+            <span>{{ currentYear }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           2. METRICS STRIP (swipe)
+           ════════════════════════════════ -->
+      <div class="metrics-strip">
+
+        <div class="metric-card">
+          <div class="metric-card__icon metric-card__icon--blue">
+            <ion-icon name="wallet-outline"></ion-icon>
+          </div>
+          <p class="metric-card__label">Current Balance</p>
+          <h2 class="metric-card__value">&#8377;{{ totalBalance | number:'1.0-0' }}</h2>
+          <span class="metric-card__sub">Available now</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card__icon metric-card__icon--red">
+            <ion-icon name="trending-down-outline"></ion-icon>
+          </div>
+          <p class="metric-card__label">Monthly Spend</p>
+          <h2 class="metric-card__value metric-card__value--danger">
+            &#8377;{{ totalMonthExpense | number:'1.0-0' }}
+          </h2>
+          <span class="metric-card__sub">{{ currentMonth }}</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card__icon metric-card__icon--green">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+          <p class="metric-card__label">Monthly Saving</p>
+          <h2 class="metric-card__value"
+              [class.metric-card__value--success]="monthSaving >= 0"
+              [class.metric-card__value--danger]="monthSaving < 0">
+            &#8377;{{ monthSaving | number:'1.0-0' }}
+          </h2>
+          <span class="metric-card__sub">After expenses</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-card__icon metric-card__icon--amber">
+            <ion-icon name="timer-outline"></ion-icon>
+          </div>
+          <p class="metric-card__label">Today Spend</p>
+          <h2 class="metric-card__value">&#8377;{{ totalTodayExpense | number:'1.0-0' }}</h2>
+          <span class="metric-card__sub">Live snapshot</span>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════
+           3. SPENDING BY APP CARD
+           ════════════════════════════════ -->
+      <div class="section-card">
+        <div class="section-card__header">
+          <h3 class="section-card__title">Monthly Spending</h3>
+          <span class="section-card__badge">{{ currentMonth }}</span>
+        </div>
+
+        <div class="spending-total">
+          <span class="spending-total__amount">&#8377;{{ totalMonthExpense | number:'1.0-0' }}</span>
+          <span class="spending-total__label">Total outflow</span>
+        </div>
+
+        <div class="app-list">
+          <div class="app-row" *ngFor="let app of spendingByApp; let i = index">
+            <div class="app-row__icon" [class]="'app-row__icon--' + (i % 4)">
+              <ion-icon [name]="getAppIcon(app.name)"></ion-icon>
             </div>
-            <h3>₹{{ totalTodayExpense | number:'1.0-0' }}</h3>
-            <p>Today</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="6" size-md="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <div class="stat-icon year">
-              <ion-icon name="calendar-outline"></ion-icon>
+            <div class="app-row__info">
+              <span class="app-row__name">{{ app.name }}</span>
             </div>
-            <h3>₹{{ totalYearExpense | number:'1.0-0' }}</h3>
-            <p>Year {{ currentYear }}</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+            <div class="app-row__right">
+              <span class="app-row__amount">&#8377;{{ app.amount | number:'1.0-0' }}</span>
+              <div class="app-row__bar-track">
+                <div class="app-row__bar-fill"
+                     [style.width.%]="getAppPercent(app.amount)"
+                     [class]="'app-row__bar-fill--' + (i % 4)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <ion-col size="6" size-md="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <div class="stat-icon credit">
+      <!-- ════════════════════════════════
+           4. OVERVIEW GRID (Credit/Debit/Bills/Splits)
+           ════════════════════════════════ -->
+      <div class="overview-card">
+        <div class="overview-grid">
+
+          <div class="ov-item" (click)="navigateTo('/credit-cards')">
+            <div class="ov-item__icon ov-item__icon--blue">
               <ion-icon name="card-outline"></ion-icon>
             </div>
-            <h3>₹{{ creditTotal | number:'1.0-0' }}</h3>
-            <p>Credits</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
+            <span class="ov-item__num">{{ creditCardsCount }}</span>
+            <span class="ov-item__label">Credit</span>
+          </div>
 
-      <ion-col size="6" size-md="3">
-        <ion-card class="stat-card">
-          <ion-card-content>
-            <div class="stat-icon debit">
-              <ion-icon name="receipt-outline"></ion-icon>
+          <div class="ov-item" (click)="navigateTo('/debit-cards')">
+            <div class="ov-item__icon ov-item__icon--green">
+              <ion-icon name="cash-outline"></ion-icon>
             </div>
-            <h3>₹{{ debitTotal | number:'1.0-0' }}</h3>
-            <p>Debits</p>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+            <span class="ov-item__num">{{ debitCardsCount }}</span>
+            <span class="ov-item__label">Debit</span>
+          </div>
 
-  <!-- Recent Balances Section -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="list-outline"></ion-icon>
-        Recent Balances
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list lines="none">
-        <ion-item *ngFor="let balance of balances" class="balance-item">
-          <ion-label>
-            <h3>{{ balance.source }}</h3>
-            <p>{{ balance.dateAdded | date: 'MMM dd, yyyy' }}</p>
-          </ion-label>
-          <ion-note slot="end" color="primary">
-            ₹{{ balance.amount | number:'1.0-0' }}
-          </ion-note>
-          <ion-buttons slot="end">
-            <ion-button fill="clear" color="warning" (click)="editBalance(balance)">
-              <ion-icon name="create-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" color="danger" (click)="balance._id ? deleteBalance(balance._id) : null">
-              <ion-icon name="trash-outline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-item>
-        
-        <ion-item *ngIf="balances.length === 0">
-          <ion-label class="empty-state">
-            <ion-icon name="wallet-outline" size="large"></ion-icon>
-            <h3>No balances yet</h3>
-            <p>Add your first balance to get started</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
+          <div class="ov-item" (click)="navigateTo('/invoices')">
+            <div class="ov-item__icon ov-item__icon--amber">
+              <ion-icon name="document-text-outline"></ion-icon>
+            </div>
+            <span class="ov-item__num">{{ invoicesCount }}</span>
+            <span class="ov-item__label">Bills</span>
+          </div>
 
-  <!-- Quick Actions -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="flash-outline"></ion-icon>
-        Quick Actions
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="primary" (click)="navigateTo('/single-view-expenses')">
-              <ion-icon name="list-outline"></ion-icon>
-            </ion-button>
-            <p>Expenses</p>
-          </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="secondary" (click)="navigateTo('/multi-view-expense')">
-              <ion-icon name="add-circle-outline"></ion-icon>
-            </ion-button>
-            <p>Multi Expense</p>
-          </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="success" (click)="navigateTo('/scan')">
-              <ion-icon name="camera-outline"></ion-icon>
-            </ion-button>
-            <p>Scan</p>
-          </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="warning" (click)="navigateTo('/balance')">
-              <ion-icon name="wallet-outline"></ion-icon>
-            </ion-button>
-            <p>Add Balance</p>
-          </ion-col>
-          <ion-col size="3" class="quick-action">
-            <ion-button shape="round" fill="solid" color="tertiary" (click)="navigateTo('/split-view')">
+          <div class="ov-item" (click)="navigateTo('/splits')">
+            <div class="ov-item__icon ov-item__icon--purple">
               <ion-icon name="people-outline"></ion-icon>
-            </ion-button>
-            <p>Split</p>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
+            </div>
+            <span class="ov-item__num">{{ splitExpensesCount }}</span>
+            <span class="ov-item__label">Splits</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bottom-spacer"></div>
+
+    </ng-container>
+  </div>
 </ion-content>
 
-<!-- Bottom Navigation Bar -->
-<ion-footer>
-  <ion-toolbar>
-    <ion-tabs>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button (click)="navigateTo('/cards')" [class.active]="activeTab === 'cards'">
-          <ion-icon name="card-outline"></ion-icon>
-          <ion-label>Cards</ion-label>
-        </ion-tab-button>
-        <ion-tab-button (click)="navigateTo('/analytics')" [class.active]="activeTab === 'analytics'">
-          <ion-icon name="analytics-outline"></ion-icon>
-          <ion-label>Analytics</ion-label>
-        </ion-tab-button>
-        <ion-tab-button (click)="navigateTo('/setting')" [class.active]="activeTab === 'setting'">
-          <ion-icon name="cog-outline"></ion-icon>
-          <ion-label>Settings</ion-label>
-        </ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>
-  </ion-toolbar>
-</ion-footer>
+<!-- ════════════════════════════════
+     FLOATING DOCK  (unchanged logic)
+     ════════════════════════════════ -->
+<div class="floating-actions-container">
+  <div class="floating-dock">
+
+    <button class="dock-btn" [class.dock-btn--active]="activeTab === 'expenses'"
+            (click)="navigateTo('/single-view-expenses')">
+      <div class="dock-btn__icon">
+        <ion-icon name="list-outline"></ion-icon>
+      </div>
+      <span class="dock-btn__label">Expenses</span>
+    </button>
+
+    <button class="dock-btn" [class.dock-btn--active]="activeTab === 'groups'"
+            (click)="navigateTo('/groups')">
+      <div class="dock-btn__icon">
+        <ion-icon name="people-outline"></ion-icon>
+      </div>
+      <span class="dock-btn__label">Groups</span>
+    </button>
+
+    <button class="dock-btn" [class.dock-btn--active]="activeTab === 'add'"
+            (click)="navigateTo('/multi-view-expense')">
+      <div class="dock-btn__icon">
+        <ion-icon name="layers-outline"></ion-icon>
+      </div>
+      <span class="dock-btn__label">Multi</span>
+    </button>
+
+    <button class="dock-btn dock-btn--scan" (click)="navigateTo('/scan')">
+      <div class="scan-orb">
+        <ion-icon name="scan-outline"></ion-icon>
+      </div>
+    </button>
+
+    <button class="dock-btn" [class.dock-btn--active]="activeTab === 'balance'"
+            (click)="navigateTo('/balance')">
+      <div class="dock-btn__icon">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </div>
+      <span class="dock-btn__label">Balance</span>
+    </button>
+
+    <button class="dock-btn" [class.dock-btn--active]="activeTab === 'analytics'"
+            (click)="navigateTo('/analytics')">
+      <div class="dock-btn__icon">
+        <ion-icon name="analytics-outline"></ion-icon>
+      </div>
+      <span class="dock-btn__label">Analytics</span>
+    </button>
+
+  </div>
+</div>

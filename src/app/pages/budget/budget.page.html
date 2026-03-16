@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Budget Planner</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngFor="let budget of budgets">
+    <ion-card-header>
+      <ion-card-title>{{ budget.name }}</ion-card-title>
+      <ion-card-subtitle>
+        {{ budget.spent | number:'1.2-2' }} of {{ budget.amount | number:'1.2-2' }}
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-progress-bar [value]="(budget.percentage || 0) / 100" [color]="getProgressColor(budget.percentage || 0)"></ion-progress-bar>
+      <p>{{ budget.percentage || 0 }}% used</p>
+      <ion-badge color="danger" *ngIf="budget.is_over">Over Budget</ion-badge>
+      <ion-badge color="warning" *ngIf="budget.is_alert && !budget.is_over">Near limit</ion-badge>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

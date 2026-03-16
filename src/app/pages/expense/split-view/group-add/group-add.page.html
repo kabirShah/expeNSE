@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/groups"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Group</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding page-bg">
+  <ion-card>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Group name</ion-label>
+        <ion-input [(ngModel)]="name" placeholder="e.g., Dinner with Friends"></ion-input>
+      </ion-item>
+      <div class="actions">
+        <ion-button expand="block" (click)="createGroup()">Create Group</ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,199 +1,243 @@
-/* 🔹 Fullscreen Background */
-.login-content {
-   --background: url('/assets/images/login-bg.jpg') no-repeat center center / cover;
+/* =========================================
+   VARIABLES (ENTERPRISE LIGHT PALETTE)
+   ========================================= */
+:host {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+
+  --text-main: #111827;
+  --text-body: #4b5563;
+  --text-placeholder: #9ca3af;
+
+  --border-color: #e5e7eb;
+  --bg-page: #ffffff;
+  --bg-input: #ffffff;
+}
+
+/* =========================================
+   GLOBAL SAFETY (IONIC TEXT FIX)
+   ========================================= */
+ion-content {
+  --background: var(--bg-page);
+  --color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+/* =========================================
+   LAYOUT & CONTAINER
+   ========================================= */
+.auth-container {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* =========================================
+   HEADER
+   ========================================= */
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+    background: #eff6ff;
+    color: var(--color-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+
+  .auth-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 8px;
+  }
+
+  .auth-subtitle {
+    font-size: 14px;
+    color: var(--text-body);
+    margin: 0;
+  }
+}
+
+/* =========================================
+   FORM
+   ========================================= */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  ion-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    --color: var(--text-main);
+  }
+}
+
+/* =========================================
+   INPUT WRAPPER
+   ========================================= */
+.input-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;    /* Always full screen */
-  height: 100%;
-  width: 100%;
-  padding: 5%;
-  box-sizing: border-box;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-input);
+  transition: 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .input-icon {
+    font-size: 18px;
+    color: var(--text-placeholder);
+    margin-right: 10px;
+  }
+
+  .custom-input {
+    flex: 1;
+
+    /* 🔑 IONIC REQUIRED */
+    --color: var(--text-main);
+    --placeholder-color: var(--text-placeholder);
+    --placeholder-opacity: 1;
+
+    --padding-start: 0;
+    --padding-end: 0;
+
+    font-size: 14px;
+  }
+
+  .eye-btn {
+    margin: 0;
+    height: 100%;
+    color: var(--text-body);
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
 }
 
-/* 🔹 Center Card */
-.login-card {
- background: #fff;  /* Solid white instead of glass */
-  padding: 35px 30px;
-  border-radius: 18px;
-  text-align: center;
-  width: 100%;
-  max-width: 450px;
-  // box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.5s ease-in-out;
-  margin: auto;   /* ✅ Keeps it centered always */
-}
+/* =========================================
+   ACTIONS ROW
+   ========================================= */
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
 
-/* 🔹 Title & Tagline */
-h2 {
-  font-size: 26px;
-  font-weight: bold;
-  color: #111;
-  margin-bottom: 6px;
-}
+  ion-checkbox {
+    --size: 16px;
+    --checkbox-background-checked: var(--color-primary);
+    --border-color-checked: var(--color-primary);
+    --label-color: var(--text-body);
+    color: var(--text-body);
+  }
 
-.tagline {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 18px;
-}
-
-/* 🔹 Input Fields */
-.custom-input {
-  border-radius: 10px;
-  margin-bottom: 12px;
-  background: #fafafa;
-  color: #222;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-.register-link {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 14px;
-  color: var(--ion-color-medium);
-
-  a {
-    color: var(--ion-color-primary);
+  .link-btn {
+    color: var(--color-primary);
     font-weight: 600;
     text-decoration: none;
-    margin-left: 5px;
-  }
-
-  a:hover {
-    text-decoration: underline;
   }
 }
 
-.custom-input ion-icon {
-  font-size: 20px;
-  color: #777;
+/* =========================================
+   BUTTON
+   ========================================= */
+.primary-btn {
+  height: 44px;
+  margin-top: 4px;
+
+  --background: var(--color-primary);
+  --background-hover: var(--color-primary-hover);
+  --border-radius: 8px;
+  --color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: none;
 }
 
-.custom-input:focus-within {
-  border-color: #007bff;
-  background: #fff;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+/* =========================================
+   FOOTER
+   ========================================= */
+.auth-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-body);
+
+  a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
 }
 
-/* 🔹 Remember Me + Forgot Password */
-.login-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  font-size: 13px;
-  color: #555;
-}
-
-.forgot-password a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
-}
-.forgot-password a:hover {
-  text-decoration: underline;
-}
-
-/* 🔹 Sign In Button */
-.signin-btn {
-  background: linear-gradient(135deg, #017cff, #2ec5d8);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 10px;
-  height: 48px;
-  margin-top: 5px;
-  transition: 0.25s;
-}
-.signin-btn:hover {
-  background: linear-gradient(135deg, #017cff, #2ec5d8);
-}
-
-/* 🔹 Social Login Buttons */
-.social-login ion-button {
+/* =========================================
+   BIOMETRIC LOADING
+   ========================================= */
+.page-loader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 10px;
-  height: 45px;
-  transition: 0.3s;
-  width: 100%;
-  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(4px);
 }
 
-.fb-btn {
-  --background: #0866ff;
-  --color: #fff;
-  --border-radius: 10px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --height: 45px;
-  --box-shadow: none;
-  font-weight: bold;
-}
-
-.google-btn {
-  --background: #fff;
-  --color: #000;
-  --border-radius: 10px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --height: 45px;
-  --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  font-weight: bold;
-}
-
-
-.fb-btn:hover, .google-btn:hover {
-  filter: brightness(1.15);
-}
-
-/* 🔹 Register */
-.register-link {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #444;
-}
-.register-link a {
-  color: #007bff;
-  font-weight: 600;
-  text-decoration: none;
-}
-.register-link a:hover {
-  text-decoration: underline;
-}
-
-/* 🔹 Biometric Login */
-.biometric-login {
+.loader-card {
+  min-width: 180px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 18px;
-}
+  gap: 10px;
 
-.biometric-login ion-icon {
-  font-size: 46px;
-  animation: pulse 1.6s infinite;
-  transition: 0.3s;
-}
-.biometric-login ion-icon:hover {
-  transform: scale(1.1);
-}
+  ion-spinner {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary);
+  }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-/* 🔹 Responsive */
-@media (max-width: 480px) {
-  .login-card {
-    padding: 20px;
-    max-width: 100%;
+  p {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
   }
 }

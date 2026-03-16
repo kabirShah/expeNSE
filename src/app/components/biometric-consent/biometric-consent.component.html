@@ -1,0 +1,29 @@
+<ion-content class="biometric-modal">
+
+  <div class="icon-wrapper">
+    <ion-icon name="finger-print-outline"></ion-icon>
+  </div>
+
+  <h2>Enable Biometric Login?</h2>
+
+  <p>
+    Use Face ID or Fingerprint for faster and secure access.
+  </p>
+
+  <ion-button
+    expand="block"
+    color="primary"
+    *ngIf="biometricAvailable"
+    (click)="enableBiometric()">
+    Enable Biometrics
+  </ion-button>
+
+  <ion-button
+    expand="block"
+    fill="clear"
+    color="medium"
+    (click)="skipBiometric()">
+    Maybe later
+  </ion-button>
+
+</ion-content>

@@ -1,325 +1,326 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, NavController, ToastController } from '@ionic/angular';
-import { BalanceService } from 'src/app/services/balance.service';
+import {
+  AlertController,
+  NavController,
+  Platform,
+  ModalController
+} from '@ionic/angular';
+import { firstValueFrom, Subscription } from 'rxjs';
+
 import { Balance } from 'src/app/models/balance.model';
 import { MenuService } from 'src/app/services/menu.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ExpenseService } from 'src/app/services/expense.service';
 import { TransactionService } from 'src/app/services/transaction.service';
-import { forkJoin } from 'rxjs';
+import { BalanceService } from 'src/app/services/balance.service';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
+import { CardApiService } from 'src/app/services/card-api.service';
+import { InvoiceService } from 'src/app/services/invoice.service';
+import { SplitService } from 'src/app/services/split.service';
+
+import { BiometricConsentComponent } from 'src/app/components/biometric-consent/biometric-consent.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
-  email: any;
-  user: any = null;
-  currentMonth: string = '';
+export class HomePage implements OnInit, OnDestroy {
+
+  /* ── State ── */
+  isLoading  = true;
+  hasError   = false;
+  errorMessage = '';
+  activeTab: string = 'expenses';
+  unreadNotificationCount = 0;
+
+  /* ── User ── */
+  user: any        = null;
+  email            = '';
+  userFirstName    = '';
+  currentMonth     = '';
   currentYear: number = new Date().getFullYear();
-  userFirstName: string = '';
-  totalTodayExpense: number = 0;
-  totalMonthExpense: number = 0;
-  totalYearExpense: number = 0;
-  totalBalance: number = 0;
-  creditTotal: number = 0;
-  debitTotal: number = 0;
-  userBalance: number = 0;
-  monthSaving: number = 0;
-  yearSaving: number = 0;
-  balances: Balance[] = [];
-  activeTab: string = 'expenses'; // 🔹 Declare activeTab properly
+
+  /* ── Totals ── */
+  totalTodayExpense  = 0;
+  totalMonthExpense  = 0;
+  totalYearExpense   = 0;
+  totalBalance       = 0;
+  monthSaving        = 0;
+  yearSaving         = 0;
+
+  /* ── Counts ── */
+  creditCardsCount   = 0;
+  debitCardsCount    = 0;
+  invoicesCount      = 0;
+  splitExpensesCount = 0;
+
+  /* ── Data lists ── */
+  balances:        Balance[] = [];
+  allExpenses:     any[]     = [];
+  allTransactions: any[]     = [];
+
+  expenseCategoriesCount: { [key: string]: number } = {};
+  transactionTypesCount:  { [key: string]: number } = {};
+
+  spendingByApp: { name: string; amount: number }[] = [];
+
+  private appSpendMap: { [key: string]: number } = {};
+  private notificationSub?: Subscription;
+
   constructor(
-    private router: Router,
-    private balanceService: BalanceService,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
-    private navCtrl: NavController,
-    private menuService: MenuService,
-    private authService: AuthService,
-    private expenseService: ExpenseService,
-    private transactionService: TransactionService
+    private router:          Router,
+    private navCtrl:         NavController,
+    private alertCtrl:       AlertController,
+    private uiToast:         UiToastService,
+    private modalCtrl:       ModalController,
+    private platform:        Platform,
+    private authService:     AuthService,
+    private balanceService:  BalanceService,
+    private expenseService:  ExpenseService,
+    private transactionService: TransactionService,
+    private cardApiService:  CardApiService,
+    private invoiceService:  InvoiceService,
+    private splitService:    SplitService,
+    private menuService:     MenuService,
+    private mockNotificationService: MockNotificationService
   ) {}
 
-  async ngOnInit() {
+  /* ════════════════════════════════════
+     LIFECYCLE
+     ════════════════════════════════════ */
+  ngOnInit(): void {
     this.currentMonth = this.getMonthName(new Date().getMonth());
-    console.log('Current Month:', this.currentMonth);
-    
-    await this.loadBalance();
-    await this.loadExpenses();
-    this.calculateSavings();
+
+    this.notificationSub = this.mockNotificationService.unreadCount$.subscribe(
+      (count) => { this.unreadNotificationCount = count; }
+    );
+
+    this.loadDashboard().then(() => {
+      this.checkBiometricConsent();
+    });
   }
 
-  getMonthName(monthIndex: number): string {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return months[monthIndex] || 'Unknown';
+  ngOnDestroy(): void {
+    this.notificationSub?.unsubscribe();
   }
 
-  async refreshData() {
-    await this.ngOnInit();
+  /* ════════════════════════════════════
+     BIOMETRIC CONSENT
+     ════════════════════════════════════ */
+  async checkBiometricConsent(): Promise<void> {
+    if (localStorage.getItem('biometric_prompt_shown') === 'true') return;
+
+    const modal = await this.modalCtrl.create({
+      component: BiometricConsentComponent,
+      backdropDismiss: false,
+    });
+    await modal.present();
   }
 
-  async loadBudget() {
-    const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
-    this.budget = await this.db.getBudget(monthKey);
-    this.monthlyBudget = this.budget?.monthlyBudget || 0;
-    this.dreamGoalName = this.budget?.dreamGoalName || '';
-    this.dreamGoalTarget = this.budget?.dreamGoalTarget || 0;
-    this.dreamGoalSaved = this.budget?.dreamGoalSaved || 0;
-  }
+  /* ════════════════════════════════════
+     DASHBOARD LOAD
+     ════════════════════════════════════ */
+  async loadDashboard(month?: number, year?: number): Promise<void> {
+    this.isLoading    = true;
+    this.hasError     = false;
+    this.errorMessage = '';
 
-  async calculateCreditsAndDebits() {
-    // This is now handled in ngOnInit
-  }
+    try {
+      const res: any = await this.authService.getDashboard(month, year).toPromise();
 
-  sumExpenses(expenses: any[], filter?: 'month' | 'year'): number {
-    const now = new Date();
-    return expenses.reduce((sum, expense) => {
-      const date = new Date(expense.date);
-      if (!filter || 
-         (filter === 'month' && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) ||
-         (filter === 'year' && date.getFullYear() === now.getFullYear())) {
-        return sum + (expense?.amount || 0);
+      if (!res || !res.success) {
+        this.hasError     = true;
+        this.errorMessage = 'Unable to load dashboard data.';
+        this.showToast('Failed to load dashboard', 'danger');
+        return;
       }
-      return sum;
-    }, 0);
+
+      this.mapDashboard(res);
+      await this.loadAdditionalCounts();
+
+    } catch (err) {
+      console.error('Dashboard load error', err);
+      this.hasError     = true;
+      this.errorMessage = 'Network issue while loading dashboard.';
+      this.showToast('Failed to load dashboard', 'danger');
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  calculateSavings() {
+  retryDashboard(): void {
+    this.loadDashboard();
+  }
+
+  /* ════════════════════════════════════
+     DATA MAPPING
+     ════════════════════════════════════ */
+  private mapDashboard(res: any): void {
+    this.user          = res.user || null;
+    this.userFirstName = (this.user?.name || '').split(' ')[0] || '';
+    this.email         = this.user?.email || '';
+
+    const totals = res.totals || {};
+    this.totalBalance      = +totals.balance       || 0;
+    this.totalTodayExpense = +totals.today_expense  || 0;
+    this.totalMonthExpense = +totals.month_expense  || 0;
+    this.totalYearExpense  = +totals.year_expense   || 0;
+    this.monthSaving       = +totals.month_saving   || 0;
+    this.yearSaving        = +totals.year_saving    || 0;
+
+    this.balances        = res.recent?.balances     || [];
+    this.allExpenses     = res.recent?.expenses     || [];
+    this.allTransactions = res.recent?.transactions || [];
+
+    /* category counts */
+    this.expenseCategoriesCount = {};
+    this.allExpenses.forEach(e => {
+      const name = e.category?.name || 'Uncategorized';
+      this.expenseCategoriesCount[name] = (this.expenseCategoriesCount[name] || 0) + 1;
+    });
+
+    /* transaction type counts */
+    this.transactionTypesCount = {};
+    this.allTransactions.forEach(t => {
+      const type = t.type || 'unknown';
+      this.transactionTypesCount[type] = (this.transactionTypesCount[type] || 0) + 1;
+    });
+
+    this.calculateSavings();
+    this.calculateSpendingByApp();
+  }
+
+  private calculateSpendingByApp(): void {
+    this.appSpendMap = {};
+
+    this.allExpenses.forEach(expense => {
+      const amount = +expense.amount || 0;
+      const source =
+        expense.source_app    ||
+        expense.payment_app   ||
+        expense.payment_method||
+        'Other';
+
+      const key = source.toLowerCase();
+      this.appSpendMap[key] = (this.appSpendMap[key] || 0) + amount;
+    });
+
+    this.spendingByApp = Object.keys(this.appSpendMap)
+      .map(key => ({ name: this.formatAppName(key), amount: this.appSpendMap[key] }))
+      .sort((a, b) => b.amount - a.amount);
+  }
+
+  private formatAppName(key: string): string {
+    const map: { [k: string]: string } = {
+      phonepe:    'PhonePe',
+      gpay:       'Google Pay',
+      googlepay:  'Google Pay',
+      amazonpay:  'Amazon Pay',
+      paytm:      'Paytm',
+      card:       'Cards',
+      cash:       'Cash',
+    };
+    return map[key] ?? (key.charAt(0).toUpperCase() + key.slice(1));
+  }
+
+  /* ════════════════════════════════════
+     ADDITIONAL COUNTS
+     ════════════════════════════════════ */
+  async loadAdditionalCounts(): Promise<void> {
+    const [credit, debit, invoices, splits] = await Promise.all([
+      firstValueFrom(this.cardApiService.getCreditCards())
+        .then((res: any) => res?.data?.length || 0).catch(() => 0),
+      firstValueFrom(this.cardApiService.getDebitCards())
+        .then((res: any) => res?.data?.length || 0).catch(() => 0),
+      firstValueFrom(this.invoiceService.getInvoices())
+        .then((res: any) => res?.data?.length || 0).catch(() => 0),
+      firstValueFrom(this.splitService.getSplits())
+        .then((res: any) => res?.data?.length || 0).catch(() => 0),
+    ]);
+
+    this.creditCardsCount   = credit;
+    this.debitCardsCount    = debit;
+    this.invoicesCount      = invoices;
+    this.splitExpensesCount = splits;
+  }
+
+  calculateSavings(): void {
     this.monthSaving = this.totalBalance - this.totalMonthExpense;
-    this.yearSaving = this.totalBalance - this.totalYearExpense;
+    this.yearSaving  = this.totalBalance - this.totalYearExpense;
   }
 
-  computeBankUsage() {
-    // Derive from expenses' transactionType or notes containing bank names
-    const banks = ['Kotak', 'ICICI', 'HDFC'];
-    this.bankUsage = { Kotak: 0, ICICI: 0, HDFC: 0 };
-    // Fetch all expenses and aggregate by bank keyword in description/notes/transactionType
-    // For simplicity, use getAllExpenses() which pulls manual expenses
-    this.db.getAllExpenses().then(expenses => {
-      expenses.forEach((exp: any) => {
-        const text = `${exp.transactionType || ''} ${exp.description || ''} ${exp.notes || ''}`.toLowerCase();
-        banks.forEach(bank => {
-          if (text.includes(bank.toLowerCase())) {
-            this.bankUsage[bank] = (this.bankUsage[bank] || 0) + (exp.amount || 0);
-          }
-        });
-      });
-    });
+  /* ════════════════════════════════════
+     TEMPLATE HELPERS
+     ════════════════════════════════════ */
+
+  /**
+   * Returns an Ionic icon name for a given payment app name.
+   * Used in the spending-by-app list.
+   */
+  getAppIcon(appName: string): string {
+    const name = appName.toLowerCase();
+    if (name.includes('gpay') || name.includes('google'))   return 'logo-google';
+    if (name.includes('phonepe'))                           return 'phone-portrait-outline';
+    if (name.includes('paytm'))                             return 'phone-portrait-outline';
+    if (name.includes('amazon'))                            return 'bag-handle-outline';
+    if (name.includes('card') || name.includes('credit'))   return 'card-outline';
+    if (name.includes('cash'))                              return 'cash-outline';
+    if (name.includes('upi'))                               return 'flash-outline';
+    return 'wallet-outline';
   }
 
-  async editBudget() {
-    const alert = await this.alertCtrl.create({
-      header: 'Edit Budget & Goal',
-      inputs: [
-        { name: 'monthlyBudget', type: 'number', value: this.monthlyBudget, placeholder: 'Monthly Budget (₹)' },
-        { name: 'dreamGoalName', type: 'text', value: this.dreamGoalName, placeholder: 'Dream Goal Name' },
-        { name: 'dreamGoalTarget', type: 'number', value: this.dreamGoalTarget, placeholder: 'Goal Target (₹)' },
-        { name: 'dreamGoalSaved', type: 'number', value: this.dreamGoalSaved, placeholder: 'Saved So Far (₹)' },
-      ],
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Save', handler: async (data) => {
-            const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
-            const plan: BudgetPlan = {
-              _id: this.budget?._id || monthKey,
-              _rev: this.budget?._rev,
-              month: monthKey,
-              monthlyBudget: Number(data.monthlyBudget) || 0,
-              dreamGoalName: (data.dreamGoalName || '').trim(),
-              dreamGoalTarget: Number(data.dreamGoalTarget) || 0,
-              dreamGoalSaved: Number(data.dreamGoalSaved) || 0,
-            };
-            await this.db.upsertBudget(plan);
-            await this.loadBudget();
-            this.showToast('Budget updated');
-          }
-        }
-      ]
-    });
-    await alert.present();
+  /**
+   * Returns the percentage width for the app-row bar fill,
+   * relative to the highest spending app (100%).
+   */
+  getAppPercent(amount: number): number {
+    if (!this.spendingByApp.length) return 0;
+    const max = this.spendingByApp[0]?.amount || 1;
+    return Math.round((amount / max) * 100);
   }
 
-  // navigateTo(path: string) {
-  //   this.router.navigate([path]);
-  // }
-  
-  async editBalance(balance: Balance) {
-    if (!balance._id) {
-      this.showToast('Error: Invalid Balance ID');
-      return;
-    }
-  
-    const alert = await this.alertCtrl.create({
-      header: 'Edit Balance',
-      inputs: [
-        {
-          name: 'amount',
-          type: 'number',
-          value: balance.amount,
-          placeholder: 'Enter new amount',
-        },
-        {
-          name: 'source',
-          type: 'text',
-          value: balance.source ?? '',
-          placeholder: 'Enter new source',
-        },
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'Save',
-          handler: async (data) => {
-            if (data.amount && data.source) {
-              try {
-                console.log('Updating Balance:', balance._id, data.amount, data.source);
-                const response = await this.balanceService.updateBalance(balance._id!, {
-                  _id: balance._id!,
-                  _rev: balance._rev,
-                  amount: parseFloat(data.amount),
-                  source: data.source ?? '',
-                  dateAdded: balance.dateAdded!,
-                  userId: balance.userId!
-                }).toPromise();
-                
-                if (response?.success) {
-                  // await this.loadBalance(); // Refresh UI
-                  this.showToast('Balance updated successfully!');
-                } else {
-                  this.showToast('Failed to update balance!');
-                }
-              } catch (error) {
-                console.error('Error updating balance:', error);
-                this.showToast('Error updating balance!');
-              }
-            } else {
-              this.showToast('Amount and Source are required!');
-            }
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-  
-  
-  async deleteBalance(balanceId?: string) {
-    if (!balanceId) {
-      this.showToast('Error: Invalid Balance ID');
-      return;
-    }
-  
-    const alert = await this.alertCtrl.create({
-      header: 'Confirm Delete',
-      message: 'Are you sure you want to delete this balance?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'Delete',
-          handler: async () => {
-            try {
-              console.log('Deleting Balance with ID:', balanceId);
-              const response = await this.balanceService.deleteBalance(balanceId).toPromise();
-              if (response?.success) {
-                // await this.loadBalance(); // 🔥 Refresh UI to reflect deletion
-                this.showToast('Balance deleted successfully!');
-              } else {
-                this.showToast('Failed to delete balance!');
-              }
-            } catch (error) {
-              console.error('Error deleting balance:', error);
-              this.showToast('Error deleting balance!');
-            }
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-  
-  openMenu() {
-    this.menuService.openMenu();
-  }
-
-  closeMenu() {
-    this.menuService.closeMenu();
-  }
-
-  toggleMenu() {
-    this.menuService.toggleMenu();
-  }
-  navigateTo(route: string) {
+  /* ════════════════════════════════════
+     NAVIGATION
+     ════════════════════════════════════ */
+  navigateTo(route: string): void {
     this.navCtrl.navigateRoot(route);
     this.activeTab = this.getTabName(route);
   }
-  
-  getTabName(route: string): string {
-    switch (route) {
-      case '/single-view-expenses':
-        return 'expenses';
-      case '/multi-view-expense':
-        return 'add';
-      case '/split-view':
-        return 'split';
-      case '/scan':
-        return 'scan';
-      case '/balance':
-        return 'balance';
-      default:
-        return 'expenses';
-    }
-  }
-  async logout() {
-    const alert = await this.alertCtrl.create({
-      header: 'Logout Confirmation',
-      message: 'Are you sure you want to logout?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Logout',
-        handler: () => {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('loginTime');
-            localStorage.removeItem('rememberMe');
-            localStorage.removeItem('user_id');
-            localStorage.removeItem('user_name');
-            sessionStorage.removeItem('auth_token');
-            sessionStorage.removeItem('user');
-            sessionStorage.removeItem('loginTime');
-            sessionStorage.removeItem('rememberMe');
-            this.router.navigateByUrl('/login', { replaceUrl: true });
-          }
-        }
-      ]
-    });
-  
-    await alert.present();
+
+  openNotifications(): void {
+    this.navCtrl.navigateForward('/notifications');
   }
 
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top',
-      color,
-    });
-    await toast.present();
+  getTabName(route: string): string {
+    switch (route) {
+      case '/single-view-expenses': return 'expenses';
+      case '/groups':               return 'groups';
+      case '/multi-view-expense':   return 'add';
+      case '/scan':                 return 'scan';
+      case '/balance':              return 'balance';
+      case '/analytics':            return 'analytics';
+      default:                      return 'expenses';
+    }
+  }
+
+  /* ════════════════════════════════════
+     UTILITIES
+     ════════════════════════════════════ */
+  getMonthName(index: number): string {
+    const months = [
+      'January','February','March','April','May','June',
+      'July','August','September','October','November','December',
+    ];
+    return months[index] || 'Unknown';
+  }
+
+  async showToast(
+    message: string,
+    color: 'success' | 'danger' | 'warning' | 'primary' | 'medium' = 'primary'
+  ): Promise<void> {
+    await this.uiToast.show(message, color);
   }
 }

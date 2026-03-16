@@ -1,58 +1,66 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavController, AlertController, Platform } from '@ionic/angular';
-import { ExpenseService  } from 'src/app/services/expense.service';
+import { ExpenseService } from 'src/app/services/expense.service';
 import { Router } from '@angular/router';
 
-//Share, PDF and File
-
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { File } from "@ionic-native/file/ngx";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { Share } from '@capacitor/share';
-import * as pdfjsLib from 'pdfjs-dist';
 import { Expense } from 'src/app/models/expense.model';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-view-expenses',
   templateUrl: './single-view-expenses.page.html',
+  styleUrls: ['./single-view-expenses.page.scss'],
 })
-export class SingleViewExpensesPage implements OnInit {
-  arr:any[]=[];
+export class SingleViewExpensesPage implements OnInit, OnDestroy {
+
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
-  data: any[] = [];
+
   searchTerm: string = '';
-  selectedMonth: string = 'all';
+  selectedPeriod: string = 'month';
   loading = false;
-
-
+  private expensesSub?: Subscription;
 
   constructor(
     private navCtrl: NavController,
     private db: ExpenseService,
-    private file:File,
     private alertController: AlertController,
     private router: Router,
     private platform: Platform,
-    private socialSharing: SocialSharing) {
-  }
+    private mockNotificationService: MockNotificationService
+  ) {}
 
   ngOnInit() {
+    this.expensesSub = this.db.expenses$.subscribe((items) => {
+      this.expenses = items || [];
+      this.applySearchFilter();
+    });
+
     this.loadExpenses();
   }
-  
+
   ionViewWillEnter() {
-    this.loadExpenses();
+    if (!this.expenses.length) {
+      this.loadExpenses();
+    }
   }
+
+  ngOnDestroy() {
+    this.expensesSub?.unsubscribe();
+  }
+
   loadExpenses() {
     this.loading = true;
-    this.db.getExpenses().subscribe({
+
+    this.db.getExpenses(this.selectedPeriod).subscribe({
       next: (res) => {
         if (res.success) {
-          this.expenses = res.data;
-          this.applyFilters();
+          this.db.setExpenses(res.data || []);
         }
         this.loading = false;
       },
@@ -62,35 +70,26 @@ export class SingleViewExpensesPage implements OnInit {
       },
     });
   }
-  async loadManualExpenses() {
-    // Retrieve the expenses array from localStorage
-    this.applyFilters();
+
+  onPeriodChange() {
+    this.loadExpenses();
   }
-  applyFilters() {
-    this.filteredExpenses = this.expenses.filter((expense) => {
-      let matchesSearch = true;
-      let matchesMonth = true;
 
-      // Search filter
-      if (this.searchTerm) {
-        const searchLower = this.searchTerm.toLowerCase();
-        matchesSearch =
-          expense.description.toLowerCase().includes(searchLower) ||
-          expense.category.toLowerCase().includes(searchLower);
-      }
+  applySearchFilter() {
+    if (!this.searchTerm) {
+      this.filteredExpenses = this.expenses;
+      return;
+    }
 
-      // Month filter
-      if (this.selectedMonth && this.selectedMonth !== 'all') {
-        const expenseMonth = new Date(expense.date).toLocaleString('default', {
-          month: 'long',
-        });
-        matchesMonth = expenseMonth === this.selectedMonth;
-      }
+    const searchLower = this.searchTerm.toLowerCase();
 
-      return matchesSearch && matchesMonth;
-    });
+    this.filteredExpenses = this.expenses.filter(exp =>
+      exp.description?.toLowerCase().includes(searchLower) ||
+      exp.category?.name?.toLowerCase().includes(searchLower)
+    );
   }
- async deleteExpense(id: string) {
+
+  async deleteExpense(id: string) {
     const alert = await this.alertController.create({
       header: 'Confirm Deletion',
       message: 'Are you sure you want to delete this record?',
@@ -99,94 +98,38 @@ export class SingleViewExpensesPage implements OnInit {
         {
           text: 'Delete',
           handler: () => {
+            const deleting = this.expenses.find((exp) => String(exp.id) === id);
+
             this.db.deleteExpense(id).subscribe({
               next: () => {
-                this.loadExpenses(); // refresh list
+                this.db.removeExpenseFromCache(Number(id));
+                this.mockNotificationService.addCrudNotification(
+                  'Expense',
+                  'deleted',
+                  `${deleting?.description || 'Expense'} was deleted.`
+                );
               },
-              error: (err) => console.error('Delete error:', err),
+              error: (err) => console.error('Delete error:', err)
             });
           },
         },
       ],
     });
+
     await alert.present();
   }
 
- // PDF Export Function
- async exportToPDF() {
-  const doc = new jsPDF();
-
-    doc.text('Expense Report', 105, 10, { align: 'center' });
-
-    // Table Data
-    const tableData = this.expenses.map(
-      (expense, index) => [
-        index + 1,
-        expense.description,
-        `₹${Number(expense.amount).toFixed(2)}`,
-        new Date(expense.date).toLocaleDateString(),
-        expense.category,
-      ]
+  get totalFilteredAmount(): number {
+    return this.filteredExpenses.reduce(
+      (sum, item) => sum + (Number(item.amount) || 0),
+      0
     );
-
-    autoTable(doc, {
-      head: [['#', 'Description', 'Amount', 'Date', 'Category']],
-      body: tableData,
-      startY: 20,
-    });
-
-    // Save PDF
-    const pdfOutput = doc.output('blob');
-    const fileName = 'Expense_Report.pdf';
-    if (this.platform.is('cordova') || this.platform.is('capacitor')) {
-      // Save PDF to device
-      await this.savePDFToDevice(pdfOutput, fileName);
-    } else {
-      // Browser Download (Fallback for Web)
-      doc.save(fileName);
-    }
-  }
-  async savePDFToDevice(pdfBlob: Blob, fileName: string){
-    const arrayBuffer = await pdfBlob.arrayBuffer();
-    const base64Data = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    );
-
-    try {
-      const filePath = `Documents/${fileName}`;
-      const result = await Filesystem.writeFile({
-        path: filePath,
-        data: base64Data,
-        directory: Directory.Documents,
-        recursive: true,
-      });
-
-      console.log('PDF saved at:', result.uri);
-
-      // Share the PDF
-      await this.sharePDF(result.uri, fileName);
-    } catch (error) {
-      console.error('Error saving PDF:', error);
-    }
-  }
-  private async sharePDF(filePath: string, fileName: string) {
-    try {
-      await Share.share({
-        title: 'Expense Report',
-        text: 'Here is my Expense Report!',
-        url: filePath,
-        dialogTitle: 'Share Expense Report',
-      });
-      console.log('PDF shared successfully!');
-    } catch (error) {
-      console.error('Error sharing PDF:', error);
-    }
-  }
-  async importPDF() {
-    console.log("Upcoming");
   }
 
-  
+  getCategoryName(expense: any): string {
+    return expense.category?.name || '';
+  }
+
   editExpense(id: string) {
     this.router.navigate(['/single-expense', id]);
   }
@@ -195,4 +138,88 @@ export class SingleViewExpensesPage implements OnInit {
     this.router.navigate(['/single-expense']);
   }
 
+  trackById(index: number, item: any): any {
+    return item.id;
+  }
+
+  async exportToPDF() {
+
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    doc.setFontSize(16);
+    doc.text('Expense Report', 105, 15, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.text(
+      `Generated on: ${new Date().toLocaleString()}`,
+      105,
+      22,
+      { align: 'center' }
+    );
+
+    const sourceData = this.filteredExpenses;
+
+    if (!sourceData.length) {
+      alert('No data available to export');
+      return;
+    }
+
+    const tableData = sourceData.map((expense, index) => [
+      index + 1,
+      expense.description || '-',
+      expense.category?.name || '-',
+      new Date(expense.date).toLocaleDateString(),
+      `₹${Number(expense.amount).toFixed(2)}`
+    ]);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [['#', 'Description', 'Category', 'Date', 'Amount']],
+      body: tableData,
+      styles: { fontSize: 9 },
+      columnStyles: { 4: { halign: 'right' } }
+    });
+
+    const total = this.totalFilteredAmount;
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+
+    doc.setFontSize(11);
+    doc.text(`Total Amount: ₹${total.toFixed(2)}`, 140, finalY);
+
+    const pdfBlob = doc.output('blob');
+    const fileName = 'Expense_Report.pdf';
+
+    if (this.platform.is('capacitor')) {
+      await this.savePDFToDevice(pdfBlob, fileName);
+    } else {
+      doc.save(fileName);
+    }
+  }
+
+  async savePDFToDevice(pdfBlob: Blob, fileName: string) {
+
+    const arrayBuffer = await pdfBlob.arrayBuffer();
+    const base64Data = btoa(
+      String.fromCharCode(...new Uint8Array(arrayBuffer))
+    );
+
+    const result = await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.Documents,
+    });
+
+    await Share.share({
+      title: 'Expense Report',
+      text: 'Here is my Expense Report',
+      url: result.uri,
+      dialogTitle: 'Share Expense Report',
+    });
+  }
+
+  async importPDF() {
+    console.log('Upcoming feature');
+  }
 }
+
+

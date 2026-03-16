@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ groupDetail?.group?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/groups', groupId, 'add-expense']">
+        <ion-icon name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="segment">
+      <ion-segment-button value="expenses">Expenses</ion-segment-button>
+      <ion-segment-button value="balances">Balances</ion-segment-button>
+      <ion-segment-button value="activity">Activity</ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Expenses Tab -->
+  <div *ngIf="segment === 'expenses'">
+    <ion-item *ngFor="let expense of groupDetail?.group?.expenses" [routerLink]="['/groups', groupId, 'expenses', expense.id]">
+      <ion-icon name="receipt" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h3>{{ expense.title }}</h3>
+        <p>{{ expense.expense_date | date:'dd MMM' }} · Paid by {{ expense.paid_by_member?.user?.name || expense.paid_by_member?.name }}</p>
+      </ion-label>
+      <ion-note slot="end">₹{{ expense.amount | number:'1.2-2' }}</ion-note>
+    </ion-item>
+  </div>
+
+  <!-- Balances Tab -->
+  <div *ngIf="segment === 'balances'">
+    <!-- Per-member balances -->
+    <ion-list-header>Who owes what</ion-list-header>
+    <ion-item *ngFor="let debt of groupDetail?.debts">
+      <ion-label>
+        <h3>{{ debt.from_name }} owes {{ debt.to_name }}</h3>
+      </ion-label>
+      <ion-note slot="end" color="danger">₹{{ debt.amount_owed | number:'1.2-2' }}</ion-note>
+      <ion-button slot="end" fill="outline" size="small" (click)="settleDebt(debt)">Settle</ion-button>
+    </ion-item>
+
+    <ion-list-header>Member balances</ion-list-header>
+    <ion-item *ngFor="let balance of groupDetail?.balances">
+      <ion-label>{{ balance.member_name }}</ion-label>
+      <ion-badge [color]="getBalanceColor(balance.net_balance)" slot="end">
+        {{ getBalanceLabel(balance) }}
+      </ion-badge>
+    </ion-item>
+  </div>
+
+  <!-- Activity Tab -->
+  <div *ngIf="segment === 'activity'">
+    <ion-item *ngFor="let act of groupDetail?.group?.activity" lines="none">
+      <ion-icon name="time" slot="start" color="medium"></ion-icon>
+      <ion-label>
+        <p>{{ act.message }}</p>
+        <p class="ion-text-end">{{ act.created_at | date:'dd MMM, h:mm a' }}</p>
+      </ion-label>
+    </ion-item>
+  </div>
+</ion-content>

@@ -10,14 +10,58 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-   <ng-template #noData>
-    <ion-label>No Card Founds.</ion-label>
-  </ng-template>
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your cards...</p>
+  </div>
+
+  <!-- Filter Buttons -->
+  <ion-segment *ngIf="!loading" [(ngModel)]="filter" (ionChange)="setFilter(($event.detail.value || 'all').toString())">
+    <ion-segment-button value="all">
+      <ion-label>All Cards</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="credit">
+      <ion-label>Credit Cards</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="debit">
+      <ion-label>Debit Cards</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Cards List -->
+  <ion-list *ngIf="!loading && getFilteredCards().length > 0">
+    <ion-item *ngFor="let card of getFilteredCards()">
+      <ion-label>
+        <h2>{{ card.cardHolderName }}</h2>
+        <p>Card Number: **** **** **** {{ card.cardNumber.slice(-4) }}</p>
+        <p>Expiry: {{ card.expiryDate }}</p>
+        <p *ngIf="card.type === 'credit'">Credit Limit: {{ card.creditLimit || 'Not Set' }}</p>
+        <p *ngIf="card.type === 'debit'">Debit Limit: {{ card.debitLimit || 'Not Set' }}</p>
+        <ion-chip [color]="card.type === 'credit' ? 'primary' : 'secondary'">
+          <ion-label>{{ card.type === 'credit' ? 'Credit' : 'Debit' }}</ion-label>
+        </ion-chip>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button fill="clear" (click)="card.type === 'credit' ? navigateToViewCredit(card._id) : navigateToViewDebit(card._id)">
+          <ion-icon name="eye-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+
+  <!-- No Cards Message -->
+  <ion-card *ngIf="!loading && getFilteredCards().length === 0">
+    <ion-card-header>
+      <ion-card-title>No Cards Found</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>You haven't added any {{ filter === 'all' ? '' : filter }} cards yet. Click "Add {{ filter === 'credit' ? 'Credit' : 'Debit' }}" to add one.</p>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
 
 <ion-footer>
-  <ion-button size="default" color="secondary" (click)="navigateToAddCreditCard()">Add Credit</ion-button> 
-  <ion-button size="default" color="secondary" (click)="navigateToViewCredit()">View Credit</ion-button>
-  <ion-button size="default" color="secondary" (click)="navigateToAddDebitCard()">Add Debit</ion-button> 
-  <ion-button size="default" color="secondary" (click)="navigateToViewDebit()">View Debit</ion-button>
+  <ion-button size="default" color="primary" (click)="navigateToAddCreditCard()">Add Credit</ion-button>
+  <ion-button size="default" color="secondary" (click)="navigateToAddDebitCard()">Add Debit</ion-button>
 </ion-footer>

@@ -1,169 +1,192 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
-import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
-import { isPlatform, Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+
+/* ===============================
+   TYPES
+   =============================== */
+
+export interface LoginResponse {
+  token: string;
+  user: any;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordPayload {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-
 export class AuthService {
 
-  private API_URL = `${environment.apiURL}`;
-  TOKEN_EXPIRY_DAYS = 7;
-  user: any = null;
-  constructor(private http: HttpClient,private router: Router, private platform: Platform) { 
-    if(!isPlatform('capacitor')){
-      GoogleAuth.initialize();
-    }
-  }
+  private API_URL = environment.apiURL;
+  private TOKEN_EXPIRY_DAYS = 7;
 
-  getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return { Authorization: `Bearer ${token}` };
-}
+  constructor(private http: HttpClient) {}
 
+  /* ===============================
+     AUTH API CALLS
+     =============================== */
 
-// ONLINE LOGIN
-  loginLaravel(email: string, password: string) {
-    if (!navigator.onLine) {
-      alert('Internet connection required for login.');
-      return;
-    }
-
-    return this.http.post<any>(`${this.API_URL}/login`, { email, password }).pipe(
-      tap((response) => {
-        if (response && response.user && response.token) {
-          localStorage.setItem('user_id', response.user.id.toString());
-          localStorage.setItem('user_name', response.user.name);
-          localStorage.setItem('auth_token', response.token);
-          localStorage.setItem('loginTime',new Date().getTime().toString());
-          localStorage.setItem('token_timestamp', new Date().getTime().toString());
-
-        }
-      })
+  loginLaravel(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+      `${this.API_URL}/auth/login`,
+      { email, password }
     );
   }
 
-  
-
-
-    
-  register(userData: any) {
-    if (!navigator.onLine) {
-      alert('Internet required for registration.');
-      return;
-    }
-    return this.http.post(`${this.API_URL}/register`, userData);
+  register(userData: any): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/register`, userData);
   }
 
-  // LOGOUT
-  logout() {
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('token_timestamp');
-    this.router.navigate(['/login']);
-  }
-  forgotPassword(email: string) {
-    return this.http.post<any>(`${this.API_URL}/forgot-password`, { email });
-  }
-  resetPassword(data: any) {
-    return this.http.post<any>(`${this.API_URL}/reset-password`, data);
-  }
-  
-  // CHECK IF LOGGED IN & TOKEN VALID (< 7 days)
-  isLoggedIn(): boolean {
-    const token = localStorage.getItem('auth_token');
-    const tokenTimestamp = localStorage.getItem('token_timestamp');
-
-    if (!token || !tokenTimestamp) {
-      return false;
-    }
-
-    const savedTime = new Date(tokenTimestamp);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - savedTime.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays > this.TOKEN_EXPIRY_DAYS) {
-      this.logout();
-      alert('Session expired. Please login again.');
-      return false;
-    }
-
-    return true;
+  sendOtp(payload: { email?: string; phone?: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/send-otp`, payload);
   }
 
-  // Get stored user
-  getUserId(): number | null {
-    const id = localStorage.getItem('user_id');
-    return id ? parseInt(id) : null;
+  verifyOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/verify-otp`, payload);
   }
 
-  getUserName(): string | null {
-    return localStorage.getItem('user_name');
+  loginOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/login-otp`, payload);
+  }
+
+  forgotPassword(email: string): Observable<ForgotPasswordResponse> {
+    return this.http.post<ForgotPasswordResponse>(
+      `${this.API_URL}/forgot-password`,
+      { email }
+    );
+  }
+
+  resetPassword(
+    payload: ResetPasswordPayload
+  ): Observable<ResetPasswordResponse> {
+    return this.http.post<ResetPasswordResponse>(
+      `${this.API_URL}/reset-password`,
+      payload
+    );
+  }
+
+  /* ===============================
+     SESSION HANDLING
+     =============================== */
+
+  saveSession(token: string, user: any, rememberMe: boolean): void {
+    const now = Date.now().toString();
+
+    const storage = rememberMe ? localStorage : sessionStorage;
+
+    storage.setItem('auth_token', token);
+    storage.setItem('loginTime', now);
+    storage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('rememberMe', rememberMe ? '7d' : '1d');
+    localStorage.setItem('token_timestamp', now);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  clearSession(): void {
+    localStorage.clear();
+    sessionStorage.clear();
   }
 
   getToken(): string | null {
-    return localStorage.getItem('auth_token');
-  }
-  
-  async loginUser(email:string,password:string){
-    // return await this.auth.signInWithEmailAndPassword(email,password);
-    
+    return (
+      localStorage.getItem('auth_token') ||
+      sessionStorage.getItem('auth_token')
+    );
   }
 
-  async signOut(){
-    // return await this.auth.signOut();
+  getUser(): any | null {
+    const user =
+      localStorage.getItem('user') ||
+      sessionStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
   }
-  
-  getProfile(): Observable<any> | null {
+
+  getLoginTime(): string | null {
+    return (
+      localStorage.getItem('loginTime') ||
+      sessionStorage.getItem('loginTime')
+    );
+  }
+
+  isSessionValid(): boolean {
     const token = this.getToken();
-    if (!token) {
-      return null;
-    }
-    return this.http.get<any>(`${this.API_URL}/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const loginTime =
+      localStorage.getItem('loginTime') ||
+      sessionStorage.getItem('loginTime');
+
+    if (!token || !loginTime) return false;
+
+    const diffDays =
+      (Date.now() - Number(loginTime)) / (1000 * 60 * 60 * 24);
+
+    return diffDays <= this.TOKEN_EXPIRY_DAYS;
+  }
+
+  /* ===============================
+     HEADERS (SAFE)
+     =============================== */
+
+  private authHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
+  }
+
+  /* ===============================
+     DATA
+     =============================== */
+
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/auth/me`, {
+      headers: this.authHeaders()
     });
   }
 
-  
-  async loginWithGoogle() {
-    try {
-      const googleUser = await GoogleAuth.signIn();
-      console.log('Google User:', googleUser);
+  getDashboard(month?: number, year?: number): Observable<any> {
+    const params: any = {};
+    if (month) params.month = month;
+    if (year) params.year = year;
 
-      // Send token to Laravel
-      return this.http.post(`${this.API_URL}/google-login`, {
-        idToken: googleUser.authentication.idToken
-      }).toPromise();
-
-    } catch (error) {
-      console.error('Google login error:', error);
-      throw error;
-    }
-
+    return this.http.get<any>(`${this.API_URL}/dashboard`, {
+      params,
+      headers: this.authHeaders()
+    });
   }
-  
-  async loginWithFacebook() {
-   const result: FacebookLoginResponse = await FacebookLogin.login({ permissions: ['email', 'public_profile'] });
-    if (result.accessToken) {
-      return this.http.post(`${this.API_URL}/auth/facebook`, {
-        accessToken: result.accessToken.token
-      }).toPromise();
-    } else {
-      throw new Error('Facebook login failed or cancelled');
-    }
-  }
-  saveToken(token: string) {
-    localStorage.setItem('auth_token', token);
+  updateProfile(formData: FormData) {
+    return this.http.put(
+      `${this.API_URL}/auth/profile`,
+      formData
+    );
   }
 
+
+  /* ===============================
+     LOGOUT
+     =============================== */
+
+  logout(): void {
+    this.http.post(`${this.API_URL}/auth/logout`, {}, {
+      headers: this.authHeaders()
+    }).subscribe({
+      error: () => void 0
+    });
+
+    this.clearSession();
+  }
 }

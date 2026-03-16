@@ -9,10 +9,10 @@ export interface Split {
   userId?: string;
   title: string;
   description?: string;
-  totalAmount: number;
-  currency: string;
+  total_amount: number;
+  split_type: 'equal' | 'percentage' | 'custom';
   participants: SplitParticipant[];
-  settled: boolean;
+  settled?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -22,9 +22,11 @@ export interface SplitParticipant {
   userId?: string;
   name: string;
   email?: string;
-  amount: number;
-  paid: boolean;
-  settled: boolean;
+  amount_owed?: number;
+  amount_paid?: number;
+  status?: 'pending' | 'settled';
+  percentage?: number;
+  amount?: number;
 }
 
 @Injectable({
@@ -117,7 +119,11 @@ export class SplitService extends BaseApiService {
     
     return this.http.post<{ success: boolean; amounts: number[] }>(
       `${this.splitsUrl}/calculate`,
-      { amount, participants, method },
+      {
+        total_amount: amount,
+        split_type: method,
+        participants: Array.from({ length: participants }, (_, i) => ({ user_id: i + 1 }))
+      },
       { headers: this.getAuthHeaders() }
     ).pipe(
       catchError(this.handleError)
@@ -132,7 +138,7 @@ export class SplitService extends BaseApiService {
     
     return this.http.post<{ success: boolean; message: string }>(
       `${this.splitsUrl}/${splitId}/settle/${participantId}`,
-      {},
+      { amount_paid: 0 },
       { headers: this.getAuthHeaders() }
     ).pipe(
       catchError(this.handleError)

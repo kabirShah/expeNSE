@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Groups</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/create-group">
+        <ion-icon name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let group of groups" [routerLink]="['/groups', group.id]" detail>
+      <ion-avatar slot="start">
+        <img [src]="group.avatar || 'assets/group-default.png'" />
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ group.name }}</h2>
+        <p>{{ group.expenses_count }} expenses · {{ group.members?.length }} members</p>
+      </ion-label>
+      <ion-badge [color]="getBalanceColor(group.my_balance || 0)" slot="end">
+        {{ getBalanceText(group.my_balance || 0) }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/create-group">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

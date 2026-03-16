@@ -1,0 +1,61 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/groups"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ group?.name || 'Group' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="addMemberPrompt()">Add Member</ion-button>
+      <ion-button (click)="importFromContacts()" title="Import contacts"><ion-icon name="cloud-download-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="group">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Members</ion-card-title>
+        <ion-card-subtitle>{{ members.length }} member(s)</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let m of members">
+            <ion-label>
+              <h3>{{ m.name }}</h3>
+              <p class="muted">{{ m.phone || m.email || 'No contact' }}</p>
+            </ion-label>
+
+            <ion-button slot="end" fill="clear" color="danger" (click)="removeMember(m)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    <ion-card-subtitle>
+      Total: ₹ {{ totalExpense | number:'1.2-2' }}
+    </ion-card-subtitle>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Expenses</ion-card-title>
+        <ion-card-subtitle>Total: ₹ {{ expenses.reduce((s,e)=> s + (e.total_amount||0), 0) | number:'1.2-2' }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-list>
+        <ion-item *ngFor="let e of expenses" (click)="viewExpense(e)">
+          <ion-label>
+            <h3>{{ e.title }}</h3>
+            <p>₹ {{ e.total_amount | number:'1.2-2' }} · {{ e.created_at | date:'short' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-item lines="none" class="card-actions">
+        <ion-button expand="full" (click)="goAddExpense()">Add Expense</ion-button>
+      </ion-item>
+    </ion-card>
+  </ng-container>
+</ion-content> -->

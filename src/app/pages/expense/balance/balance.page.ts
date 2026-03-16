@@ -1,120 +1,230 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NavController, ToastController } from '@ionic/angular';
-import { ActivatedRoute, Router } from '@angular/router';
+import { NavController, AlertController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { BalanceService } from 'src/app/services/balance.service';
+import { Balance } from 'src/app/models/balance.model';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-balance',
   templateUrl: './balance.page.html',
+  styleUrls: ['./balance.page.scss'],
 })
 export class BalancePage implements OnInit {
+
   balanceForm!: FormGroup;
-  balanceId: string | null = null;
-  loading: boolean = false;
+  balances: Balance[] = [];
+  balanceId: number | null = null;
+  loading = false;
+  loadingList = false;
+  isEdit = false;
 
   constructor(
     private fb: FormBuilder,
     private navCtrl: NavController,
     private balanceService: BalanceService,
-    private router: Router,
     private route: ActivatedRoute,
-    private toastCtrl: ToastController
+    private uiToast: UiToastService,
+    private alertCtrl: AlertController,
+    private mockNotificationService: MockNotificationService
   ) {}
 
   ngOnInit() {
     this.createForm();
-    this.balanceId = this.route.snapshot.paramMap.get('id');
-    if (this.balanceId) {
+
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.balanceId = Number(id);
+      this.isEdit = true;
       this.loadBalance(this.balanceId);
+    }
+
+    this.loadBalances();
+  }
+
+  createForm() {
+    this.balanceForm = this.fb.group({
+      amount: ['', [Validators.required, Validators.min(1)]],
+      source: ['', Validators.required],
+      date_added: ['', Validators.required]
+    });
+  }
+
+  goBack() {
+    this.navCtrl.back();
+  }
+
+  async loadBalances() {
+    this.loadingList = true;
+
+    try {
+      const response = await firstValueFrom(this.balanceService.getBalances());
+      this.balances = response?.success ? (response.data || []) : [];
+    } catch {
+      this.showToast('Failed to load balances.', 'danger');
+    } finally {
+      this.loadingList = false;
     }
   }
 
-  // Load balance details (for updating)
-  async loadBalance(id: string) {
+  async loadBalance(id: number) {
     this.loading = true;
+
     try {
-      const response = await this.balanceService.getBalanceById(id).toPromise();
+      const response = await firstValueFrom(this.balanceService.getBalanceById(id));
+
       if (response?.success) {
-        const balanceDoc = response.data;
-        this.balanceForm.patchValue({
-          amount: balanceDoc.amount,
-          source: balanceDoc.source || '', // Load source if available
-        });
-      } else {
-        this.showToast('Failed to load balance details', 'danger');
+        const b: Balance = response.data;
+        this.patchForm(b);
       }
-    } catch (error) {
-      console.error('Error loading balance:', error);
+    } catch {
       this.showToast('Failed to load balance details', 'danger');
     } finally {
       this.loading = false;
     }
   }
 
-  // Create form with balance and source fields
-  createForm() {
-    this.balanceForm = this.fb.group({
-      amount: ['', [Validators.required, Validators.min(1)]],
-      source: ['', Validators.required], // New field for balance source
-    });
-  }
-
-  // Save balance (Add or Update)
   async saveBalance() {
     if (this.balanceForm.invalid) {
-      console.error('Form is invalid');
-      await this.showToast('Please enter a valid balance!', 'danger');
+      this.showToast('Please fill all required fields.', 'danger');
       return;
     }
 
-    const balanceData = this.balanceForm.value;
+    const formData: Partial<Balance> = this.balanceForm.value;
+
     this.loading = true;
 
     try {
-      if (this.balanceId) {
-        // Update existing balance
-        const response = await this.balanceService.updateBalance(this.balanceId, balanceData).toPromise();
-        if (response?.success) {
-          await this.showToast('Balance Updated Successfully', 'success');
-          console.log("Balance Updated");
-        } else {
-          await this.showToast('Failed to update balance', 'danger');
-          console.error("Failed to update balance");
-        }
+      const response = this.isEdit && this.balanceId
+        ? await firstValueFrom(this.balanceService.updateBalance(this.balanceId, formData))
+        : await firstValueFrom(this.balanceService.createBalance(formData));
+
+      if (response?.success) {
+        this.mockNotificationService.addCrudNotification(
+          'Balance',
+          this.isEdit ? 'updated' : 'created',
+          `${formData.source || 'Balance entry'} • ₹${formData.amount || 0}`
+        );
+
+        this.showToast(
+          this.isEdit ? 'Balance updated successfully.' : 'Balance added successfully.',
+          'success'
+        );
+
+        this.resetFormState();
+        await this.loadBalances();
       } else {
-        // Add new balance
-        const response = await this.balanceService.createBalance({
-          ...balanceData,
-          dateAdded: new Date().toISOString(),
-        }).toPromise();
-
-        if (response?.success) {
-          await this.showToast('Balance Added Successfully', 'success');
-          console.log('Balance added successfully');
-        } else {
-          await this.showToast('Failed to add balance', 'danger');
-        }
+        this.showToast('Operation failed.', 'danger');
       }
-
-      this.balanceForm.reset();
-      this.navCtrl.navigateBack('/home'); // 🔥 Redirect correctly
-    } catch (error) {
-      console.error('Error saving balance', error);
-      this.showToast('Error saving balance', 'danger');
+    } catch {
+      this.showToast('Error saving balance.', 'danger');
     } finally {
       this.loading = false;
     }
   }
 
-  // Show toast messages
-  async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
+  startEdit(balance: Balance) {
+    this.isEdit = true;
+    this.balanceId = balance.id;
+    this.patchForm(balance);
   }
+
+  cancelEdit() {
+    this.resetFormState();
+  }
+
+  async confirmDelete(id?: number) {
+    const targetId = id ?? this.balanceId;
+    if (!targetId) return;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Delete balance?',
+      message: 'This action cannot be undone.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.deleteBalance(targetId);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async deleteBalance(id: number) {
+    this.loading = true;
+    const deletingItem = this.balances.find((item) => item.id === id);
+
+    try {
+      const response = await firstValueFrom(this.balanceService.deleteBalance(id));
+
+      if (response?.success) {
+        this.mockNotificationService.addCrudNotification(
+          'Balance',
+          'deleted',
+          `${deletingItem?.source || 'Balance entry'} was deleted.`
+        );
+
+        this.showToast('Balance deleted successfully.', 'success');
+
+        if (this.balanceId === id) {
+          this.resetFormState();
+        }
+
+        await this.loadBalances();
+      } else {
+        this.showToast('Delete failed.', 'danger');
+      }
+    } catch {
+      this.showToast('Error deleting balance.', 'danger');
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  get editingBalance(): Balance | null {
+    if (!this.balanceId) return null;
+    return this.balances.find(item => item.id === this.balanceId) || null;
+  }
+
+  trackByBalanceId(_: number, item: Balance): number {
+    return item.id;
+  }
+
+  private patchForm(balance: Balance) {
+    this.balanceForm.patchValue({
+      amount: balance.amount,
+      source: balance.source,
+      date_added: this.toDateInputValue(balance.date_added)
+    });
+  }
+
+  private resetFormState() {
+    this.balanceForm.reset();
+    this.isEdit = false;
+    this.balanceId = null;
+  }
+
+  private toDateInputValue(value: string | null | undefined): string {
+    if (!value) return '';
+    return value.substring(0, 10);
+  }
+
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium') {
+    await this.uiToast.show(message, color);
+  }
+
 }
+
+

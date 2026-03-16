@@ -12,6 +12,10 @@ const routes: Routes = [
     path: 'add-credit',
     loadChildren: () => import('./add-credit/add-credit.module').then( m => m.AddCreditPageModule)
   },
+  {
+    path: 'edit-credit/:id',
+    loadChildren: () => import('../../../cards/credit/edit-credit/edit-credit.module').then( m => m.EditCreditPageModule)
+  }
 ];
 
 @NgModule({

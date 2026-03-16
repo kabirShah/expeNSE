@@ -19,7 +19,6 @@ export class DatabaseService {
   private credits: any[] = [];
   private balanceDb: any;
   private debitDb: any;
-  private budgetDb: PouchDB.Database<BudgetPlan>;
   private expenses: any[] = []; 
   private ExpenseCategory: any[]=[];
   private TransactionType: any[]=[];
@@ -31,6 +30,15 @@ export class DatabaseService {
     this.balanceDb = new PouchDB('balanceDB');
     this.scanDb = new PouchDB('scanned_invoices');
     this.creditDb = new PouchDB('creditCards');
+    this.splitDb = new PouchDB('split_expenses');
+  }
+  private getHeaders() {
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      })
+    };
   }
 
   private handleError(error: any): never {
@@ -59,9 +67,9 @@ export class DatabaseService {
       }
     }
 
-  // async getAutoExpense(databaseName:string, id:string){
-  //   return await this.autoDb.get(id);
-  // }
+  async getAutoExpense(databaseName:string, id:string){
+    return await this.autoDb.get(id);
+  }
 
 
   // async getAllManualExpenses(): Promise<Expense[]> {
@@ -87,61 +95,48 @@ export class DatabaseService {
   }
 
   // Auto Expense CRUD
-  async addAutoExpense(expense: Expense) {
-    try {
-      expense._id = expense._id || new Date().toISOString();
-      const response = await this.autoDb.put(expense);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
+async addAutoExpense(expense: Expense) {
+  try {
+    const userId = this.getUserId();  // ✅ always tie to user
+    expense.id = expense.id;
+    (expense as any).user_id = userId;
+    const response = await this.autoDb.put(expense);
+    return response;
+  } catch (error) {
+    this.handleError(error);
   }
+}
+
   async getAllAutoExpenses(): Promise<Expense[]> {
-    try {
-      const result = await this.autoDb.allDocs({ include_docs: true });
-      return result.rows.map((row) => row.doc as Expense);
-    } catch (error) {
-      this.handleError(error);
-    }
+  try {
+    const userId = this.getUserId();
+    const result = await this.autoDb.allDocs({ include_docs: true });
+    return result.rows
+      .map((row) => row.doc as Expense)
+      .filter(exp => (exp as any).user_id === userId); // ✅ filter by user
+  } catch (error) {
+    this.handleError(error);
+    return [];
   }
+}
 
-  async updateManualExpense(expense: Expense) {
-    try {
-      
-    if (!expense._id || !expense._rev) {
-      throw new Error('Expense must have a valid _id and _rev for updates');
-    }
-      const response = await this.manualDb.put(expense);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
 
-  async deleteAutoExpense(id: string) {
-    try {
-      const doc = await this.autoDb.get(id);
-      const response = await this.autoDb.remove(doc);
-      return response;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-  async getAllExpenses() {
-    const result = await this.manualDb.allDocs({
-      include_docs: true,
-      descending: true,
-    });
-    return result.rows.map(row => row.doc);
-  }
-  // Balance Management
-  async setUserBalance(balance: number) {
-      const balanceDoc = await this.manualDb.get('userBalance');
-      await this.manualDb.put({
-        ...balanceDoc,
-        amount: balance,
-      });
-  }
+
+  // async getAllExpenses() {
+  //   const result = await this.manualDb.allDocs({
+  //     include_docs: true,
+  //     descending: true,
+  //   });
+  //   return result.rows.map(row => row.doc);
+  // }
+  // // Balance Management
+  // async setUserBalance(balance: number) {
+  //     const balanceDoc = await this.manualDb.get('userBalance');
+  //     await this.manualDb.put({
+  //       ...balanceDoc,
+  //       amount: balance,
+  //     });
+  // }
   async addCredit(credit: { id: number; amount: number; date: string }) {
     this.credits.push(credit);
     return Promise.resolve(true);
@@ -221,8 +216,8 @@ export class DatabaseService {
   }
   async updateBalance(balance: Balance) {
     try {
-      if (!balance._id || !balance._rev) {
-        throw new Error("Balance ID and revision (_rev) are required for update");
+      if (!balance.id) {
+        throw new Error("Balance ID is required for update");
       }
       const response = await this.balanceDb.put(balance);
       return response;
@@ -254,7 +249,9 @@ export class DatabaseService {
   }
   async saveBalance(balance: Balance) {
     try {
-      balance._id = balance._id || new Date().toISOString();
+      if (!balance.id) {
+        balance.id = Date.now(); // Generate numeric ID
+      }
       const response = await this.balanceDb.put(balance);
       return response;
     } catch (error) {
@@ -265,32 +262,33 @@ export class DatabaseService {
   async getAllBalances(): Promise<Balance[]> {
     const result = await this.balanceDb.allDocs({ include_docs: true });
     return result.rows.map(row => ({
-    id: row.doc._id ?? '',
+    id: row.doc.id ?? 0,
     amount: row.doc.amount,
     source: row.doc.source,
-    dateAdded: row.doc.dateAdded
+    date_added: row.doc.date_added,
+    user_id: row.doc.user_id
     }));
   }
 
-  async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
-  try {
-    const userId = localStorage.getItem('user_id');
-    if (!userId) throw new Error('User not logged in');
+//   async addBalance(balanceData: { amount: number; source: string; dateAdded: string }): Promise<void> {
+//   try {
+//     const userId = localStorage.getItem('user_id');
+//     if (!userId) throw new Error('User not logged in');
 
-    const newBalance: Balance = {
-      _id: new Date().toISOString(),
-      amount: balanceData.amount,
-      source: balanceData.source,
-      dateAdded: balanceData.dateAdded,
-      userId: userId // ✅ Attach logged-in user's ID
-    };
+//     const newBalance: Balance = {
+//       id: Date.now(),
+//       amount: balanceData.amount,
+//       source: balanceData.source,
+//       date_added: balanceData.dateAdded,
+//       user_id: parseInt(userId) // ✅ Attach logged-in user's ID as number
+//     };
 
-    await this.balanceDb.put(newBalance);
-    console.log('Balance added successfully:', newBalance);
-  } catch (error) {
-    console.error('Error adding balance:', error);
-  }
-}
+//     await this.balanceDb.put(newBalance);
+//     console.log('Balance added successfully:', newBalance);
+//   } catch (error) {
+//     console.error('Error adding balance:', error);
+//   }
+// }
 
   
   
@@ -528,6 +526,17 @@ async getUserBalances(): Promise<Balance[]> {
       }
       return null;
     }
+    async deleteAutoExpense(id: string) {
+      try {
+        const doc = await this.autoDb.get(id);
+        await this.autoDb.remove(doc);
+        console.log('Auto expense deleted:', id);
+      } catch (error) {
+        console.error('Error deleting auto expense:', error);
+        throw error;
+      }
+    }
+
     getUserId(): string {
       const userId = localStorage.getItem('user_id');
       if (!userId) throw new Error('No user logged in');

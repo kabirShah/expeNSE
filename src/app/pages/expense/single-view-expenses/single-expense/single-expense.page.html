@@ -1,61 +1,94 @@
-<ion-header color="light">
-  <ion-toolbar color="light">
+<ion-header class="clean-header">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/single-view-expenses']" color="primary">
-        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      <ion-button [routerLink]="['/single-view-expenses']" class="back-btn">
+        <ion-icon name="arrow-back-outline" size="medium"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ expenseId ? 'Edit Expense' : 'Add Expense' }}</ion-title>
+    <ion-title>{{ expenseId ? 'Edit Transaction' : 'New Transaction' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <form [formGroup]="expenseForm" (ngSubmit)="saveExpense()">
+<ion-content class="form-bg-content">
+  <ion-spinner *ngIf="pageLoading" name="crescent" class="loader-center"></ion-spinner>
 
-    <!-- Date Picker -->
-    <ion-item>
-      <ion-label>Date</ion-label>
-      <ion-datetime-button datetime="datetime"></ion-datetime-button>
-    </ion-item>
+  <div class="form-container" *ngIf="!pageLoading">
+    <form [formGroup]="expenseForm" (ngSubmit)="saveExpense()" class="form-card">
 
-    <ion-modal [keepContentsMounted]="true">
-      <ng-template>
-        <ion-datetime
-          id="datetime"
-          presentation="date-time"
-          formControlName="date">
-        </ion-datetime>
-      </ng-template>
-    </ion-modal>
+      <!-- 1. HERO AMOUNT -->
+      <div class="input-group amount-group">
+        <ion-label class="field-label">Amount</ion-label>
+        <div class="amount-wrapper">
+          <span class="currency">₹</span>
+          <ion-input 
+            type="number" 
+            formControlName="amount" 
+            placeholder="0.00" 
+            class="big-amount-input">
+          </ion-input>
+        </div>
+      </div>
 
-    <!-- Category Selection -->
-    <ion-item>
-      <ion-label>Category</ion-label>
-      <ion-select formControlName="category">
-        <ion-select-option labelPlacement="stacked" *ngFor="let category of expenseCategories" [value]="category">{{ category }}</ion-select-option>
-      </ion-select>
-    </ion-item>
+      <!-- 2. DATE -->
+      <div class="input-group">
+        <ion-label class="field-label">Date</ion-label>
+        <ion-item lines="none" class="custom-input-item picker-item">
+          <ion-icon slot="start" name="calendar-clear-outline"></ion-icon>
+          <ion-datetime-button datetime="datetime"></ion-datetime-button>
+        </ion-item>
+      </div>
 
-    <!-- Transaction Type Selection -->
-    <ion-item>
-      <ion-label>Transaction Type</ion-label>
-      <ion-select formControlName="transaction_type">
-        <ion-select-option labelPlacement="stacked" *ngFor="let type of transactionTypes" [value]="type">{{ type }}</ion-select-option>
-      </ion-select>
-    </ion-item>
+      <!-- 3. WHAT WAS THIS FOR -->
+      <div class="input-group">
+        <ion-label class="field-label">What was this for?</ion-label>
+        <ion-item lines="none" class="custom-input-item">
+          <ion-icon slot="start" name="text-outline"></ion-icon>
+          <ion-input formControlName="description" placeholder="e.g. Grocery run, Auto fare, Dinner"></ion-input>
+        </ion-item>
+      </div>
 
-    <!-- Amount Input -->
-    <ion-item>
-      <ion-label >Amount</ion-label>
-      <ion-input labelPlacement="stacked" type="number" formControlName="amount"></ion-input>
-    </ion-item>
+      <!-- 4. PAID VIA -->
+      <div class="input-group">
+        <ion-label class="field-label">Paid via</ion-label>
+        <ion-item lines="none" class="custom-input-item">
+          <ion-icon slot="start" name="card-outline"></ion-icon>
+          <ion-select formControlName="transaction_type" interface="popover" placeholder="Select Method">
+            <ion-select-option *ngFor="let type of transactionTypes" [value]="type">{{ type }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+      
+      <!-- 5. NOTES (Manual Entry) -->
+      <div class="input-group">
+        <ion-label class="field-label">Notes (Optional)</ion-label>
+        <ion-item lines="none" class="custom-input-item textarea-item">
+          <ion-textarea 
+            formControlName="notes" 
+            rows="3" 
+            placeholder="Add details (e.g. Milk, Eggs...)">
+          </ion-textarea> 
+        </ion-item>
+      </div>
 
-    <!-- Description Input -->
-    <ion-item>
-      <ion-label >Description</ion-label>
-      <ion-input labelPlacement="stacked" formControlName="description"></ion-input>
-    </ion-item>
+      <!-- SUBMIT BUTTON -->
+      <ion-button expand="block" type="submit" class="main-button" [disabled]="expenseForm.invalid">
+        {{ expenseId ? 'Update Transaction' : 'Save Transaction' }}
+      </ion-button>
 
-    <ion-button expand="block" type="submit" [disabled]="expenseForm.invalid">{{ expenseId ? 'Update Expense' : 'Save Expense' }}</ion-button>
-  </form>
+    </form>
+  </div>
+
+  <ion-modal [keepContentsMounted]="true" *ngIf="!pageLoading">
+  <ng-template>
+    <ion-datetime
+      id="expenseDate"
+      presentation="date"
+      [value]="expenseForm.get('date')?.value"
+      (ionChange)="onDateChange($event)">
+    </ion-datetime>
+  </ng-template>
+</ion-modal>
+
+
+
 </ion-content>

@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Voice Entry</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-button expand="block" (click)="toggleListening()" [color]="isListening ? 'danger' : 'primary'">
+    {{ isListening ? 'Stop Listening' : 'Start Listening' }}
+  </ion-button>
+
+  <ion-card *ngIf="transcript">
+    <ion-card-header><ion-card-title>Transcript</ion-card-title></ion-card-header>
+    <ion-card-content>{{ transcript }}</ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="parsedData">
+    <ion-card-header><ion-card-title>Parsed</ion-card-title></ion-card-header>
+    <ion-card-content>
+      <p>Amount: {{ parsedData.amount }}</p>
+      <p>Type: {{ parsedData.type }}</p>
+      <p>Method: {{ parsedData.payment_method }}</p>
+      <p>Note: {{ parsedData.note }}</p>
+      <ion-button expand="block" color="success" (click)="confirm()">Confirm Entry</ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

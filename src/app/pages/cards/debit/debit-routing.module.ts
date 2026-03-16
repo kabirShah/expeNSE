@@ -7,11 +7,15 @@ const routes: Routes = [
   {
     path: '',
     component: DebitPage
-  },  {
+  },
+  {
     path: 'add-debit',
     loadChildren: () => import('./add-debit/add-debit.module').then( m => m.AddDebitPageModule)
+  },
+  {
+    path: 'edit-debit/:id',
+    loadChildren: () => import('../../../cards/debit/edit-debit/edit-debit.module').then( m => m.EditDebitPageModule)
   }
-
 ];
 
 @NgModule({

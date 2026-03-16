@@ -1,65 +1,362 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
+/* src/global.scss */
 
-/* Core CSS required for Ionic components to work properly */
+/* =========================================
+   1. IONIC CORE IMPORTS
+   ========================================= */
 @import "@ionic/angular/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+/* Dark mode system support */
 @import "@ionic/angular/css/palettes/dark.system.css";
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-/* Apply Font Family Globally */
+/* =========================================
+   2. GLOBAL VARIABLES (SAFE DEFAULTS)
+   ========================================= */
+:root {
+  --primary: #4338ca;
+  --accent: #6366f1;
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  --page-bg: #f8fafc;
+  --card-bg: #ffffff;
+
+  --text-main: #1e293b;
+  --text-light: #64748b;
+
+  --dock-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* =========================================
+   3. GLOBAL RESET & FONT
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 * {
-    font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-main);
+}
+
+ion-content {
+  --background: var(--page-bg);
+}
+
+/* Hide scrollbars (mobile UX) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================
+   4. GLOBAL IONIC OVERRIDES (FINTECH LOOK)
+   ========================================= */
+
+/* Toolbar */
+ion-toolbar {
+  --background: var(--page-bg);
+  --color: var(--text-main);
+  --border-width: 0;
+  --min-height: 50px;
+}
+
+/* Modals & Popovers */
+ion-modal,
+ion-popover {
+  --border-radius: 24px;
+  --background: var(--card-bg);
+}
+
+/* Lists */
+ion-list {
+  background: transparent;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Items as cards */
+ion-item {
+  --background: var(--card-bg);
+  --color: var(--text-main);
+  --border-radius: 16px;
+  --inner-border-width: 0;
+  margin-bottom: 10px;
+}
+
+/* Searchbar */
+ion-searchbar {
+  --background: var(--card-bg);
+  --color: var(--text-main);
+  --placeholder-color: var(--text-light);
+  --icon-color: var(--primary);
+  --border-radius: 14px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Inputs */
+ion-input,
+ion-textarea {
+  --background: transparent;
+  --color: var(--text-main);
+}
+
+/* Alerts */
+.alert-wrapper {
+  border-radius: 20px;
+  background: var(--card-bg);
+}
+
+/* =========================================
+   5. REUSABLE UI COMPONENTS
+   ========================================= */
+
+/* Hero / Total Card */
+.total-hero-card {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 20px;
+  padding: 24px;
+  margin: 10px 16px 24px;
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+}
+
+/* Expense Card */
+.expense-card {
+  --border-radius: 18px;
+  --min-height: 90px;
+
+  .icon-box {
+    width: 42px;
+    height: 42px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  
-  /* Global Styles */
-  body {
-    background-color: var(--ion-background-color);
-    color: var(--ion-text-color);
+
+  .price-tag {
+    color: var(--danger);
+    font-weight: 700;
   }
-  
-  ion-toolbar {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-light);
+
+  .cat-badge {
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
   }
-  
-  ion-button {
-    --background: var(--ion-color-secondary);
-    --color: var(--ion-color-light);
+}
+
+/* Swipe buttons */
+.opt-btn.edit {
+  --background: #fbbf24;
+  color: #fff;
+}
+
+.opt-btn.delete {
+  --background: var(--danger);
+  color: #fff;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+
+  h3 {
+    font-weight: 700;
   }
-  // Styling all ion-input fields
-ion-input {
-    --background: var(--ion-color-light);
-    --color: var(--ion-color-dark);
+
+  p {
+    color: var(--text-light);
   }
-  
+}
+
+/* Primary button */
+.main-btn {
+  --background: linear-gradient(135deg, var(--primary), var(--accent));
+  --border-radius: 16px;
+  height: 56px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* =========================================
+   6. APP-WIDE SINGLE-EXPENSE THEME
+   ========================================= */
+
+/* Header style parity across screens */
+ion-header.header-clean,
+ion-header.clean-header {
+  box-shadow: none;
+  background: var(--page-bg);
+}
+
+ion-header.header-clean ion-toolbar,
+ion-header.clean-header ion-toolbar {
+  --background: var(--page-bg);
+  --border-width: 0;
+  --color: var(--text-main);
+}
+
+ion-header.header-clean ion-title,
+ion-header.clean-header ion-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Card rhythm + rounded premium look */
+ion-card {
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Form layout primitives shared by multiple pages */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.form-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+  margin-left: 4px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Pill input style from single-expense page promoted globally */
+.custom-input-item {
+  --background: #ffffff !important;
+  --border-radius: 12px !important;
+  --inner-padding-end: 12px !important;
+  --min-height: 50px !important;
+  --inner-border-width: 0 !important;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.custom-input-item ion-icon {
+  color: #64748b;
+  margin-right: 12px;
+  font-size: 20px;
+}
+
+.custom-input-item ion-input,
+.custom-input-item ion-select,
+.custom-input-item ion-datetime-button {
+  --padding-start: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.custom-input-item.item-has-focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+/* Footer CTA consistency */
+.custom-footer ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 0 20px 20px;
+}
+
+.main-button,
+.custom-footer .main-btn {
+  --background: linear-gradient(135deg, var(--primary), var(--accent));
+  --border-radius: 16px;
+  --box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+  height: 56px;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: none;
+}
+
+/* =========================================================
+   PROFESSIONAL TOAST NOTIFICATIONS
+   ========================================================= */
+ion-toast.toast-professional {
+  --max-width: calc(100% - 24px);
+  --border-radius: 12px;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+ion-toast.toast-professional::part(container) {
+  border-radius: 12px;
+}
+
+ion-toast.toast-professional::part(message) {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+ion-toast.toast-professional::part(button) {
+  opacity: 0.95;
+}
+
+ion-toast.toast-success {
+  --background: #10b981;
+  --color: #ffffff;
+  --icon-color: #ffffff;
+  --button-color: #ffffff;
+}
+
+ion-toast.toast-error {
+  --background: #ef4444;
+  --color: #ffffff;
+  --icon-color: #ffffff;
+  --button-color: #ffffff;
+}
+
+ion-toast.toast-info {
+  --background: #334155;
+  --color: #ffffff;
+  --icon-color: #ffffff;
+  --button-color: #ffffff;
+}

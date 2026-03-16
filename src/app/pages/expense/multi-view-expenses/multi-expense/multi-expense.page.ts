@@ -1,91 +1,116 @@
-import { Component, OnInit } from '@angular/core';
-import { ExpenseParserService } from '../../../../services/expense-parser.service';
-import { ToastController } from '@ionic/angular';
+﻿import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DatabaseService } from 'src/app/services/database.service';
+import { MultiExpenseService, MultiExpense } from 'src/app/services/multi-expense.service';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-multi-expense',
   templateUrl: './multi-expense.page.html',
   styleUrls: ['./multi-expense.page.scss'],
 })
-export class MultiExpensePage implements OnInit{
+export class MultiExpensePage implements OnInit {
   multiForm!: FormGroup;
-  isProcessing: boolean = false;
+  isProcessing = false;
+  pageLoading = false;
   expenseId: string | null = null;
-  message: string = '';
+  isEditMode = false;
 
   constructor(
-    private expenseParserService: ExpenseParserService,
-    private toastCtrl: ToastController,
-    private db: DatabaseService,
     private fb: FormBuilder,
+    private uiToast: UiToastService,
+    private multiExpenseService: MultiExpenseService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private mockNotificationService: MockNotificationService
   ) {
     this.multiForm = this.fb.group({
-      message:['',Validators.required]
+      title: ['', Validators.required],
+      message: ['', Validators.required],
+      category: ['Miscellaneous']
     });
   }
-  async ngOnInit() {
+
+  ngOnInit() {
     this.expenseId = this.route.snapshot.paramMap.get('id');
     if (this.expenseId) {
+      this.isEditMode = true;
       this.loadExpense(this.expenseId);
     }
   }
+
   async loadExpense(id: string) {
+    this.pageLoading = true;
     try {
-      const expense = await this.db.getAutoExpense('dropDatabase', id);
-      if (expense) {
+      const response = await this.multiExpenseService.getMultiExpenseById(id).toPromise();
+      if (response && response.success) {
+        const exp = response.data;
         this.multiForm.patchValue({
-          message: expense.description, // Assuming "description" holds the message
+          title: exp.title || '',
+          message: exp.description || '',
+          category: exp.category || 'Miscellaneous'
         });
       }
     } catch (error) {
-      console.error('Error loading expense:', error);
+      console.error('Error loading multi-expense:', error);
+      this.showToast('Failed to load expense details.');
+    } finally {
+      this.pageLoading = false;
     }
   }
-  async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-    });
-    await toast.present();
+
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium' = 'primary') {
+    await this.uiToast.show(message, color);
   }
 
-  async submitMessage() {
-    if (this.multiForm.invalid || this.isProcessing) {
-      this.showToast('Please enter a valid message.');
+  async submitForm() {
+    if (this.multiForm.invalid) {
+      this.showToast('Please fill all required fields.', 'warning');
       return;
     }
 
     this.isProcessing = true;
-    const message = this.multiForm.value.message.trim();
+    const { title, message, category } = this.multiForm.value;
 
     try {
-      if (this.expenseId) {
-        // Update existing expense
-        const updatedExpense = {
-          _id: this.expenseId,
+      if (this.isEditMode && this.expenseId) {
+        const updatedExpense: MultiExpense = {
+          title,
           description: message,
+          category
         };
-        await this.db.updateAutoExpense(updatedExpense);
-        this.showToast('Expense updated successfully!');
+
+        await this.multiExpenseService.updateMultiExpense(this.expenseId, updatedExpense).toPromise();
+        this.mockNotificationService.addCrudNotification(
+          'Multi Expense',
+          'updated',
+          `${title || 'Multi expense'} was updated.`
+        );
+        this.showToast('Multi-expense updated successfully!', 'success');
       } else {
-        // Add a new expense
-        await this.expenseParserService.parseMessageAndSave(message);
-        this.showToast('Expense added successfully!');
+        const newExpense: MultiExpense = {
+          title,
+          description: message,
+          category
+        };
+
+        await this.multiExpenseService.createMultiExpense(newExpense).toPromise();
+        this.mockNotificationService.addCrudNotification(
+          'Multi Expense',
+          'created',
+          `${title || 'Multi expense'} was created.`
+        );
+        this.showToast('Multi-expense added successfully!', 'success');
       }
-      this.multiForm.reset(); // Reset form on success
+
+      this.multiForm.reset();
       this.router.navigate(['/multi-view-expense']);
     } catch (error) {
       console.error('Error saving expense:', error);
-      this.showToast('Failed to save expense. Please try again.');
+      this.showToast('Failed to save expense. Please try again.', 'danger');
     } finally {
       this.isProcessing = false;
     }
-    
   }
 }

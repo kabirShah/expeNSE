@@ -1,89 +1,184 @@
-<ion-header color="light">
-  <ion-toolbar color="light">
+<ion-header class="header-clean">
+
+  <!-- Top Toolbar -->
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button  [routerLink]="['/home']" color="primary">
+      <ion-button [routerLink]="['/home']">
         <ion-icon name="chevron-back" size="medium"></ion-icon>
       </ion-button>
     </ion-buttons>
+
     <ion-title>Single Expense</ion-title>
+
     <ion-buttons slot="end">
-      <ion-button expand="block" color="primary" (click)="exportToPDF()">
+      <ion-button color="primary" (click)="exportToPDF()">
         <ion-icon name="download-outline"></ion-icon>
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="importPDF()">
-        <ion-icon name="cloud-download-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 
-  <!-- Toolbar with Searchbar and Select in a single row -->
-  <ion-toolbar color="light">
-    <ion-row class="ion-align-items-center">
-      <ion-col size="10" size-md="4">
-        <ion-searchbar
-          labelPlacement="floating"
-          [(ngModel)]="searchTerm"
-          placeholder="Search"
-          (ionInput)="applyFilters()"
-          debounce="500"
-          class="transparent-searchbar"
-        ></ion-searchbar>
-      </ion-col>
+  <!-- Search + Period Filter -->
+  <ion-toolbar class="filter-toolbar">
 
-      <ion-col size="2" size-md="3">
-        <ion-select
-          [(ngModel)]="selectedMonth"
-          (ionChange)="applyFilters()"
-          placeholder="Filter by Month"
-        >
-          <ion-select-option value="all">All</ion-select-option>
-          <ion-select-option value="January">January</ion-select-option>
-          <ion-select-option value="February">February</ion-select-option>
-          <ion-select-option value="March">March</ion-select-option>
-          <ion-select-option value="April">April</ion-select-option>
-          <ion-select-option value="May">May</ion-select-option>
-          <ion-select-option value="June">June</ion-select-option>
-          <ion-select-option value="July">July</ion-select-option>
-          <ion-select-option value="August">August</ion-select-option>
-          <ion-select-option value="September">September</ion-select-option>
-          <ion-select-option value="October">October</ion-select-option>
-          <ion-select-option value="November">November</ion-select-option>
-          <ion-select-option value="December">December</ion-select-option>
-        </ion-select>
-      </ion-col>
-    </ion-row>
+    <!-- Search -->
+    <ion-searchbar
+      mode="ios"
+      [(ngModel)]="searchTerm"
+      placeholder="Search expenses..."
+      (ionInput)="applySearchFilter()"
+      debounce="400">
+    </ion-searchbar>
+
+    <!-- Period Segment -->
+    <ion-segment
+      scrollable="true"
+      [(ngModel)]="selectedPeriod"
+      (ionChange)="onPeriodChange()">
+
+      <ion-segment-button value="today">
+        <ion-label>Today</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="week">
+        <ion-label>Week</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="month">
+        <ion-label>Month</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="6months">
+        <ion-label>6 Months</ion-label>
+      </ion-segment-button>
+
+    </ion-segment>
+
   </ion-toolbar>
+
 </ion-header>
 
+<ion-content class="page-content">
 
+  <!-- Loading Spinner -->
+  <ion-spinner
+    *ngIf="loading"
+    name="crescent"
+    class="loader-center">
+  </ion-spinner>
 
-<ion-content class="ion-padding">
-  <!-- Month Filter -->
-<ion-list *ngIf="filteredExpenses.length; else noData">
-  <ion-item *ngFor="let expense of filteredExpenses">
-    <ion-label>
-      <h2>{{ expense.description }}</h2>
-      <p>
-        Amount: ₹{{ expense.amount }} |
-        Date: {{ expense.date | date: 'medium' }} |
-        Category: {{ expense.category }}
-      </p>
-    </ion-label>
-    <ion-button slot="end" color="primary" (click)="editExpense(expense.id!.toString())">
-      <ion-icon name="pencil-outline"></ion-icon>
-    </ion-button>
-    <ion-button slot="end" color="danger" (click)="deleteExpense(expense.id!.toString())">
-      <ion-icon name="trash-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
-</ion-list>
+  <!-- Total Card -->
+  <div
+    class="total-hero-card"
+    *ngIf="filteredExpenses.length > 0 && !loading">
 
+    <div class="label-group">
+      <ion-icon name="receipt-outline"></ion-icon>
+      <span>Total Expense</span>
+    </div>
 
-  <ng-template #noData>
-    <ion-label class="noexp">No expenses found.</ion-label>
-  </ng-template>
+    <div class="amount-group">
+      <span class="currency">₹</span>
+      <span class="value">
+        {{ totalFilteredAmount | number:'1.2-2' }}
+      </span>
+    </div>
+
+    <div class="card-deco"></div>
+  </div>
+
+  <!-- Expense List -->
+  <ion-list
+    *ngIf="filteredExpenses.length > 0 && !loading"
+    lines="none">
+
+    <ion-item-sliding
+      *ngFor="let exp of filteredExpenses; trackBy: trackById"
+      class="slide-wrapper">
+
+      <ion-item class="expense-card">
+
+        <div class="icon-box" slot="start">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </div>
+
+        <ion-label>
+
+          <div class="top-row">
+            <h2>{{ exp.description }}</h2>
+            <span class="price-tag">
+              -₹{{ exp.amount | number:'1.2-2' }}
+            </span>
+          </div>
+
+          <div class="meta-row">
+            <span class="date">
+              <ion-icon name="calendar-clear-outline"></ion-icon>
+              {{ exp.date | date:'dd MMM yyyy' }}
+            </span>
+
+            <span class="cat-badge">
+              {{ getCategoryName(exp) }}
+            </span>
+          </div>
+
+        </ion-label>
+
+      </ion-item>
+
+      <!-- Slide Options -->
+      <ion-item-options side="end">
+
+        <ion-item-option
+          color="primary"
+          (click)="editExpense(exp.id!.toString())">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-item-option>
+
+        <ion-item-option
+          color="danger"
+          (click)="deleteExpense(exp.id!.toString())">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-item-option>
+
+      </ion-item-options>
+
+    </ion-item-sliding>
+
+  </ion-list>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading && filteredExpenses.length === 0"
+    class="empty-state">
+
+    <div class="icon-circle">
+      <ion-icon name="receipt-outline"></ion-icon>
+    </div>
+
+    <h3>No Records Found</h3>
+    <p>Add a new expense to get started.</p>
+
+  </div>
+
 </ion-content>
 
-<ion-footer>
-  <ion-button size="default" color="secondary" (click)="navigateToAddExpense()">Add Single Expenses</ion-button> 
+<!-- Footer -->
+<ion-footer class="custom-footer">
+  <ion-toolbar>
+
+    <ion-button
+      expand="block"
+      class="main-btn"
+      (click)="navigateToAddExpense()">
+
+      <ion-icon
+        name="add-circle-outline"
+        slot="start">
+      </ion-icon>
+
+      Add Expense
+
+    </ion-button>
+
+  </ion-toolbar>
 </ion-footer>

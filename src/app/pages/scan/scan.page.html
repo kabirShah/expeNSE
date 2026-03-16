@@ -1,38 +1,132 @@
-<ion-header>
+<ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']" color="light">
-        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      <ion-button [routerLink]="['/home']" class="back-btn">
+        <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Scan Invoice</ion-title>
+    <ion-title>Receipt Scanner</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-list>
-    <ion-item *ngFor="let receipt of receipts">
-      <ion-thumbnail slot="start" (click)="openPreview(receipt.imageUrl)">
-        <img [src]="receipt.imageUrl" />
-      </ion-thumbnail>
-      <ion-label>₹ {{ receipt.price }}</ion-label>
-      <ion-button color="danger" (click)="deleteReceipt(receipt.id)">Delete</ion-button>
-    </ion-item>
-  </ion-list>
-</ion-content>
-
-<ion-footer class="ion-padding">
-  <h2>Add New Receipt</h2>
-
-  <!-- Display Captured Image -->
-  <div *ngIf="newReceipt.imageUrl">
-    <img [src]="newReceipt.imageUrl" class="receipt-preview" />
+<ion-content class="scan-content">
+  <ion-spinner *ngIf="isLoading" name="crescent" class="loader-center"></ion-spinner>
+  <div class="load-error" *ngIf="!isLoading && hasLoadError">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <h3>Couldn’t load receipts</h3>
+    <p>{{ loadErrorMessage || 'Please try again.' }}</p>
+    <ion-button size="small" (click)="retryLoadReceipts()">Retry</ion-button>
   </div>
 
-  <ion-button expand="full" (click)="captureImage()">Capture Image</ion-button>
-  <ion-button expand="full" (click)="pickFromGallery()">Upload from Gallery</ion-button>
+  <div class="content-wrapper" *ngIf="!isLoading && !hasLoadError">
+    <h2 class="section-title">History <span class="count-badge">{{ receipts.length }}</span></h2>
 
-  <ion-input type="number" placeholder="Enter Price" [(ngModel)]="newReceipt.price"></ion-input>
+    <ion-list *ngIf="receipts.length > 0; else noReceipts" class="receipt-list" lines="none">
+      <ng-container *ngFor="let receipt of receipts">
+        
+        <div class="receipt-row">
+          <ion-item 
+            class="receipt-card" 
+            button 
+            detail="false"
+            (click)="openPreview(receipt.image_url)">
+            
+            <ion-thumbnail slot="start" class="receipt-thumbnail">
+              <img [src]="receipt.image_url" alt="Receipt" />
+            </ion-thumbnail>
+            
+            <ion-label>
+              <h3 class="receipt-price">₹{{ receipt.price | number:'1.2-2' }}</h3>
+              <p class="receipt-notes">{{ receipt.notes || 'Expense' }}</p>
+              <p class="receipt-date">{{ receipt.date | date: 'dd MMM' }}</p>
+            </ion-label>
+          </ion-item>
+          
+          <div class="delete-action" (click)="deleteReceipt(receipt.id); $event.stopPropagation()">
+            <ion-icon name="trash-outline"></ion-icon>
+          </div>
+        </div>
 
-  <ion-button expand="full" color="primary" (click)="saveReceipt()">Save Receipt</ion-button>
+      </ng-container>
+    </ion-list>
+  </div>
+  
+  <ng-template #noReceipts>
+    <div class="empty-state">
+      <div class="icon-circle">
+        <ion-icon name="scan-outline"></ion-icon>
+      </div>
+      <h3>No Receipts Yet</h3>
+      <p>Capture your first receipt to start tracking.</p>
+    </div>
+  </ng-template>
+
+</ion-content>
+
+<ion-modal [isOpen]="isPreviewOpen" (didDismiss)="closePreview()" class="preview-modal">
+  <ng-template>
+    <ion-header class="clean-header">
+      <ion-toolbar>
+        <ion-buttons slot="end">
+          <ion-button (click)="closePreview()" color="dark">Close</ion-button>
+        </ion-buttons>
+        <ion-title>Preview</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="image-viewer">
+      <img [src]="currentPreviewImage" />
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-footer class="capture-footer" *ngIf="!isLoading">
+  <div class="footer-handle"></div>
+  
+  <h2 class="footer-title">Add New Receipt</h2>
+
+  <div *ngIf="newReceipt.imageUrl" class="active-preview">
+    <img [src]="newReceipt.imageUrl" />
+    <div class="preview-info">
+      <span class="status">Image Ready</span>
+      <span class="sub-status">Add price & save</span>
+    </div>
+  </div>
+
+  <div class="action-grid">
+    <div class="button-row">
+      <ion-button expand="block" fill="outline" class="action-btn" (click)="captureImage()">
+        <ion-icon name="camera" slot="start"></ion-icon> Camera
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="action-btn" (click)="pickFromGallery()">
+        <ion-icon name="image" slot="start"></ion-icon> Gallery
+      </ion-button>
+    </div>
+    
+    <div class="inputs-row">
+      <div class="input-wrapper price-wrapper">
+        <span class="currency">₹</span>
+        <ion-input 
+          type="number" 
+          placeholder="0.00" 
+          [(ngModel)]="newReceipt.price">
+        </ion-input>
+      </div>
+      
+      <div class="input-wrapper note-wrapper">
+        <ion-input 
+          type="text" 
+          placeholder="Note" 
+          [(ngModel)]="newReceipt.notes">
+        </ion-input>
+      </div>
+    </div>
+
+    <ion-button 
+      expand="block" 
+      class="save-btn" 
+      [disabled]="!newReceipt.base64Data || !newReceipt.price" 
+      (click)="saveReceipt()">
+      Save Receipt
+    </ion-button>
+  </div>
 </ion-footer>

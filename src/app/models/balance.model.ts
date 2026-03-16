@@ -1,9 +1,10 @@
 export interface Balance {
-  _id?: string;
-  _rev?: string;
+  id: number;
+  balance_id: string;  // UUID
   amount: number;
-  source?: string;
-  dateAdded:string;
-  userId: string;
+  source: string;
+  date_added: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
 }
- 

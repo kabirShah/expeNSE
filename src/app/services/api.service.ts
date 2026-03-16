@@ -1,71 +1,134 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-
-interface ApiResponse<T> { success: boolean; data: T; message?: string; }
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = environment.apiBase;
-  private authToken: string | null = null;
+  private base = environment.apiURL;
 
   constructor(private http: HttpClient) {}
 
-  setToken(token: string | null) {
-    this.authToken = token;
+  getWallets(): Observable<any> {
+    return this.http.get(`${this.base}/wallets`);
   }
 
-  private headers(): HttpHeaders {
-    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    if (this.authToken) headers = headers.set('Authorization', `Bearer ${this.authToken}`);
-    return headers;
+  createWallet(data: any): Observable<any> {
+    return this.http.post(`${this.base}/wallets`, data);
   }
 
-  // Auth
-  login(payload: { email: string; password: string }): Observable<ApiResponse<{ token: string }>> {
-    return this.http.post<ApiResponse<{ token: string }>>(`${this.baseUrl}/auth/login`, payload, { headers: this.headers() });
-  }
-  register(payload: any): Observable<ApiResponse<{ id: number }>> {
-    return this.http.post<ApiResponse<{ id: number }>>(`${this.baseUrl}/auth/register`, payload, { headers: this.headers() });
-  }
-  requestPasswordReset(payload: { email: string }): Observable<ApiResponse<{ otpSent: boolean }>> {
-    return this.http.post<ApiResponse<{ otpSent: boolean }>>(`${this.baseUrl}/auth/forgot-password`, payload, { headers: this.headers() });
-  }
-  verifyOtp(payload: { email: string; otp: string }): Observable<ApiResponse<{ verified: boolean }>> {
-    return this.http.post<ApiResponse<{ verified: boolean }>>(`${this.baseUrl}/auth/verify-otp`, payload, { headers: this.headers() });
-  }
-  resetPassword(payload: { email: string; password: string; otp: string }): Observable<ApiResponse<{}>> {
-    return this.http.post<ApiResponse<{}>>(`${this.baseUrl}/auth/reset-password`, payload, { headers: this.headers() });
+  addBalance(id: number, amount: number): Observable<any> {
+    return this.http.post(`${this.base}/wallets/${id}/add-balance`, { amount });
   }
 
-  // Dashboard
-  getDashboardStats(params: { range: 'day'|'week'|'month'|'year' }): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/dashboard?range=${params.range}`, { headers: this.headers() });
+  getCategories(): Observable<any> {
+    return this.http.get(`${this.base}/categories`);
   }
 
-  // Expenses
-  getExpenses(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/expenses`, { headers: this.headers() });
-  }
-  createExpense(payload: any): Observable<ApiResponse<{ id: number }>> {
-    return this.http.post<ApiResponse<{ id: number }>>(`${this.baseUrl}/expenses`, payload, { headers: this.headers() });
-  }
-  bulkCreateExpenses(payload: any[]): Observable<ApiResponse<{ count: number }>> {
-    return this.http.post<ApiResponse<{ count: number }>>(`${this.baseUrl}/expenses/bulk`, { items: payload }, { headers: this.headers() });
-  }
-
-  // PDF Import/Export
-  importPdf(formData: FormData): Observable<ApiResponse<{ imported: number }>> {
-    const headers = this.headers().delete('Content-Type');
-    return this.http.post<ApiResponse<{ imported: number }>>(`${this.baseUrl}/import/pdf`, formData, { headers });
-  }
-  exportPdf(params: { range: 'month'|'year' }): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/export/pdf?range=${params.range}`, { headers: this.headers(), responseType: 'blob' });
+  getTransactions(filters: any = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.keys(filters).forEach((k) => {
+      const value = filters[k];
+      if (value !== null && value !== undefined && value !== '') {
+        params = params.set(k, value);
+      }
+    });
+    return this.http.get(`${this.base}/transactions`, { params });
   }
 
-  // Bank Integrations
-  listBankIntegrations(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/integrations/banks`, { headers: this.headers() });
+  addTransaction(data: any): Observable<any> {
+    return this.http.post(`${this.base}/transactions`, data);
+  }
+
+  addMultiTransactions(data: any[]): Observable<any> {
+    return this.http.post(`${this.base}/transactions/multi`, { transactions: data });
+  }
+
+  uploadReceipt(file: File): Observable<any> {
+    const form = new FormData();
+    form.append('receipt', file);
+    return this.http.post(`${this.base}/transactions/scan`, form);
+  }
+
+  deleteTransaction(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/transactions/${id}`);
+  }
+
+  getDashboardSummary(month?: number, year?: number): Observable<any> {
+    let params = new HttpParams();
+    if (month) params = params.set('month', month);
+    if (year) params = params.set('year', year);
+    return this.http.get(`${this.base}/dashboard/summary`, { params });
+  }
+
+  getPaymentBreakdown(month?: number, year?: number): Observable<any> {
+    let params = new HttpParams();
+    if (month) params = params.set('month', month);
+    if (year) params = params.set('year', year);
+    return this.http.get(`${this.base}/dashboard/payment-breakdown`, { params });
+  }
+
+  generateReport(payload: any): Observable<any> {
+    return this.http.post(`${this.base}/reports/generate`, payload);
+  }
+
+  getReports(): Observable<any> {
+    return this.http.get(`${this.base}/reports`);
+  }
+
+  getReportById(id: number): Observable<any> {
+    return this.http.get(`${this.base}/reports/${id}`);
+  }
+
+  parseVoice(transcript: string): Observable<any> {
+    return this.http.post(`${this.base}/voice/parse`, { transcript });
+  }
+
+  confirmVoice(entryId: number, data: any): Observable<any> {
+    return this.http.post(`${this.base}/voice/${entryId}/confirm`, data);
+  }
+
+  getBudgets(): Observable<any> {
+    return this.http.get(`${this.base}/budgets`);
+  }
+
+  createBudget(data: any): Observable<any> {
+    return this.http.post(`${this.base}/budgets`, data);
+  }
+
+  updateBudget(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.base}/budgets/${id}`, data);
+  }
+
+  deleteBudget(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/budgets/${id}`);
+  }
+
+  getNotifications(): Observable<any> {
+    return this.http.get(`${this.base}/notifications`);
+  }
+
+  markNotificationRead(id: number): Observable<any> {
+    return this.http.post(`${this.base}/notifications/${id}/read`, {});
+  }
+
+  markAllNotificationsRead(): Observable<any> {
+    return this.http.post(`${this.base}/notifications/read-all`, {});
+  }
+
+  getRecurring(): Observable<any> {
+    return this.http.get(`${this.base}/recurring`);
+  }
+
+  createRecurring(data: any): Observable<any> {
+    return this.http.post(`${this.base}/recurring`, data);
+  }
+
+  updateRecurring(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.base}/recurring/${id}`, data);
+  }
+
+  deleteRecurring(id: number): Observable<any> {
+    return this.http.delete(`${this.base}/recurring/${id}`);
   }
 }

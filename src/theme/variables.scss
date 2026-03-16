@@ -1,37 +1,130 @@
+/* =========================================================
+   POCKET MONEY – LIGHT & DARK THEME (SINGLE FILE)
+   ========================================================= */
+
+/* =========================================================
+   LIGHT THEME (DEFAULT)
+   ========================================================= */
 :root {
-  /* Light Theme */
-  --ion-color-primary: #3880ff;
-  --ion-color-secondary: #3dc2ff;
-  --ion-color-tertiary: #5260ff;
-  --ion-color-success: #2dd36f;
-  --ion-color-warning: #ffc409;
-  --ion-color-danger: #eb445a;
-  --ion-color-light: #f4f5f8;
-  --ion-color-medium: #92949c;
-  --ion-color-dark: #222428;
+  /* ===============================
+     IONIC CORE COLORS
+     =============================== */
 
-  --ion-background-color: #ffffff;
-  --ion-text-color: #000000;
+  /* Primary – Trust / Stability */
+  --ion-color-primary: #4338ca;
+  --ion-color-primary-rgb: 67, 56, 202;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3b31b2;
+  --ion-color-primary-tint: #564cd0;
+
+  /* Secondary – Accent */
+  --ion-color-secondary: #6366f1;
+  --ion-color-secondary-rgb: 99, 102, 241;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+
+  /* Tertiary / Neutral */
+  --ion-color-tertiary: #475569;
+  --ion-color-tertiary-rgb: 71, 85, 105;
+  --ion-color-tertiary-contrast: #ffffff;
+
+  --ion-color-dark: #1e293b;
+  --ion-color-medium: #64748b;
+  --ion-color-light: #f1f5f9;
+
+  /* Status */
+  --ion-color-success: #10b981;
+  --ion-color-warning: #f59e0b;
+  --ion-color-danger: #ef4444;
+
+  /* ===============================
+     APP SEMANTIC TOKENS (LIGHT)
+     =============================== */
+
+  /* Backgrounds */
+  --page-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+
+  /* Text */
+  --text-main: #1e293b;
+  --text-light: #64748b;
+
+  /* Borders & Dividers */
+  --border-color: #e2e8f0;
+
+  /* Financial semantics */
+  --amount-positive: #10b981;
+  --amount-negative: #ef4444;
+  --amount-neutral: #64748b;
+
+  /* Elevation */
+  --card-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --card-border: none;
+
+  /* Bottom Dock */
+  --dock-bg: rgba(255, 255, 255, 0.95);
 }
 
-/* Auto Dark Theme (System) */
+/* =========================================================
+   DARK THEME (SYSTEM AUTO)
+   ========================================================= */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --ion-background-color: #121212;
-    --ion-text-color: #ffffff;
-    --ion-color-primary: #bb86fc;
-    --ion-color-secondary: #03dac6;
-    --ion-color-light: #333333;
-    --ion-color-dark: #f5f5f5;
-  }
-}
+  body {
+    /* ===============================
+       IONIC CORE COLORS (DARK)
+       =============================== */
 
-/* Manual Dark Theme */
-.dark-theme {
-  --ion-background-color: #121212;
-  --ion-text-color: #ffffff;
-  --ion-color-primary: #bb86fc;
-  --ion-color-secondary: #03dac6;
-  --ion-color-light: #333333;
-  --ion-color-dark: #f5f5f5;
+    --ion-color-primary: #818cf8;
+    --ion-color-primary-rgb: 129, 140, 248;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+
+    --ion-color-secondary: #a5b4fc;
+    --ion-color-tertiary: #94a3b8;
+
+    --ion-color-success: #34d399;
+    --ion-color-warning: #fbbf24;
+    --ion-color-danger: #f87171;
+
+    --ion-color-dark: #f8fafc;
+    --ion-color-medium: #94a3b8;
+    --ion-color-light: #1e293b;
+
+    /* ===============================
+       APP SEMANTIC TOKENS (DARK)
+       =============================== */
+
+    /* Backgrounds */
+    --page-bg: #0f172a;
+    --card-bg: #1e293b;
+    --input-bg: #1e293b;
+
+    /* Text */
+    --text-main: #f8fafc;
+    --text-light: #94a3b8;
+
+    /* Borders & Dividers */
+    --border-color: #334155;
+
+    /* Financial semantics */
+    --amount-positive: #34d399;
+    --amount-negative: #f87171;
+    --amount-neutral: #94a3b8;
+
+    /* Elevation */
+    --card-shadow: none;
+    --card-border: 1px solid #334155;
+
+    /* Bottom Dock */
+    --dock-bg: rgba(15, 23, 42, 0.95);
+  }
+
+  /* Normalize Ionic background */
+  .ios body,
+  .md body {
+    background-color: var(--page-bg);
+    color: var(--text-main);
+  }
 }

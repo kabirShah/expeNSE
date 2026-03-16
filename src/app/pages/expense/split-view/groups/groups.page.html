@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Groups</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreate()">
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="loadGroups()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ng-container *ngIf="groups.length > 0; else emptyState">
+    <ion-list>
+      <ion-item *ngFor="let g of groups" (click)="openGroup(g)">
+        <ion-avatar slot="start" class="group-avatar">
+          <ion-icon name="people" class="avatar-icon"></ion-icon>
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ g.name }}</h2>
+          <p class="muted">Created: {{ g.created_at | date:'shortDate' }}</p>
+        </ion-label>
+
+        <ion-button fill="clear" color="danger" slot="end" (click)="confirmDelete(g); $event.stopPropagation();">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
+  <ng-template #emptyState>
+    <div class="empty">
+      <ion-icon name="people-outline"></ion-icon>
+      <h3>No groups yet</h3>
+      <p>Create a group to start splitting expenses with friends.</p>
+      <ion-button expand="block" (click)="openCreate()">Create your first group</ion-button>
+    </div>
+  </ng-template>
+</ion-content>

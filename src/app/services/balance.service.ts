@@ -1,3 +1,4 @@
+// src/app/services/balance.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,79 +12,42 @@ import { Balance } from '../models/balance.model';
 export class BalanceService extends BaseApiService {
   private balanceUrl = `${this.apiUrl}/balances`;
 
-  constructor(http: HttpClient) {
-    super(http);
-  }
+  constructor(http: HttpClient) { super(http); }
 
-  // Get all balances
   getBalances(): Observable<{ success: boolean; data: Balance[] }> {
-    if (!this.isOnline()) {
-      return this.handleOfflineError();
-    }
-    
+    if (!this.isOnline()) return this.handleOfflineError();
     return this.http.get<{ success: boolean; data: Balance[] }>(
       this.balanceUrl,
       { headers: this.getAuthHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Get balance by ID
-  getBalanceById(id: string): Observable<{ success: boolean; data: Balance }> {
-    if (!this.isOnline()) {
-      return this.handleOfflineError();
-    }
-    
+  getBalanceById(id: string | number): Observable<{ success: boolean; data: Balance }> {
+    if (!this.isOnline()) return this.handleOfflineError();
     return this.http.get<{ success: boolean; data: Balance }>(
       `${this.balanceUrl}/${id}`,
       { headers: this.getAuthHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+    ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Create new balance
-  createBalance(balance: Balance): Observable<{ success: boolean; data: Balance }> {
-    if (!this.isOnline()) {
-      return this.handleOfflineError();
-    }
-    
+  createBalance(balance: Partial<Balance>): Observable<{ success: boolean; data: Balance }> {
+    if (!this.isOnline()) return this.handleOfflineError();
     return this.http.post<{ success: boolean; data: Balance }>(
-      this.balanceUrl,
-      balance,
-      { headers: this.getAuthHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+      this.balanceUrl, balance, { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Update balance
-  updateBalance(id: string, balance: Balance): Observable<{ success: boolean; data: Balance }> {
-    if (!this.isOnline()) {
-      return this.handleOfflineError();
-    }
-    
+  updateBalance(id: string | number, balance: Partial<Balance>): Observable<{ success: boolean; data: Balance }> {
+    if (!this.isOnline()) return this.handleOfflineError();
     return this.http.put<{ success: boolean; data: Balance }>(
-      `${this.balanceUrl}/${id}`,
-      balance,
-      { headers: this.getAuthHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+      `${this.balanceUrl}/${id}`, balance, { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
   }
 
-  // Delete balance
-  deleteBalance(id: string): Observable<{ success: boolean; message: string }> {
-    if (!this.isOnline()) {
-      return this.handleOfflineError();
-    }
-    
+  deleteBalance(id: string | number): Observable<{ success: boolean; message: string }> {
+    if (!this.isOnline()) return this.handleOfflineError();
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.balanceUrl}/${id}`,
-      { headers: this.getAuthHeaders() }
-    ).pipe(
-      catchError(this.handleError)
-    );
+      `${this.balanceUrl}/${id}`, { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
   }
 }
