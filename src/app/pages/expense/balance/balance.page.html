@@ -1,41 +1,53 @@
-<ion-header class="clean-header">
+﻿<ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']">
+      <ion-button (click)="goBack()">
         <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEdit ? 'Edit Transaction' : 'Add Money' }}</ion-title>
+
+    <ion-title>{{ isEdit ? 'Edit Balance' : 'Add Money' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="money-content">
-  
-  <div class="main-container">
-    <form [formGroup]="balanceForm" (ngSubmit)="saveBalance()">
+  <ion-spinner *ngIf="loading || loadingList" name="crescent" class="loader-center"></ion-spinner>
 
+  <div class="main-container" *ngIf="!(loading || loadingList)">
+    <div class="edit-pill" *ngIf="isEdit && editingBalance as current">
+      <div class="edit-info">
+        <ion-icon name="create-outline"></ion-icon>
+        <span>Editing: {{ current.source }}</span>
+      </div>
+      <ion-button fill="clear" size="small" (click)="cancelEdit()">Cancel</ion-button>
+    </div>
+
+    <form [formGroup]="balanceForm">
       <div class="amount-hero">
         <p class="label">Enter Amount</p>
+
         <div class="input-wrapper">
-          <span class="currency">₹</span>
-          <ion-input 
-            formControlName="amount" 
-            type="number" 
-            placeholder="0" 
+          <span class="currency">&#8377;</span>
+
+          <ion-input
+            formControlName="amount"
+            type="number"
+            placeholder="0"
             class="super-input">
           </ion-input>
         </div>
       </div>
 
       <div class="details-grid">
-        
         <div class="custom-field">
           <label>Source / Description</label>
+
           <div class="field-box">
             <ion-icon name="wallet-outline" class="field-icon"></ion-icon>
-            <ion-textarea 
-              formControlName="source" 
-              placeholder="e.g. Salary, Freelance..." 
+
+            <ion-textarea
+              formControlName="source"
+              placeholder="e.g. Salary, Freelance..."
               rows="1"
               autoGrow="true">
             </ion-textarea>
@@ -44,30 +56,83 @@
 
         <div class="custom-field">
           <label>Date Received</label>
+
           <div class="field-box">
             <ion-icon name="calendar-clear-outline" class="field-icon"></ion-icon>
-            <ion-input 
+
+            <ion-input
               formControlName="date_added"
               type="date"
               class="date-input">
             </ion-input>
           </div>
         </div>
-
       </div>
-
     </form>
-  </div>
 
+    <div class="list-head">
+      <h3>Recent Balance Entries</h3>
+      <ion-note *ngIf="balances.length">{{ balances.length }} items</ion-note>
+    </div>
+
+    <div class="balance-list">
+      <ion-list lines="none" class="record-list" *ngIf="balances.length; else emptyState">
+        <ion-item-sliding *ngFor="let b of balances; trackBy: trackByBalanceId">
+          <ion-item button detail="false" class="record-item" (click)="startEdit(b)">
+            <div class="record-avatar" slot="start">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+
+            <ion-label>
+              <h2>{{ b.source }}</h2>
+              <p>{{ b.date_added | date:'dd MMM yyyy' }}</p>
+            </ion-label>
+
+            <ion-note slot="end">&#8377;{{ b.amount | number:'1.0-2' }}</ion-note>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="primary" (click)="startEdit(b)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger" (click)="confirmDelete(b.id)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+
+      <ng-template #emptyState>
+        <div class="empty-box">
+          <ion-icon name="albums-outline"></ion-icon>
+          <h4>No balance records yet</h4>
+          <p>Add your first entry using the form above.</p>
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
 </ion-content>
 
 <ion-footer class="clean-footer">
-  <ion-button 
-    expand="block" 
-    type="submit" 
-    class="submit-btn" 
-    (click)="saveBalance()" 
-    [disabled]="balanceForm.invalid">
-    {{ isEdit ? 'Update Balance' : 'Add Funds' }}
+  <ion-button
+    expand="block"
+    class="submit-btn"
+    (click)="saveBalance()"
+    [disabled]="balanceForm.invalid || loading || loadingList">
+    <span>{{ isEdit ? 'Update Balance' : 'Add Funds' }}</span>
   </ion-button>
+
+  <div class="footer-actions" *ngIf="isEdit">
+    <ion-button expand="block" fill="outline" (click)="cancelEdit()">Cancel Edit</ion-button>
+
+    <ion-button
+      expand="block"
+      color="danger"
+      fill="outline"
+      (click)="confirmDelete()"
+      [disabled]="loading">
+      Delete Balance
+    </ion-button>
+  </div>
 </ion-footer>

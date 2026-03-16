@@ -14,7 +14,10 @@ export class BaseApiService {
 
   // Return HttpHeaders (not an options object)
   protected getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token') || '';
+    const token =
+      localStorage.getItem('auth_token') ||
+      sessionStorage.getItem('auth_token') ||
+      '';
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Accept': 'application/json',
@@ -27,10 +30,6 @@ export class BaseApiService {
     if (error.error instanceof ErrorEvent) errorMessage = `Error: ${error.error.message}`;
     else {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      if (error.status === 401) {
-        localStorage.clear();
-        window.location.reload();
-      }
     }
     console.error('API Error:', errorMessage);
     return throwError(() => new Error(errorMessage));

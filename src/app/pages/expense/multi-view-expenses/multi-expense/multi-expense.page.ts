@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+﻿import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MultiExpenseService, MultiExpense } from 'src/app/services/multi-expense.service';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-multi-expense',
@@ -12,15 +13,17 @@ import { MultiExpenseService, MultiExpense } from 'src/app/services/multi-expens
 export class MultiExpensePage implements OnInit {
   multiForm!: FormGroup;
   isProcessing = false;
+  pageLoading = false;
   expenseId: string | null = null;
   isEditMode = false;
 
   constructor(
     private fb: FormBuilder,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private multiExpenseService: MultiExpenseService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private mockNotificationService: MockNotificationService
   ) {
     this.multiForm = this.fb.group({
       title: ['', Validators.required],
@@ -38,6 +41,7 @@ export class MultiExpensePage implements OnInit {
   }
 
   async loadExpense(id: string) {
+    this.pageLoading = true;
     try {
       const response = await this.multiExpenseService.getMultiExpenseById(id).toPromise();
       if (response && response.success) {
@@ -51,17 +55,13 @@ export class MultiExpensePage implements OnInit {
     } catch (error) {
       console.error('Error loading multi-expense:', error);
       this.showToast('Failed to load expense details.');
+    } finally {
+      this.pageLoading = false;
     }
   }
 
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color
-    });
-    await toast.present();
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium' = 'primary') {
+    await this.uiToast.show(message, color);
   }
 
   async submitForm() {
@@ -75,7 +75,6 @@ export class MultiExpensePage implements OnInit {
 
     try {
       if (this.isEditMode && this.expenseId) {
-        // 🟢 UPDATE existing expense
         const updatedExpense: MultiExpense = {
           title,
           description: message,
@@ -83,9 +82,13 @@ export class MultiExpensePage implements OnInit {
         };
 
         await this.multiExpenseService.updateMultiExpense(this.expenseId, updatedExpense).toPromise();
+        this.mockNotificationService.addCrudNotification(
+          'Multi Expense',
+          'updated',
+          `${title || 'Multi expense'} was updated.`
+        );
         this.showToast('Multi-expense updated successfully!', 'success');
       } else {
-        // 🆕 CREATE new expense
         const newExpense: MultiExpense = {
           title,
           description: message,
@@ -93,6 +96,11 @@ export class MultiExpensePage implements OnInit {
         };
 
         await this.multiExpenseService.createMultiExpense(newExpense).toPromise();
+        this.mockNotificationService.addCrudNotification(
+          'Multi Expense',
+          'created',
+          `${title || 'Multi expense'} was created.`
+        );
         this.showToast('Multi-expense added successfully!', 'success');
       }
 

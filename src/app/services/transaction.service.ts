@@ -48,4 +48,41 @@ export class TransactionService extends BaseApiService {
       `${this.transactionsUrl}/${id}`, { headers: this.getAuthHeaders() }
     ).pipe(catchError(this.handleError.bind(this)));
   }
+
+  createMultiTransactions(payload: {
+    transactions: Array<Partial<Transaction>>;
+    batch_id?: string;
+  }): Observable<{ success: boolean; batch_id: string; data: Transaction[] }> {
+    if (!this.isOnline()) return this.handleOfflineError();
+    return this.http.post<{ success: boolean; batch_id: string; data: Transaction[] }>(
+      `${this.transactionsUrl}/multi`,
+      payload,
+      { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  createScannedTransaction(payload: {
+    amount: number;
+    category: string;
+    description?: string;
+    currency?: string;
+    payment_method?: string;
+    source_app?: string;
+    transaction_date?: string;
+  }): Observable<{ success: boolean; data: Transaction }> {
+    if (!this.isOnline()) return this.handleOfflineError();
+    return this.http.post<{ success: boolean; data: Transaction }>(
+      `${this.transactionsUrl}/scan`,
+      payload,
+      { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
+
+  getTransactionsByBatch(batchId: string): Observable<{ success: boolean; data: Transaction[] }> {
+    if (!this.isOnline()) return this.handleOfflineError();
+    return this.http.get<{ success: boolean; data: Transaction[] }>(
+      `${this.transactionsUrl}/by-batch/${batchId}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(catchError(this.handleError.bind(this)));
+  }
 }

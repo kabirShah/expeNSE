@@ -43,13 +43,25 @@ export class AuthService {
 
   loginLaravel(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
-      `${this.API_URL}/login`,
+      `${this.API_URL}/auth/login`,
       { email, password }
     );
   }
 
   register(userData: any): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/register`, userData);
+    return this.http.post<any>(`${this.API_URL}/auth/register`, userData);
+  }
+
+  sendOtp(payload: { email?: string; phone?: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/send-otp`, payload);
+  }
+
+  verifyOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/verify-otp`, payload);
+  }
+
+  loginOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/login-otp`, payload);
   }
 
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
@@ -79,7 +91,9 @@ export class AuthService {
 
     storage.setItem('auth_token', token);
     storage.setItem('loginTime', now);
-
+    storage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('rememberMe', rememberMe ? '7d' : '1d');
+    localStorage.setItem('token_timestamp', now);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
@@ -96,8 +110,17 @@ export class AuthService {
   }
 
   getUser(): any | null {
-    const user = localStorage.getItem('user');
+    const user =
+      localStorage.getItem('user') ||
+      sessionStorage.getItem('user');
     return user ? JSON.parse(user) : null;
+  }
+
+  getLoginTime(): string | null {
+    return (
+      localStorage.getItem('loginTime') ||
+      sessionStorage.getItem('loginTime')
+    );
   }
 
   isSessionValid(): boolean {
@@ -130,7 +153,7 @@ export class AuthService {
      =============================== */
 
   getProfile(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/user`, {
+    return this.http.get<any>(`${this.API_URL}/auth/me`, {
       headers: this.authHeaders()
     });
   }
@@ -146,8 +169,8 @@ export class AuthService {
     });
   }
   updateProfile(formData: FormData) {
-    return this.http.post(
-      `${this.API_URL}/settings/update-profile`,
+    return this.http.put(
+      `${this.API_URL}/auth/profile`,
       formData
     );
   }
@@ -158,6 +181,12 @@ export class AuthService {
      =============================== */
 
   logout(): void {
+    this.http.post(`${this.API_URL}/auth/logout`, {}, {
+      headers: this.authHeaders()
+    }).subscribe({
+      error: () => void 0
+    });
+
     this.clearSession();
   }
 }

@@ -1,114 +1,80 @@
-<ion-content class="auth-content">
+﻿<ion-content class="auth-content">
   <div class="auth-container">
-
-    <!-- =====================
-         BIOMETRIC LOADING
-         ===================== -->
-    <div *ngIf="checkingBiometric" class="biometric-loading">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Authenticating…</p>
+    <div *ngIf="showPageLoader" class="page-loader-overlay">
+      <div class="loader-card">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>{{ loaderText }}</p>
+      </div>
     </div>
 
-    <!-- =====================
-         AUTH CONTENT
-         ===================== -->
-    <ng-container *ngIf="!checkingBiometric">
+    <div class="auth-header">
+      <div class="brand-logo">
+        <ion-icon name="wallet-outline"></ion-icon>
+      </div>
+      <h1 class="auth-title">Pocket Money</h1>
+      <p class="auth-subtitle">Please enter your details to sign in.</p>
+    </div>
 
-      <!-- Header -->
-      <div class="auth-header">
-        <div class="brand-logo">
-          <ion-icon name="wallet-outline"></ion-icon>
+    <form [formGroup]="logForm" (ngSubmit)="login()" class="auth-form">
+      <div class="form-group">
+        <ion-label position="stacked">Email Address</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <ion-input
+            formControlName="email"
+            type="email"
+            placeholder="Enter your email"
+            class="custom-input">
+          </ion-input>
         </div>
-        <h1 class="auth-title">Pocket Money</h1>
-        <p class="auth-subtitle">
-          Please enter your details to sign in.
-        </p>
       </div>
 
-      <!-- Login Form -->
-      <form
-        [formGroup]="logForm"
-        (ngSubmit)="login()"
-        class="auth-form">
+      <div class="form-group">
+        <ion-label position="stacked">Password</ion-label>
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+          <ion-input
+            formControlName="password"
+            [type]="passwordType"
+            placeholder="Enter your password"
+            class="custom-input">
+          </ion-input>
 
-        <!-- Email -->
-        <div class="form-group">
-          <ion-label position="stacked">Email Address</ion-label>
-          <div class="input-wrapper">
-            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
-            <ion-input
-              formControlName="email"
-              type="email"
-              placeholder="Enter your email"
-              class="custom-input">
-            </ion-input>
-          </div>
+          <ion-button
+            fill="clear"
+            class="eye-btn"
+            type="button"
+            (click)="togglePasswordVisibility()">
+            <ion-icon
+              [name]="passwordType === 'password' ? 'eye-off-outline' : 'eye-outline'"
+              slot="icon-only">
+            </ion-icon>
+          </ion-button>
         </div>
-
-        <!-- Password -->
-        <div class="form-group">
-          <ion-label position="stacked">Password</ion-label>
-          <div class="input-wrapper">
-            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
-            <ion-input
-              formControlName="password"
-              [type]="passwordType"
-              placeholder="Enter your password"
-              class="custom-input">
-            </ion-input>
-
-            <ion-button
-              fill="clear"
-              class="eye-btn"
-              type="button"
-              (click)="togglePasswordVisibility()">
-              <ion-icon
-                [name]="passwordType === 'password'
-                  ? 'eye-off-outline'
-                  : 'eye-outline'"
-                slot="icon-only">
-              </ion-icon>
-            </ion-button>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="actions-row">
-          <ion-checkbox
-            formControlName="rememberMe"
-            labelPlacement="end">
-            Remember me
-          </ion-checkbox>
-
-          <a class="link-btn" (click)="forgotPassword()">
-            Forgot password?
-          </a>
-        </div>
-
-        <!-- Submit -->
-        <ion-button
-          expand="block"
-          type="submit"
-          class="primary-btn"
-          [disabled]="logForm.invalid || isLoading">
-          <ion-spinner
-            *ngIf="isLoading"
-            name="crescent">
-          </ion-spinner>
-          <span *ngIf="!isLoading">Sign in</span>
-        </ion-button>
-
-      </form>
-
-      <!-- Footer -->
-      <div class="auth-footer">
-        <p>
-          Don't have an account?
-          <a (click)="goToRegister()">Create an account</a>
-        </p>
       </div>
 
-    </ng-container>
+      <div class="actions-row">
+        <ion-checkbox formControlName="rememberMe" labelPlacement="end">
+          Remember me
+        </ion-checkbox>
 
+        <a class="link-btn" (click)="forgotPassword()">Forgot password?</a>
+      </div>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        class="primary-btn"
+        [disabled]="logForm.invalid || showPageLoader">
+        <span>Sign in</span>
+      </ion-button>
+    </form>
+
+    <div class="auth-footer">
+      <p>
+        Don't have an account?
+        <a (click)="goToRegister()">Create an account</a>
+      </p>
+    </div>
   </div>
 </ion-content>

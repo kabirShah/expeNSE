@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
 import { BiometricService } from 'src/app/services/biometric.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-setting',
@@ -23,7 +24,7 @@ export class SettingPage implements OnInit {
     private router: Router,
     private biometricService: BiometricService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private authService: AuthService
   ) {
     this.isDarkMode = localStorage.getItem('dark-mode') === 'true';
@@ -133,11 +134,6 @@ export class SettingPage implements OnInit {
    * TOAST
    * ========================= */
   private async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top'
-    });
-    await toast.present();
+    await this.uiToast.show(message, 'primary');
   }
 }

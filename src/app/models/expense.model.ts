@@ -2,7 +2,11 @@ export interface Expense {
    id?: number;          // auto increment id (Laravel default)
   expense_id?: string;  // UUID
   user_id?: number;     // will come from backend
-  category: string;
+  category?: {
+  id: number;
+  name: string;
+  parent_id?: number | null;
+};
   transaction_type: string;
   description: string;
   amount: number;

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -12,7 +12,7 @@ export class ForgotPasswordPage {
 
   constructor(
     private authApi: AuthService,
-    private toast: ToastController
+    private uiToast: UiToastService
   ) {}
 
   submit() {
@@ -36,11 +36,6 @@ export class ForgotPasswordPage {
   }
 
   async showToast(message: string) {
-    const t = await this.toast.create({
-      message,
-      duration: 2500,
-      position: 'top',
-    });
-    t.present();
+    await this.uiToast.show(message, 'primary');
   }
 }

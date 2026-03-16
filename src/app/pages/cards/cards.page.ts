@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import { CardApiService } from 'src/app/services/card-api.service';
 import { CreditCard } from 'src/app/models/credit-card.model';
 import { DebitCard } from 'src/app/models/debit-card.model';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-cards',
@@ -22,7 +23,7 @@ export class CardsPage implements OnInit {
     private router: Router,
     private navCtrl: NavController,
     private cardApiService: CardApiService,
-    private toastCtrl: ToastController
+    private uiToast: UiToastService
   ) {}
 
   ngOnInit() {
@@ -96,13 +97,9 @@ export class CardsPage implements OnInit {
     }
   }
 
-  async showToast(message: string, color: string = 'primary') {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top',
-      color,
-    });
-    await toast.present();
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium' = 'primary') {
+    await this.uiToast.show(message, color);
   }
 }
+
+

@@ -1,89 +1,143 @@
 <ion-header class="header-clean ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+     <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title>Analytics</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="page-content">
+  <ion-spinner *ngIf="isLoading" name="crescent" class="loader-center"></ion-spinner>
+  <div class="load-error" *ngIf="!isLoading && hasError">
+    <ion-icon name="analytics-outline"></ion-icon>
+    <h3>Couldn’t load analytics</h3>
+    <p>{{ errorMessage || 'Please try again.' }}</p>
+    <ion-button size="small" (click)="retryLoad()">Retry</ion-button>
+  </div>
 
-  <!-- MONTH NAVIGATOR -->
+  <ng-container *ngIf="!isLoading && !hasError">
   <div class="month-navigator">
-    <ion-button fill="clear" (click)="prevMonth()">
+    <ion-button fill="clear" size="small">
       <ion-icon name="chevron-back-outline"></ion-icon>
     </ion-button>
-
     <div class="current-month">
-      <span class="label">Month</span>
-      <h2>{{ selectedMonthName }} {{ selectedYear }}</h2>
+      <div class="label">Period</div>
+      <h2>March 2026</h2>
     </div>
-
-    <ion-button fill="clear" (click)="nextMonth()">
+    <ion-button fill="clear" size="small">
       <ion-icon name="chevron-forward-outline"></ion-icon>
     </ion-button>
   </div>
 
-  <!-- METRICS STRIP -->
   <div class="metrics-strip">
     <div class="metric-card">
-      <span class="label">Total Spent</span>
-      <h3>₹{{ totalSpent | number:'1.0-0' }}</h3>
+      <div class="label">Total Spend</div>
+      <h3>&#8377; {{ totalSpend | number:'1.0-2' }}</h3>
     </div>
-
     <div class="metric-card">
-      <span class="label">Manual</span>
-      <h3>₹{{ manualTotal | number:'1.0-0' }}</h3>
+      <div class="label">Current Balance</div>
+      <h3>&#8377; {{ currentBalance | number:'1.0-2' }}</h3>
     </div>
-
     <div class="metric-card">
-      <span class="label">Auto</span>
-      <h3>₹{{ autoTotal | number:'1.0-0' }}</h3>
+      <div class="label">Single Exp.</div>
+      <h3>&#8377; {{ totalExpense | number:'1.0-2' }}</h3>
+    </div>
+    <div class="metric-card">
+      <div class="label">Multi Exp.</div>
+      <h3>&#8377; {{ totalMultiExpense | number:'1.0-2' }}</h3>
     </div>
   </div>
 
-  <!-- CATEGORY FILTER -->
   <div class="filter-scroll-container">
     <div class="filter-row">
-      <ion-chip
-        *ngFor="let category of categories"
-        [class.active]="selectedCategory === category"
-        (click)="selectCategory(category)">
-        {{ category }}
-      </ion-chip>
+      <ion-chip class="active">All</ion-chip>
+      <ion-chip>Income</ion-chip>
+      <ion-chip>Expense</ion-chip>
+      <ion-chip>Transfers</ion-chip>
     </div>
   </div>
 
-  <!-- MANUAL CHART -->
   <ion-card class="chart-card">
     <ion-card-header>
-      <ion-card-title>Manual Expenses</ion-card-title>
-      <ion-card-subtitle>Category-wise spending</ion-card-subtitle>
+      <div class="header-row">
+        <ion-icon name="pie-chart-outline"></ion-icon>
+        <ion-card-title>Spending Mix</ion-card-title>
+      </div>
+      <ion-card-subtitle>By Category</ion-card-subtitle>
     </ion-card-header>
-
     <ion-card-content>
-      <div id="manualExpensesContainer" class="chart-container"></div>
+      <div class="chart-container">
+        <canvas baseChart 
+          [data]="spendingMixChartData" 
+          [type]="'doughnut'" 
+          [options]="chartOptions">
+        </canvas>
+      </div>
     </ion-card-content>
   </ion-card>
 
-  <!-- AUTO CHART -->
   <ion-card class="chart-card">
     <ion-card-header>
-      <ion-card-title>Auto Expenses</ion-card-title>
-      <ion-card-subtitle>Recurring & subscriptions</ion-card-subtitle>
+      <div class="header-row">
+        <ion-icon name="trending-up-outline"></ion-icon>
+        <ion-card-title>Monthly Spend Trend</ion-card-title>
+      </div>
     </ion-card-header>
-
     <ion-card-content>
-      <div id="autoExpensesContainer" class="chart-container"></div>
+      <div class="chart-container">
+        <canvas baseChart 
+          [data]="monthlyChartData" 
+          [type]="'line'" 
+          [options]="chartOptions">
+        </canvas>
+      </div>
     </ion-card-content>
   </ion-card>
 
-  <!-- INSIGHT -->
-  <div class="insight-summary" *ngIf="insightText">
-    {{ insightText }}
+  <ion-card class="chart-card">
+    <ion-card-header>
+      <div class="header-row">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+        <ion-card-title>Daily Spend (This Month)</ion-card-title>
+      </div>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="chart-container">
+        <canvas baseChart 
+          [data]="dailyChartData" 
+          [type]="'bar'" 
+          [options]="chartOptions">
+        </canvas>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="chart-card">
+    <ion-card-header>
+      <div class="header-row">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <ion-card-title>Balance Trend</ion-card-title>
+      </div>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="chart-container">
+        <canvas baseChart 
+          [data]="balanceChartData" 
+          [type]="'line'" 
+          [options]="chartOptions">
+        </canvas>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="insight-summary">
+    Great job! Your spending is currently on track compared to last month.
   </div>
-
+  
   <div class="bottom-spacer"></div>
+  </ng-container>
 
 </ion-content>

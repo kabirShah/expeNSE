@@ -1,14 +1,11 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  AlertController,
-  LoadingController,
-  ToastController
-} from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 
 import { AuthService } from 'src/app/services/auth.service';
 import { BiometricService } from 'src/app/services/biometric.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-login',
@@ -16,34 +13,27 @@ import { BiometricService } from 'src/app/services/biometric.service';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-
   logForm!: FormGroup;
   passwordType: 'password' | 'text' = 'password';
   isLoading = false;
   checkingBiometric = false;
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
     private biometricService: BiometricService,
-    private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController,
+    private uiToast: UiToastService,
     private alertCtrl: AlertController,
     private cd: ChangeDetectorRef
   ) {
     this.initForm();
   }
 
-  /* =============================
-     LIFECYCLE
-     ============================= */
   ngOnInit(): void {
     this.checkBiometricLogin();
   }
 
-  /* =============================
-     FORM INIT
-     ============================= */
   private initForm(): void {
     this.logForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -57,38 +47,26 @@ export class LoginPage implements OnInit {
       this.passwordType === 'password' ? 'text' : 'password';
   }
 
-  /* =============================
-     BIOMETRIC AUTO LOGIN
-     ============================= */
- private async checkBiometricLogin(): Promise<void> {
-  const biometricEnabled =
-    localStorage.getItem('biometric_enabled') === 'true';
+  private async checkBiometricLogin(): Promise<void> {
+    const biometricEnabled =
+      localStorage.getItem('biometric_enabled') === 'true';
 
-  const token =
-    localStorage.getItem('auth_token') ||
-    sessionStorage.getItem('auth_token');
+    const token = this.authService.getToken();
+    const loginTime = this.authService.getLoginTime();
 
-  const loginTime = localStorage.getItem('loginTime');
+    this.checkingBiometric = biometricEnabled && !!token && !!loginTime;
 
-  // Start biometric check
-  this.checkingBiometric = biometricEnabled && !!token && !!loginTime;
+    if (this.checkingBiometric) {
+      const success = await this.biometricService.verifyIdentity();
+      this.checkingBiometric = false;
 
-  if (this.checkingBiometric) {
-    const success = await this.biometricService.verifyIdentity();
-
-    this.checkingBiometric = false;
-
-    if (success) {
-      localStorage.setItem('loginTime', Date.now().toString());
-      this.router.navigateByUrl('/home', { replaceUrl: true });
+      if (success) {
+        localStorage.setItem('loginTime', Date.now().toString());
+        this.router.navigateByUrl('/home', { replaceUrl: true });
+      }
     }
   }
-}
 
-
-  /* =============================
-     EMAIL / PASSWORD LOGIN
-     ============================= */
   async login(): Promise<void> {
     if (!navigator.onLine) {
       this.showToast('No internet connection.');
@@ -103,38 +81,15 @@ export class LoginPage implements OnInit {
     const { email, password, rememberMe } = this.logForm.value;
     this.isLoading = true;
 
-    const loader = await this.loadingCtrl.create({
-      message: 'Signing in...',
-      spinner: 'crescent'
-    });
-    await loader.present();
-
     this.authService.loginLaravel(email, password).subscribe({
       next: async (res: any) => {
-        const now = Date.now().toString();
-
-        // 🔐 ALWAYS store loginTime (CRITICAL FIX)
-        localStorage.setItem('loginTime', now);
-        localStorage.setItem('token_timestamp', now);
-
-        if (rememberMe) {
-          localStorage.setItem('auth_token', res.token);
-          localStorage.setItem('rememberMe', '7d');
-        } else {
-          sessionStorage.setItem('auth_token', res.token);
-          localStorage.setItem('rememberMe', '1d');
-        }
-
-        localStorage.setItem('user', JSON.stringify(res.user));
-
-        await loader.dismiss();
+        this.authService.saveSession(res.token, res.user, rememberMe);
         this.isLoading = false;
 
         this.showToast('Login successful');
         this.router.navigateByUrl('/home', { replaceUrl: true });
       },
       error: async (err) => {
-        await loader.dismiss();
         this.isLoading = false;
 
         if (!err.status || err.status >= 500) {
@@ -146,9 +101,6 @@ export class LoginPage implements OnInit {
     });
   }
 
-  /* =============================
-     NAVIGATION
-     ============================= */
   goToRegister(): void {
     this.cd.detectChanges();
     this.router.navigateByUrl('/register');
@@ -158,16 +110,16 @@ export class LoginPage implements OnInit {
     this.router.navigateByUrl('/forgot-password');
   }
 
-  /* =============================
-     UI HELPERS
-     ============================= */
+  get showPageLoader(): boolean {
+    return this.checkingBiometric || this.isLoading;
+  }
+
+  get loaderText(): string {
+    return this.checkingBiometric ? 'Authenticating...' : 'Signing you in...';
+  }
+
   private async showToast(message: string): Promise<void> {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'top',
-    });
-    await toast.present();
+    await this.uiToast.show(message, 'primary');
   }
 
   async showErrorAlert(message: string): Promise<void> {

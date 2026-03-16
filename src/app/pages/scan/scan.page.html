@@ -10,8 +10,15 @@
 </ion-header>
 
 <ion-content class="scan-content">
-  
-  <div class="content-wrapper">
+  <ion-spinner *ngIf="isLoading" name="crescent" class="loader-center"></ion-spinner>
+  <div class="load-error" *ngIf="!isLoading && hasLoadError">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <h3>Couldn’t load receipts</h3>
+    <p>{{ loadErrorMessage || 'Please try again.' }}</p>
+    <ion-button size="small" (click)="retryLoadReceipts()">Retry</ion-button>
+  </div>
+
+  <div class="content-wrapper" *ngIf="!isLoading && !hasLoadError">
     <h2 class="section-title">History <span class="count-badge">{{ receipts.length }}</span></h2>
 
     <ion-list *ngIf="receipts.length > 0; else noReceipts" class="receipt-list" lines="none">
@@ -72,7 +79,7 @@
   </ng-template>
 </ion-modal>
 
-<ion-footer class="capture-footer">
+<ion-footer class="capture-footer" *ngIf="!isLoading">
   <div class="footer-handle"></div>
   
   <h2 class="footer-title">Add New Receipt</h2>

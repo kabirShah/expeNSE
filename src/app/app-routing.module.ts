@@ -1,20 +1,14 @@
-import { NgModule } from '@angular/core';
+﻿import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
 
-  /* =====================================================
-   * 1️⃣ ENTRY POINT
-   * ===================================================== */
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
   },
-  /* =====================================================
-   * 2️⃣ PUBLIC AUTH ROUTES
-   * ===================================================== */
   {
     path: 'login',
     loadChildren: () =>
@@ -33,11 +27,15 @@ const routes: Routes = [
         .then(m => m.ForgotPasswordPageModule)
   },
 
-  /* =====================================================
-   * 3️⃣ PROTECTED (AUTHENTICATED) ROUTES
-   * ===================================================== */
   {
     path: 'home',
+    loadChildren: () =>
+      import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule),
+    canActivate: [AuthGuard]
+  },
+  // Alias route for cleaner lazy-loaded dashboard URL.
+  {
+    path: 'dashboard',
     loadChildren: () =>
       import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule),
     canActivate: [AuthGuard]
@@ -48,10 +46,15 @@ const routes: Routes = [
       import('./pages/expense/balance/balance.module').then(m => m.BalancePageModule),
     canActivate: [AuthGuard]
   },
-
-  /* ---------- Expenses ---------- */
   {
     path: 'single-view-expenses',
+    loadChildren: () =>
+      import('./pages/expense/single-view-expenses/single-view-expenses.module')
+        .then(m => m.SingleViewExpensesPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'transactions',
     loadChildren: () =>
       import('./pages/expense/single-view-expenses/single-view-expenses.module')
         .then(m => m.SingleViewExpensesPageModule),
@@ -64,6 +67,14 @@ const routes: Routes = [
         .then(m => m.SingleExpensePageModule),
     canActivate: [AuthGuard]
   },
+  // Alias route used by instant Add Expense entry point.
+  {
+    path: 'add-expense',
+    loadChildren: () =>
+      import('./pages/expense/single-view-expenses/single-expense/single-expense.module')
+        .then(m => m.SingleExpensePageModule),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'single-expense/:id',
     loadChildren: () =>
@@ -71,7 +82,6 @@ const routes: Routes = [
         .then(m => m.SingleExpensePageModule),
     canActivate: [AuthGuard]
   },
-
   {
     path: 'multi-view-expense',
     loadChildren: () =>
@@ -93,8 +103,6 @@ const routes: Routes = [
         .then(m => m.MultiExpensePageModule),
     canActivate: [AuthGuard]
   },
-
-  /* ---------- Split / Groups ---------- */
   {
     path: 'split',
     loadChildren: () =>
@@ -108,12 +116,28 @@ const routes: Routes = [
         .then(m => m.SplitViewPageModule),
     canActivate: [AuthGuard]
   },
-
-  /* ---------- Analytics & Scan ---------- */
   {
     path: 'analytics',
     loadChildren: () =>
       import('./pages/analytics/analytics.module').then(m => m.AnalyticsPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'reports',
+    loadChildren: () =>
+      import('./pages/reports/reports.module').then(m => m.ReportsPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'budget',
+    loadChildren: () =>
+      import('./pages/budget/budget.module').then(m => m.BudgetPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'voice-entry',
+    loadChildren: () =>
+      import('./pages/voice-entry/voice-entry.module').then(m => m.VoiceEntryPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -122,10 +146,26 @@ const routes: Routes = [
       import('./pages/scan/scan.module').then(m => m.ScanPageModule),
     canActivate: [AuthGuard]
   },
-
-  /* ---------- Settings ---------- */
+  {
+    path: 'scan-receipt',
+    loadChildren: () =>
+      import('./pages/scan/scan.module').then(m => m.ScanPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'notifications',
+    loadChildren: () =>
+      import('./pages/notifications/notifications.module').then(m => m.NotificationsPageModule),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'setting',
+    loadChildren: () =>
+      import('./pages/setting/setting/setting.module').then(m => m.SettingPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'settings',
     loadChildren: () =>
       import('./pages/setting/setting/setting.module').then(m => m.SettingPageModule),
     canActivate: [AuthGuard]
@@ -167,12 +207,26 @@ const routes: Routes = [
     loadChildren: () => import('./pages/setting/reset-password/reset-password.module').then( m => m.ResetPasswordPageModule)
   },
   {
+    path: 'groups',
+    loadChildren: () => import('./groups/groups.module').then( m => m.GroupsPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'groups/:id',
+    loadChildren: () => import('./group-detail/group-detail.module').then( m => m.GroupDetailPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'groups/:groupId/add-expense',
+    loadChildren: () => import('./add-group-expense/add-group-expense.module').then( m => m.AddGroupExpensePageModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: '**',
     loadChildren: () =>
       import('./pages/notfound/notfound.module')
         .then(m => m.NotfoundPageModule)
   }
-
 ];
 
 @NgModule({

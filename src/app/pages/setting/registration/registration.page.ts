@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms'; // Ensure AbstractControl is imported
 import { Router } from '@angular/router';
-import { IonDatetime, LoadingController, NavController, ToastController } from '@ionic/angular';
+import { IonDatetime, LoadingController, NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-registration',
@@ -19,7 +20,7 @@ export class RegistrationPage implements OnInit {
 
   constructor(
     private router: Router,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private loadingController: LoadingController,
     private fb: FormBuilder, 
     private navCtrl: NavController,
@@ -101,13 +102,7 @@ export class RegistrationPage implements OnInit {
   }
 
   async showToast(message: string, color: 'success' | 'danger' | 'warning') {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      color,
-      position: 'top',
-    });
-    await toast.present();
+    await this.uiToast.show(message, color);
   }
 
   goToLogin() {
@@ -158,9 +153,10 @@ export class RegistrationPage implements OnInit {
 
     this.authService?.register(formData)?.subscribe({
       next: async (res) => {
+        this.authService.saveSession(res.token, res.user, true);
         await loading.dismiss();
-        await this.showToast('Registration successful! Please login.', 'success');
-        this.router.navigateByUrl('/login', { replaceUrl: true });
+        await this.showToast('Registration successful!', 'success');
+        this.router.navigateByUrl('/home', { replaceUrl: true });
       },
       error: async (err) => {
         await loading.dismiss();

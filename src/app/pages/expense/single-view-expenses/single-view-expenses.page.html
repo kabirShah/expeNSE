@@ -1,66 +1,99 @@
 <ion-header class="header-clean">
+
+  <!-- Top Toolbar -->
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button [routerLink]="['/home']">
         <ion-icon name="chevron-back" size="medium"></ion-icon>
       </ion-button>
     </ion-buttons>
+
     <ion-title>Single Expense</ion-title>
+
     <ion-buttons slot="end">
-      <ion-button expand="block" color="primary" (click)="exportToPDF()">
+      <ion-button color="primary" (click)="exportToPDF()">
         <ion-icon name="download-outline"></ion-icon>
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="importPDF()">
-        <ion-icon name="cloud-download-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 
+  <!-- Search + Period Filter -->
   <ion-toolbar class="filter-toolbar">
-    <div class="filter-row">
-      <ion-searchbar
-        class="custom-search"
-        mode="ios"
-        [(ngModel)]="searchTerm"
-        placeholder="Search..."
-        (ionInput)="applyFilters()"
-        debounce="500">
-      </ion-searchbar>
 
-      <div class="select-wrapper">
-        <ion-select
-          interface="popover"
-          [(ngModel)]="selectedMonth"
-          (ionChange)="applyFilters()"
-          placeholder="Month">
-          <ion-select-option value="all">All</ion-select-option>
-          <ion-select-option *ngFor="let m of ['January','February','March','April','May','June','July','August','September','October','November','December']" [value]="m">
-            {{ m | slice:0:3 }} </ion-select-option>
-        </ion-select>
-      </div>
-    </div>
+    <!-- Search -->
+    <ion-searchbar
+      mode="ios"
+      [(ngModel)]="searchTerm"
+      placeholder="Search expenses..."
+      (ionInput)="applySearchFilter()"
+      debounce="400">
+    </ion-searchbar>
+
+    <!-- Period Segment -->
+    <ion-segment
+      scrollable="true"
+      [(ngModel)]="selectedPeriod"
+      (ionChange)="onPeriodChange()">
+
+      <ion-segment-button value="today">
+        <ion-label>Today</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="week">
+        <ion-label>Week</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="month">
+        <ion-label>Month</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="6months">
+        <ion-label>6 Months</ion-label>
+      </ion-segment-button>
+
+    </ion-segment>
+
   </ion-toolbar>
+
 </ion-header>
 
 <ion-content class="page-content">
 
-  <ion-spinner *ngIf="loading" name="crescent" class="loader-center"></ion-spinner>
+  <!-- Loading Spinner -->
+  <ion-spinner
+    *ngIf="loading"
+    name="crescent"
+    class="loader-center">
+  </ion-spinner>
 
-  <div class="total-hero-card" *ngIf="filteredExpenses.length > 0 && !loading">
+  <!-- Total Card -->
+  <div
+    class="total-hero-card"
+    *ngIf="filteredExpenses.length > 0 && !loading">
+
     <div class="label-group">
       <ion-icon name="receipt-outline"></ion-icon>
-      <span>Total Single-Expense</span>
+      <span>Total Expense</span>
     </div>
+
     <div class="amount-group">
       <span class="currency">₹</span>
-      <span class="value">{{ totalFilteredAmount | number:'1.2-2' }}</span>
+      <span class="value">
+        {{ totalFilteredAmount | number:'1.2-2' }}
+      </span>
     </div>
+
     <div class="card-deco"></div>
   </div>
 
-  <ion-list *ngIf="filteredExpenses.length > 0 && !loading" lines="none">
+  <!-- Expense List -->
+  <ion-list
+    *ngIf="filteredExpenses.length > 0 && !loading"
+    lines="none">
 
-    <ion-item-sliding *ngFor="let exp of filteredExpenses; trackBy: trackById" class="slide-wrapper">
+    <ion-item-sliding
+      *ngFor="let exp of filteredExpenses; trackBy: trackById"
+      class="slide-wrapper">
 
       <ion-item class="expense-card">
 
@@ -69,51 +102,83 @@
         </div>
 
         <ion-label>
+
           <div class="top-row">
             <h2>{{ exp.description }}</h2>
-            <span class="price-tag">-₹{{ exp.amount }}</span>
+            <span class="price-tag">
+              -₹{{ exp.amount | number:'1.2-2' }}
+            </span>
           </div>
-
-          <p class="description">{{ exp.description }}</p>
 
           <div class="meta-row">
             <span class="date">
               <ion-icon name="calendar-clear-outline"></ion-icon>
-              {{ exp.date | date:'dd MMM' }}
+              {{ exp.date | date:'dd MMM yyyy' }}
             </span>
-            <span class="cat-badge">{{ getCategoryName(exp) }}</span>
+
+            <span class="cat-badge">
+              {{ getCategoryName(exp) }}
+            </span>
           </div>
+
         </ion-label>
+
       </ion-item>
 
+      <!-- Slide Options -->
       <ion-item-options side="end">
-        <ion-item-option class="opt-btn edit" (click)="editExpense(exp.id!.toString())">
-          <ion-icon slot="icon-only" name="create"></ion-icon>
+
+        <ion-item-option
+          color="primary"
+          (click)="editExpense(exp.id!.toString())">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
         </ion-item-option>
-        <ion-item-option class="opt-btn delete" (click)="deleteExpense(exp.id!.toString())">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
+
+        <ion-item-option
+          color="danger"
+          (click)="deleteExpense(exp.id!.toString())">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-item-option>
+
       </ion-item-options>
 
     </ion-item-sliding>
 
   </ion-list>
 
-  <div *ngIf="!loading && filteredExpenses.length === 0" class="empty-state">
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading && filteredExpenses.length === 0"
+    class="empty-state">
+
     <div class="icon-circle">
       <ion-icon name="receipt-outline"></ion-icon>
     </div>
+
     <h3>No Records Found</h3>
-    <p>Add a new single-expense to get started.</p>
+    <p>Add a new expense to get started.</p>
+
   </div>
 
 </ion-content>
 
+<!-- Footer -->
 <ion-footer class="custom-footer">
   <ion-toolbar>
-    <ion-button expand="block" class="main-btn" (click)="navigateToAddExpense()">
-      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-      Add Single Expense
+
+    <ion-button
+      expand="block"
+      class="main-btn"
+      (click)="navigateToAddExpense()">
+
+      <ion-icon
+        name="add-circle-outline"
+        slot="start">
+      </ion-icon>
+
+      Add Expense
+
     </ion-button>
+
   </ion-toolbar>
 </ion-footer>

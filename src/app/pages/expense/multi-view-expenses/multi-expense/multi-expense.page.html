@@ -1,70 +1,61 @@
-<ion-header class="clean-header">
+﻿<ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/multi-view-expenses"></ion-back-button>
+      <ion-button [routerLink]="['/multi-view-expense']" class="back-btn">
+        <ion-icon name="arrow-back-outline" size="medium"></ion-icon>
+      </ion-button>
     </ion-buttons>
-
-    <ion-title>
-      {{ isEditMode ? 'Edit Multi Expense' : 'New Multi Expense' }}
-    </ion-title>
+    <ion-title>{{ isEditMode ? 'Edit Multi Transaction' : 'New Multi Transaction' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="form-bg-content">
+  <ion-spinner *ngIf="pageLoading" name="crescent" class="loader-center"></ion-spinner>
 
-  <div class="form-container">
+  <div class="form-container" *ngIf="!pageLoading">
     <form [formGroup]="multiForm" (ngSubmit)="submitForm()" class="form-card">
 
-      <!-- TITLE -->
-      <div class="input-group">
-        <ion-label class="field-label">Title</ion-label>
-        <ion-item lines="none" class="custom-input-item">
-          <ion-icon name="text-outline" slot="start"></ion-icon>
-          <ion-input 
-            placeholder="Expense Title"
-            formControlName="title">
-          </ion-input>
-        </ion-item>
+      <div class="form-row">
+        <div class="input-group half-width">
+          <ion-label class="field-label">Title</ion-label>
+          <ion-item lines="none" class="custom-input-item">
+            <ion-icon name="text-outline" slot="start"></ion-icon>
+            <ion-input placeholder="Expense Title" formControlName="title"></ion-input>
+          </ion-item>
+        </div>
+
+        <div class="input-group half-width">
+          <ion-label class="field-label">Category</ion-label>
+          <ion-item lines="none" class="custom-input-item">
+            <ion-icon name="layers-outline" slot="start"></ion-icon>
+            <ion-input placeholder="Category" formControlName="category"></ion-input>
+          </ion-item>
+        </div>
       </div>
 
-      <!-- MULTI EXPENSE TEXT -->
       <div class="input-group">
-        <ion-label class="field-label">Multi Expense Text</ion-label>
+        <ion-label class="field-label">Multi Expense Details</ion-label>
         <ion-item lines="none" class="custom-input-item textarea-item">
           <ion-icon name="document-text-outline" slot="start"></ion-icon>
           <ion-textarea
             formControlName="message"
             rows="6"
             placeholder="Example:
-200₹ Groceries
-500₹ Transport
-150₹ Snacks">
+200 INR Groceries
+500 INR Transport
+150 INR Snacks">
           </ion-textarea>
         </ion-item>
       </div>
 
-      <!-- CATEGORY -->
-      <div class="input-group">
-        <ion-label class="field-label">Category</ion-label>
-        <ion-item lines="none" class="custom-input-item">
-          <ion-icon name="layers-outline" slot="start"></ion-icon>
-          <ion-input
-            placeholder="Category"
-            formControlName="category">
-          </ion-input>
-        </ion-item>
-      </div>
-
-      <!-- SUBMIT BUTTON -->
       <ion-button
         expand="block"
         type="submit"
         class="main-button"
         [disabled]="isProcessing || multiForm.invalid">
-        {{ isEditMode ? 'Update Expense' : 'Save Expense' }}
+        {{ isEditMode ? 'Update Transaction' : 'Save Transaction' }}
       </ion-button>
 
     </form>
   </div>
-
 </ion-content>

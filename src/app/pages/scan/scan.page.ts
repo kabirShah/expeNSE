@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { ReceiptService } from '../../services/receipt.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-scan',
@@ -16,13 +17,16 @@ export class ScanPage implements OnInit {
   currentPreviewImage: string | null = null;
 
   // Data
+  isLoading = false;
+  hasLoadError = false;
+  loadErrorMessage = '';
   receipts: any[] = [];
   newReceipt: any = { imageUrl: null, base64Data: null, price: null, notes: '' };
 
   constructor(
     private receiptService: ReceiptService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private uiToast: UiToastService
   ) {}
 
   ngOnInit() {
@@ -30,6 +34,10 @@ export class ScanPage implements OnInit {
   }
 
   loadReceipts() {
+    this.isLoading = true;
+    this.hasLoadError = false;
+    this.loadErrorMessage = '';
+
     this.receiptService.getReceipts().subscribe({
       next: (res) => {
         if (res?.success) {
@@ -43,9 +51,19 @@ export class ScanPage implements OnInit {
             date: r.created_at
           }));
         }
+        this.isLoading = false;
       },
-      error: (err) => console.error('Error loading receipts', err)
+      error: (err) => {
+        console.error('Error loading receipts', err);
+        this.hasLoadError = true;
+        this.loadErrorMessage = 'Unable to load receipt history.';
+        this.isLoading = false;
+      }
     });
+  }
+
+  retryLoadReceipts() {
+    this.loadReceipts();
   }
 
   // --- CAMERA LOGIC ---
@@ -80,6 +98,7 @@ export class ScanPage implements OnInit {
 
   saveReceipt() {
     if (!this.newReceipt.base64Data || !this.newReceipt.price) return;
+    this.isLoading = true;
 
     // Use specific format expected by your service
     const base64ToSend = `data:image/jpeg;base64,${this.newReceipt.base64Data}`;
@@ -95,7 +114,10 @@ export class ScanPage implements OnInit {
         this.loadReceipts();
         this.showToast("Receipt saved successfully", "success");
       },
-      error: () => this.showToast("Failed to save receipt", "danger")
+      error: () => {
+        this.isLoading = false;
+        this.showToast("Failed to save receipt", "danger");
+      }
     });
   }
 
@@ -109,9 +131,13 @@ export class ScanPage implements OnInit {
           text: "Delete",
           role: 'destructive',
           handler: () => {
+            this.isLoading = true;
             this.receiptService.deleteReceipt(id).subscribe(() => {
               this.showToast("Receipt deleted", "medium");
               this.loadReceipts();
+            }, () => {
+              this.isLoading = false;
+              this.showToast("Failed to delete receipt", "danger");
             });
           }
         }
@@ -132,13 +158,7 @@ export class ScanPage implements OnInit {
     this.currentPreviewImage = null;
   }
 
-  async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      color,
-      position: 'top'
-    });
-    toast.present();
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium') {
+    await this.uiToast.show(message, color);
   }
 }

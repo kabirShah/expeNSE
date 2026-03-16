@@ -8,9 +8,11 @@ import { AnalyticsPageRoutingModule } from './analytics-routing.module';
 
 import { AnalyticsPage } from './analytics.page';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { BaseChartDirective } from 'ng2-charts';
 
 @NgModule({
   imports: [
+    BaseChartDirective,
     CommonModule,
     FormsModule,
     IonicModule,

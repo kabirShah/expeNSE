@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupsService } from 'src/app/services/groups.service';
-import { ToastController, LoadingController } from '@ionic/angular';
+import { UiToastService } from 'src/app/services/ui-toast.service';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-group-add',
@@ -14,7 +15,7 @@ export class GroupAddPage {
   constructor(
     private groupsService: GroupsService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private loadingCtrl: LoadingController
   ) {}
 
@@ -45,7 +46,8 @@ export class GroupAddPage {
   }
 
   async showToast(message: string, color: 'primary'|'success'|'danger'|'warning' = 'primary') {
-    const t = await this.toastCtrl.create({ message, duration: 1800, color });
-    await t.present();
+    await this.uiToast.show(message, color);
   }
 }
+
+

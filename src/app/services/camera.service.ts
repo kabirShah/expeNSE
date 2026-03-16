@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class CameraService {
         resultType: CameraResultType.DataUrl,
         source: CameraSource.Camera,
       });
-      return image.dataUrl; // Return Base64 image data
+      return image.dataUrl ?? null;
     } catch (error) {
       console.error('Error capturing image:', error);
       return null;

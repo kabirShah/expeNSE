@@ -12,6 +12,14 @@ app-single-expense {
 
   ion-content.form-bg-content { --background: var(--page-bg); }
 
+  .loader-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
+
   /* HEADER */
   .clean-header ion-toolbar {
     --background: var(--page-bg); --border-width: 0; --color: var(--text-main);

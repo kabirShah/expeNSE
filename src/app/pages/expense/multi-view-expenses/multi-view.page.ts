@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MultiExpense, MultiExpenseService } from 'src/app/services/multi-expense.service';
+import { MockNotificationService } from 'src/app/services/mock-notification.service';
 
 @Component({
   selector: 'app-multi-view',
@@ -15,13 +16,14 @@ export class MultiViewPage implements OnInit {
   searchTerm: string = '';
   selectedMonth: string = 'all';
 
-  totalExpense: number = 0;            // Total for ALL items
-  totalFilteredAmount: number = 0;     // Total AFTER filters
+  totalExpense: number = 0;
+  totalFilteredAmount: number = 0;
   loading: boolean = false;
 
   constructor(
     private router: Router,
-    private multiExpenseService: MultiExpenseService
+    private multiExpenseService: MultiExpenseService,
+    private mockNotificationService: MockNotificationService
   ) {}
 
   ngOnInit() {
@@ -36,7 +38,6 @@ export class MultiViewPage implements OnInit {
       if (response && response.success) {
         this.multiExpenses = response.data;
 
-        // Total of ALL multi expenses
         this.totalExpense = this.multiExpenses.reduce(
           (sum, e) => sum + Number(e.total_amount ?? 0),
           0
@@ -57,7 +58,6 @@ export class MultiViewPage implements OnInit {
       let matchesSearch = true;
       let matchesMonth = true;
 
-      // SEARCH FILTER
       if (this.searchTerm) {
         const s = this.searchTerm.toLowerCase();
         matchesSearch =
@@ -65,7 +65,6 @@ export class MultiViewPage implements OnInit {
           (exp.description?.toLowerCase().includes(s) ?? false);
       }
 
-      // MONTH FILTER
       if (this.selectedMonth !== 'all') {
         const expenseMonth = exp.created_at
           ? new Date(exp.created_at).toLocaleString('default', { month: 'long' })
@@ -77,13 +76,12 @@ export class MultiViewPage implements OnInit {
       return matchesSearch && matchesMonth;
     });
 
-    // Total for filtered results
     this.totalFilteredAmount = this.filteredExpenses.reduce(
       (sum, e) => sum + Number(e.total_amount ?? 0),
       0
     );
 
-    console.log("Filtered total:", this.totalFilteredAmount);
+    console.log('Filtered total:', this.totalFilteredAmount);
   }
 
   trackById(index: number, item: MultiExpense) {
@@ -95,8 +93,15 @@ export class MultiViewPage implements OnInit {
   }
 
   async deleteAutoExpense(id: number | string) {
+    const deleting = this.multiExpenses.find((exp) => String(exp.id) === String(id));
+
     try {
       await this.multiExpenseService.deleteMultiExpense(String(id)).toPromise();
+      this.mockNotificationService.addCrudNotification(
+        'Multi Expense',
+        'deleted',
+        `${deleting?.title || 'Multi expense'} was deleted.`
+      );
       await this.loadAutoExpenses();
     } catch (error) {
       console.error('Error deleting multi-expense:', error);

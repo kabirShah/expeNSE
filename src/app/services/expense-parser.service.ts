@@ -11,7 +11,7 @@ export class ExpenseParserService {
     const multiExpense: MultiExpense = {
       title,
       description: message,
-      totalAmount: 0, // Backend will calculate this
+      total_amount: 0,
       category
     };
 

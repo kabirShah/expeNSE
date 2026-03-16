@@ -37,17 +37,17 @@ export class ReceiptService {
     };
 
     return this.http.post(
-      `${this.apiUrl}/receipt`,
+      `${this.apiUrl}/receipts`,
       payload,
       { headers: this.getAuthHeaders() }
     );
   }
 
   getReceipts(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/receipt`, { headers: this.getAuthHeaders() });
+    return this.http.get(`${this.apiUrl}/receipts`, { headers: this.getAuthHeaders() });
   }
 
   deleteReceipt(id: string | number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/receipt/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.apiUrl}/receipts/${id}`, { headers: this.getAuthHeaders() });
   }
 }

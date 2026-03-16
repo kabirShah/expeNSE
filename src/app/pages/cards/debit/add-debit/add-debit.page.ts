@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 import { DebitCard } from 'src/app/models/debit-card.model';
 import { CardApiService } from 'src/app/services/card-api.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-add-debit',
@@ -18,7 +19,7 @@ export class AddDebitPage implements OnInit {
 
   constructor(
     private cardApiService: CardApiService,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
     private fb: FormBuilder
@@ -105,13 +106,9 @@ export class AddDebitPage implements OnInit {
     }
   }
 
-  private async showToast(message: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' | 'medium') {
+    await this.uiToast.show(message, color);
   }
 }
+
+

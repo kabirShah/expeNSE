@@ -10,7 +10,9 @@
 </ion-header>
 
 <ion-content class="form-bg-content">
-  <div class="form-container">
+  <ion-spinner *ngIf="pageLoading" name="crescent" class="loader-center"></ion-spinner>
+
+  <div class="form-container" *ngIf="!pageLoading">
     <form [formGroup]="expenseForm" (ngSubmit)="saveExpense()" class="form-card">
 
       <!-- 1. HERO AMOUNT -->
@@ -27,49 +29,27 @@
         </div>
       </div>
 
-      <!-- 2. DATE & CATEGORY ROW -->
-      <div class="form-row">
-        <!-- Date Picker -->
-        <div class="input-group half-width">
-          <ion-label class="field-label">Date</ion-label>
-          <ion-item lines="none" class="custom-input-item picker-item">
-            <ion-icon slot="start" name="calendar-clear-outline"></ion-icon>
-            <ion-datetime-button datetime="datetime"></ion-datetime-button>
-          </ion-item>
-        </div>
-
-        <!-- Category Dropdown (Dynamic) -->
-        <div class="input-group half-width">
-          <ion-label class="field-label">Category</ion-label>
-          <ion-item lines="none" class="custom-input-item">
-            <ion-select 
-              formControlName="category_id" 
-              interface="popover" 
-              placeholder="Select"
-              [interfaceOptions]="{ cssClass: 'wide-popover' }">
-              
-              <!-- Iterate over the formatted categories from DB -->
-              <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
-                {{ cat.displayName }}
-              </ion-select-option>
-              
-            </ion-select>
-          </ion-item>
-        </div>
-      </div>
-
-      <!-- 3. TITLE -->
+      <!-- 2. DATE -->
       <div class="input-group">
-        <ion-label class="field-label">Title</ion-label>
-        <ion-item lines="none" class="custom-input-item">
-          <ion-icon slot="start" name="text-outline"></ion-icon>
-          <ion-input formControlName="description" placeholder="e.g. Grocery Run"></ion-input>
+        <ion-label class="field-label">Date</ion-label>
+        <ion-item lines="none" class="custom-input-item picker-item">
+          <ion-icon slot="start" name="calendar-clear-outline"></ion-icon>
+          <ion-datetime-button datetime="datetime"></ion-datetime-button>
         </ion-item>
       </div>
 
-      <!-- 4. PAYMENT METHOD -->
+      <!-- 3. WHAT WAS THIS FOR -->
       <div class="input-group">
-        <ion-label class="field-label">Payment Method</ion-label>
+        <ion-label class="field-label">What was this for?</ion-label>
+        <ion-item lines="none" class="custom-input-item">
+          <ion-icon slot="start" name="text-outline"></ion-icon>
+          <ion-input formControlName="description" placeholder="e.g. Grocery run, Auto fare, Dinner"></ion-input>
+        </ion-item>
+      </div>
+
+      <!-- 4. PAID VIA -->
+      <div class="input-group">
+        <ion-label class="field-label">Paid via</ion-label>
         <ion-item lines="none" class="custom-input-item">
           <ion-icon slot="start" name="card-outline"></ion-icon>
           <ion-select formControlName="transaction_type" interface="popover" placeholder="Select Method">
@@ -98,7 +78,7 @@
     </form>
   </div>
 
-  <ion-modal [keepContentsMounted]="true">
+  <ion-modal [keepContentsMounted]="true" *ngIf="!pageLoading">
   <ng-template>
     <ion-datetime
       id="expenseDate"

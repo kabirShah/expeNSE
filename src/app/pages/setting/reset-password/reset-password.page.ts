@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -24,7 +24,7 @@ export class ResetPasswordPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authApi: AuthService,
-    private toast: ToastController
+    private uiToast: UiToastService
   ) {}
 
   ngOnInit() {
@@ -78,13 +78,7 @@ export class ResetPasswordPage implements OnInit {
   }
 
   async showToast(message: string) {
-    const t = await this.toast.create({
-      message,
-      duration: 2500,
-      position: 'top',
-      color: message.includes('success') ? 'success' : 'danger', // UX: Color code the toast
-      icon: message.includes('success') ? 'checkmark-circle' : 'alert-circle',
-    });
-    t.present();
+    const tone = message.toLowerCase().includes('successful') ? 'success' : 'danger';
+    await this.uiToast.show(message, tone);
   }
 }

@@ -1,32 +1,24 @@
-// Variables
-$bg-color: #ffffff;
-$primary-text: #2d3436;
-$secondary-text: #b2bec3;
-$accent-green: #00b894; // Green for "Adding Money"
-$input-bg: #f5f6fa;
+﻿$bg-color: #ffffff;
+$surface-soft: #f5f7fb;
+$primary-text: #1f2937;
+$secondary-text: #6b7280;
+$accent-green: #0f9d7a;
+$danger: #d63b50;
 
 ion-content {
   --background: #{$bg-color};
 }
 
-// 1. Header Styling
 .clean-header {
   ion-toolbar {
     --background: #{$bg-color};
     --border-width: 0;
   }
+
   ion-title {
     font-weight: 700;
     color: $primary-text;
     font-size: 18px;
-  }
-  .close-btn {
-    --color: #{$primary-text};
-    background: $input-bg;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-left: 10px;
   }
 }
 
@@ -35,128 +27,277 @@ ion-content {
   flex-direction: column;
 }
 
-.main-container {
-  padding: 20px 24px;
+.loader-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
-// 2. Hero Amount Section
+.main-container {
+  padding: 18px 18px 8px;
+}
+
+.edit-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(120deg, #e7faf3 0%, #f2fffa 100%);
+  border: 1px solid #caefe2;
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+
+  .edit-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0b765c;
+    font-weight: 600;
+    font-size: 13px;
+
+    ion-icon {
+      font-size: 17px;
+    }
+  }
+
+  ion-button {
+    --color: #0b765c;
+    font-weight: 600;
+    font-size: 12px;
+  }
+}
+
 .amount-hero {
   text-align: center;
-  margin-top: 20px;
-  margin-bottom: 50px;
+  margin-top: 8px;
+  margin-bottom: 24px;
 
   .label {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: $secondary-text;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .input-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
     .currency {
-      font-size: 42px;
+      font-size: 38px;
       font-weight: 700;
       color: $primary-text;
-      margin-right: 4px;
-      margin-top: -8px; // Slight visual alignment adjustment
+      margin-right: 6px;
+      margin-top: -6px;
     }
 
-    // The Massive Input
     .super-input {
       --padding-start: 0;
       --padding-end: 0;
       --background: transparent;
-      font-size: 56px;
+      font-size: 48px;
       font-weight: 700;
       color: $primary-text;
-      max-width: 250px; // Prevent it from stretching too wide
+      max-width: 240px;
       text-align: center;
-      
-      // Target the native input to center text and remove outlines
+
       ::ng-deep input {
-        text-align: center; 
-        caret-color: $accent-green; // Green cursor
+        text-align: center;
+        caret-color: $accent-green;
       }
     }
   }
 }
 
-// 3. Custom Field Styling (Replacing ion-item)
 .details-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .custom-field {
   label {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: $primary-text;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     margin-left: 4px;
   }
 
   .field-box {
-    background: $input-bg;
-    border-radius: 16px;
-    padding: 6px 16px;
+    background: $surface-soft;
+    border-radius: 14px;
+    padding: 6px 14px;
     display: flex;
-    align-items: center; // Vertically center icon and input
-    height: 60px;
-    transition: box-shadow 0.2s;
+    align-items: center;
+    min-height: 54px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
     border: 1px solid transparent;
 
     &:focus-within {
-      background: white;
+      background: #ffffff;
       border-color: $accent-green;
-      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.15);
+      box-shadow: 0 8px 20px rgba(15, 157, 122, 0.14);
     }
 
     .field-icon {
-      font-size: 22px;
-      color: $secondary-text;
-      margin-right: 12px;
+      font-size: 20px;
+      color: #9ca3af;
+      margin-right: 10px;
+      flex-shrink: 0;
     }
 
-    ion-textarea, ion-input {
+    ion-textarea,
+    ion-input {
       --padding-start: 0;
       --background: transparent;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
       color: $primary-text;
-      --placeholder-color: #b2bec3;
+      --placeholder-color: #9ca3af;
       --placeholder-opacity: 1;
     }
-    
+
     ion-textarea {
-      margin-top: 0; // Fix standard ionic textarea margin
+      margin-top: 0;
     }
   }
 }
 
-// 4. Footer & Button
-.clean-footer {
+.list-head {
+  margin-top: 24px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    color: $primary-text;
+    font-weight: 700;
+  }
+
+  ion-note {
+    font-size: 12px;
+    color: $secondary-text;
+  }
+}
+
+.record-list {
   background: transparent;
-  padding: 0 24px 30px 24px; // Bottom padding for safe area
+}
+
+.record-item {
+  --inner-padding-end: 8px;
+  --padding-start: 10px;
+  --border-radius: 14px;
+  --background: #ffffff;
+  margin-bottom: 10px;
+  border: 1px solid #edf1f7;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+
+  ion-label h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: $primary-text;
+    margin-bottom: 4px;
+  }
+
+  ion-label p {
+    font-size: 12px;
+    color: $secondary-text;
+  }
+
+  ion-note {
+    font-weight: 700;
+    color: #0b765c;
+    font-size: 14px;
+  }
+}
+
+.record-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #f1f5f9;
+
+  ion-icon {
+    font-size: 18px;
+    color: #475569;
+  }
+}
+
+ion-item-option {
+  border-radius: 12px;
+  margin-left: 6px;
+  min-width: 54px;
+}
+
+.empty-box {
+  margin-top: 12px;
+  text-align: center;
+  padding: 30px 16px;
+  border: 1px dashed #d8e2f0;
+  border-radius: 16px;
+  background: #fbfdff;
+
+  ion-icon {
+    font-size: 28px;
+    color: #94a3b8;
+  }
+
+  h4 {
+    margin: 10px 0 6px;
+    font-size: 15px;
+    color: $primary-text;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: $secondary-text;
+  }
+}
+
+.clean-footer {
+  background: linear-gradient(to top, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0));
+  padding: 8px 18px 22px;
   --border-width: 0;
-  background: linear-gradient(to top, rgba(255,255,255,1) 80%, rgba(255,255,255,0)); // Fade out effect
 
   .submit-btn {
-    --background: #{$primary-text}; // Dark button for contrast
-    --color: white;
-    --border-radius: 16px;
-    height: 56px;
+    --background: #111827;
+    --color: #ffffff;
+    --border-radius: 14px;
+    height: 52px;
     font-weight: 700;
-    font-size: 16px;
-    --box-shadow: 0 10px 20px rgba(45, 52, 54, 0.2);
+    font-size: 15px;
+    --box-shadow: 0 10px 22px rgba(17, 24, 39, 0.22);
     margin: 0;
+  }
+
+  .footer-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+
+    ion-button {
+      height: 46px;
+      --border-radius: 12px;
+      font-weight: 600;
+    }
+
+    ion-button[color='danger'] {
+      --border-color: #f3b8c2;
+      --color: #{$danger};
+    }
   }
 }

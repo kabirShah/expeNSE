@@ -2,13 +2,18 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Expense } from '../models/expense.model';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseService {
   private apiUrl = `${environment.apiURL}/expenses`;
+  private readonly expensesSubject = new BehaviorSubject<Expense[]>([]);
+  readonly expenses$ = this.expensesSubject.asObservable();
+
+  private readonly balanceDeltaSubject = new BehaviorSubject<number>(0);
+  readonly balanceDelta$ = this.balanceDeltaSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -27,18 +32,59 @@ export class ExpenseService {
   }
   getGroupExpenses(groupId: number): Observable<any> {
   return this.http.get(
-    `${this.apiUrl}/groups/${groupId}/expenses`,
+    `${environment.apiURL}/groups/${groupId}/expenses`,
     { headers: this.getAuthHeaders() }
   );
 }
 
+  // Local UI cache for non-blocking/optimistic rendering.
+  setExpenses(expenses: Expense[]): void {
+    this.expensesSubject.next([...(expenses || [])]);
+  }
+
+  addOptimisticExpense(expense: Expense): void {
+    this.expensesSubject.next([expense, ...this.expensesSubject.value]);
+  }
+
+  replaceOptimisticExpense(tempId: number, saved: Expense): void {
+    this.expensesSubject.next(
+      this.expensesSubject.value.map((exp) =>
+        exp.id === tempId ? saved : exp
+      )
+    );
+  }
+
+  rollbackOptimisticExpense(tempId: number): void {
+    this.expensesSubject.next(
+      this.expensesSubject.value.filter((exp) => exp.id !== tempId)
+    );
+  }
+
+  removeExpenseFromCache(id: number): void {
+    this.expensesSubject.next(
+      this.expensesSubject.value.filter((exp) => exp.id !== id)
+    );
+  }
+
+  adjustBalanceDelta(delta: number): void {
+    this.balanceDeltaSubject.next(this.balanceDeltaSubject.value + delta);
+  }
+
+  resetBalanceDelta(): void {
+    this.balanceDeltaSubject.next(0);
+  }
+
 
   // ✅ Get all expenses
-  getExpenses() {
-    return this.http.get<{ success: boolean; data: Expense[] }>(this.apiUrl, {
-      headers: this.getAuthHeaders(),
-    });
+  getExpenses(period: string = 'month') {
+    return this.http.get<{ success: boolean; data: Expense[] }>(
+      `${this.apiUrl}?period=${period}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
+
+
+
 
   // ✅ Get single expense by ID
   getExpenseById(id: string) {

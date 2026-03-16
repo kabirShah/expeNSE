@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { GroupsService } from 'src/app/services/groups.service';
-import { ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { LoadingController, AlertController } from '@ionic/angular';
 import { Group } from 'src/app/models/group.model';
+import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
   selector: 'app-groups',
@@ -16,7 +17,7 @@ export class GroupsPage implements OnInit {
   constructor(
     private groupsService: GroupsService,
     private router: Router,
-    private toastCtrl: ToastController,
+    private uiToast: UiToastService,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController
   ) {}
@@ -92,7 +93,8 @@ export class GroupsPage implements OnInit {
   }
 
   async showToast(message: string, color: 'primary'|'success'|'danger'|'warning' = 'primary') {
-    const t = await this.toastCtrl.create({ message, duration: 1800, color });
-    await t.present();
+    await this.uiToast.show(message, color);
   }
 }
+
+
