@@ -48,6 +48,7 @@ export class HomePage implements OnInit, OnDestroy {
   totalMonthExpense  = 0;
   totalYearExpense   = 0;
   totalBalance       = 0;
+  balanceCount = 0;
   monthSaving        = 0;
   yearSaving         = 0;
 
@@ -56,7 +57,7 @@ export class HomePage implements OnInit, OnDestroy {
   debitCardsCount    = 0;
   invoicesCount      = 0;
   splitExpensesCount = 0;
-
+  
   /* ── Data lists ── */
   balances:        Balance[] = [];
   allExpenses:     any[]     = [];
@@ -165,6 +166,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     const totals = res.totals || {};
     this.totalBalance      = +totals.balance       || 0;
+    this.balanceCount = +totals.balance_count || 0;
     this.totalTodayExpense = +totals.today_expense  || 0;
     this.totalMonthExpense = +totals.month_expense  || 0;
     this.totalYearExpense  = +totals.year_expense   || 0;

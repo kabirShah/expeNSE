@@ -1,593 +1,272 @@
 ﻿/* ==========================================================
-   POCKET MONEY — home.page.scss  (upgraded)
+   HOME PAGE — OPTIMIZED SCSS
    ========================================================== */
 
-/* ── THEME TOKENS ── */
+/* ── THEME ── */
 :host {
-  --primary:        #4f46e5;
-  --secondary:      #9333ea;
-  --success:        #10b981;
-  --danger:         #ef4444;
-  --warning:        #f59e0b;
-  --text-main:      #1e293b;
-  --text-muted:     #64748b;
-  --text-light:     #ffffff;
-  --page-bg:        #f1f5f9;
-  --card-bg:        #ffffff;
-  --card-border:    #e2e8f0;
-  --hero-grad:      linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
-  --hero-shadow:    0 16px 40px -8px rgba(79, 70, 229, 0.45);
-  --card-shadow:    0 2px 12px rgba(0, 0, 0, 0.04);
-  --radius-lg:      22px;
-  --radius-md:      16px;
-  --radius-sm:      12px;
+  --primary: #4f46e5;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --border: #e2e8f0;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
 }
 
-/* ── PAGE BASE ── */
+/* ── PAGE ── */
 ion-content {
-  --background: var(--page-bg);
+  --background: var(--bg);
 }
 
-.content-wrapper {
-  max-width: 600px;
-  margin: 0 auto;
-  padding-bottom: 24px;
+.page {
+  padding: 16px;
+  padding-bottom: 120px;
 }
 
-.bottom-spacer {
-  height: 130px;
-}
+/* ─────────────────────────────────
+   HERO CARD
+   ───────────────────────────────── */
+.hero-card {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
 
-/* ── HEADER ── */
-.header-clean ion-toolbar {
-  --background: var(--page-bg);
-  --border-color: transparent;
-  padding-top: var(--ion-safe-area-top);
-
-  ion-title {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.4px;
-    padding-inline: 8px;
+  .greet {
+    font-size: 12px;
+    opacity: 0.7;
   }
 
-  ion-button {
-    --border-radius: 12px;
-    --background: var(--card-bg);
-    --background-hover: #f8fafc;
-    --box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid var(--card-border);
-    margin: 0 2px;
-    width: 38px;
-    height: 38px;
+  h2 {
+    margin: 4px 0 12px;
+    font-weight: 700;
+  }
+
+  .hero-balance {
+    margin-bottom: 12px;
+
+    p {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+    }
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 10px;
+
+    .stat {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+
+      p {
+        font-size: 10px;
+        opacity: 0.7;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 700;
+      }
+    }
+
+    .expense { color: #ff6b6b; }
+    .saving { color: #4ade80; }
   }
 }
 
-.notif-btn  { position: relative; }
-.notif-badge {
-  position: absolute;
-  top: 4px; right: 2px;
-  min-width: 16px; height: 16px;
-  font-size: 9px; font-weight: 800;
-  line-height: 16px;
-  border-radius: 10px;
-  padding: 0 3px;
-}
-
-/* ── LOADING ── */
-.loader-center {
+/* ─────────────────────────────────
+   CHIPS
+   ───────────────────────────────── */
+.chips {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 140px);
-}
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 16px;
 
-.loader-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  p {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* ── ERROR ── */
-.load-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 180px);
-  padding: 32px 24px;
-  text-align: center;
+.chip {
+  background: var(--card);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+}
 
-  .error-icon-wrap {
-    width: 72px; height: 72px;
-    border-radius: 50%;
-    background: #fef2f2;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 16px;
-    ion-icon { font-size: 34px; color: var(--danger); }
-  }
+/* ─────────────────────────────────
+   SECTION
+   ───────────────────────────────── */
+.section {
+  margin-bottom: 20px;
 
   h3 {
-    margin: 0 0 8px;
-    font-size: 18px; font-weight: 800;
-    color: var(--text-main);
-  }
-  p {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-}
-
-.retry-btn {
-  --background: var(--text-main);
-  --color: #fff;
-  --border-radius: 100px;
-  font-weight: 700;
-  font-size: 14px;
-  height: 44px;
-  padding: 0 24px;
-}
-
-/* ══════════════════════════════════════
-   1. HERO WELCOME CARD
-   ══════════════════════════════════════ */
-.welcome-card {
-  margin: 4px 16px 20px;
-  border-radius: var(--radius-lg);
-  background: var(--hero-grad);
-  padding: 20px 20px 18px;
-  position: relative;
-  overflow: hidden;
-
-  /* decorative circles */
-  &__glow {
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.09);
-    pointer-events: none;
-  }
-  &__circle {
-    position: absolute;
-    bottom: -40px; left: 20px;
-    width: 110px; height: 110px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-    pointer-events: none;
-  }
-}
-
-.wc-top {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  margin-bottom: 18px;
-  position: relative;
-  z-index: 1;
-}
-
-.wc-avatar {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.18);
-  border: 1.5px solid rgba(255,255,255,0.28);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  ion-icon { font-size: 26px; color: #fff; }
-}
-
-.wc-name {
-  font-size: 19px;
-  font-weight: 800;
-  color: #fff;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.wc-email {
-  font-size: 12px;
-  color: rgba(255,255,255,0.7);
-  margin: 3px 0 0;
-}
-
-.wc-stats-row {
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,0.14);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 15px;
-  padding: 12px 16px;
-  backdrop-filter: blur(8px);
-  position: relative;
-  z-index: 1;
-}
-
-.wc-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  &__label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: rgba(255,255,255,0.65);
-    font-weight: 600;
-  }
-  &__value {
-    font-size: 20px;
-    font-weight: 800;
-    color: #fff;
-  }
-}
-
-.wc-stat-divider {
-  width: 1px;
-  height: 30px;
-  background: rgba(255,255,255,0.25);
-  margin: 0 16px;
-}
-
-.wc-stat-spacer { flex: 1; }
-
-.wc-month {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  span {
-    font-size: 11px;
+    font-size: 16px;
     font-weight: 700;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.3;
+    margin-bottom: 10px;
   }
 }
 
-/* ══════════════════════════════════════
-   2. METRICS STRIP
-   ══════════════════════════════════════ */
-.metrics-strip {
+/* ─────────────────────────────────
+   GRID (Add Expense)
+   ───────────────────────────────── */
+.grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 74%;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  padding: 0 16px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-
-  &::-webkit-scrollbar { display: none; }
-
-  @media (min-width: 720px) {
-    grid-auto-columns: 220px;
-  }
 }
 
-.metric-card {
-  scroll-snap-align: start;
-  background: var(--card-bg);
-  border-radius: 20px;
-  border: 1px solid var(--card-border);
+.card {
+  background: var(--card);
   padding: 16px;
-  box-shadow: var(--card-shadow);
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: 0.2s;
 
-  &__icon {
-    width: 38px; height: 38px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 12px;
-    ion-icon { font-size: 18px; }
-
-    &--blue   { background: #eff6ff; ion-icon { color: #3b82f6; } }
-    &--red    { background: #fef2f2; ion-icon { color: var(--danger); } }
-    &--green  { background: #f0fdf4; ion-icon { color: var(--success); } }
-    &--amber  { background: #fffbeb; ion-icon { color: var(--warning); } }
+  &:active {
+    transform: scale(0.96);
   }
 
-  &__label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
+  .icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  h4 {
+    font-size: 14px;
+    margin: 4px 0;
+  }
+
+  p {
+    font-size: 12px;
     color: var(--text-muted);
-    font-weight: 600;
-    margin: 0 0 5px;
-  }
-
-  &__value {
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -0.8px;
-    margin: 0 0 4px;
-
-    &--success { color: var(--success); }
-    &--danger  { color: var(--danger); }
-  }
-
-  &__sub {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    font-weight: 500;
   }
 }
 
-/* ══════════════════════════════════════
-   3. SECTION CARD (Spending by App)
-   ══════════════════════════════════════ */
-.section-card {
-  margin: 0 16px 16px;
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
+/* ─────────────────────────────────
+   RECENT LIST
+   ───────────────────────────────── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 
-  &__header {
+  span {
+    font-size: 13px;
+    color: var(--primary);
+    cursor: pointer;
+  }
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+
+  .left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e2e8f0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 18px 12px;
+    justify-content: center;
   }
 
-  &__title {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--text-main);
+  h4 {
+    font-size: 14px;
     margin: 0;
   }
 
-  &__badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: #f1f5f9;
-    border-radius: 8px;
-    padding: 3px 10px;
-  }
-}
-
-.spending-total {
-  display: flex;
-  flex-direction: column;
-  padding: 0 18px 14px;
-  border-bottom: 1px solid #f1f5f9;
-
-  &__amount {
-    font-size: 30px;
-    font-weight: 800;
-    color: var(--text-main);
-    letter-spacing: -1px;
-  }
-  &__label {
+  p {
     font-size: 12px;
     color: var(--text-muted);
-    margin-top: 2px;
-  }
-}
-
-.app-list { padding: 4px 0 4px; }
-
-.app-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 18px;
-  border-bottom: 1px solid #f8fafc;
-  cursor: pointer;
-  transition: background 0.12s;
-
-  &:last-child { border-bottom: none; }
-  &:active     { background: #f8fafc; }
-
-  &__icon {
-    width: 38px; height: 38px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    ion-icon { font-size: 18px; }
-
-    &--0 { background: #f0fdf4; ion-icon { color: var(--success); } }
-    &--1 { background: #faf5ff; ion-icon { color: var(--secondary); } }
-    &--2 { background: #fff7ed; ion-icon { color: var(--warning); } }
-    &--3 { background: #eff6ff; ion-icon { color: #3b82f6; } }
   }
 
-  &__info  { flex: 1; min-width: 0; }
-  &__name  { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
-
-  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-  &__amount { font-size: 14px; font-weight: 800; color: var(--text-main); }
-
-  &__bar-track {
-    width: 64px; height: 3px;
-    background: #f1f5f9;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  &__bar-fill {
-    height: 3px;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-
-    &--0 { background: var(--success); }
-    &--1 { background: var(--secondary); }
-    &--2 { background: var(--warning); }
-    &--3 { background: #3b82f6; }
-  }
-}
-
-/* ══════════════════════════════════════
-   4. OVERVIEW GRID
-   ══════════════════════════════════════ */
-.overview-card {
-  margin: 0 16px 20px;
-  background: var(--card-bg);
-  border-radius: 20px;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-}
-
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.ov-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 16px 8px;
-  cursor: pointer;
-  transition: background 0.12s;
-
-  & + .ov-item { border-left: 1px solid #f1f5f9; }
-  &:active { background: #f8fafc; }
-
-  &__icon {
-    width: 40px; height: 40px;
-    border-radius: 13px;
-    display: flex; align-items: center; justify-content: center;
-    ion-icon { font-size: 18px; }
-
-    &--blue   { background: #eff6ff; ion-icon { color: #3b82f6; } }
-    &--green  { background: #f0fdf4; ion-icon { color: var(--success); } }
-    &--amber  { background: #fffbeb; ion-icon { color: var(--warning); } }
-    &--purple { background: #faf5ff; ion-icon { color: var(--secondary); } }
-  }
-
-  &__num {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-main);
-  }
-  &__label {
-    font-size: 9.5px;
+  .amount {
     font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
+    color: var(--danger);
   }
 }
 
-/* ══════════════════════════════════════
-   5. FLOATING DOCK
-   ══════════════════════════════════════ */
+/* ─────────────────────────────────
+   FLOATING FOOTER
+   ───────────────────────────────── */
 .floating-actions-container {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  z-index: 999;
-  pointer-events: none;
+  padding: 10px;
   display: flex;
   justify-content: center;
 }
 
 .floating-dock {
-  pointer-events: auto;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  width: 100%;
-  max-width: 420px;
-  border-radius: 26px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 1px 0 rgba(255,255,255,0.9) inset;
-  padding: 8px 10px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 28px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  width: 100%;
+  max-width: 420px;
 }
 
 .dock-btn {
-  background: transparent;
-  border: none;
-  outline: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 6px;
-  min-width: 52px;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.12s;
-
-  &:active { transform: scale(0.9); }
-
-  &__icon {
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    ion-icon { font-size: 22px; color: var(--text-muted); transition: color 0.15s; }
-  }
-
-  &__label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    letter-spacing: 0.2px;
-    transition: color 0.15s;
-  }
-
-  /* Active state */
-  &--active {
-    .dock-btn__icon ion-icon { color: var(--primary); }
-    .dock-btn__label         { color: var(--primary); }
-  }
-
-  &:hover:not(.dock-btn--scan) {
-    background: #f8fafc;
-    .dock-btn__icon ion-icon { color: var(--text-main); }
-    .dock-btn__label         { color: var(--text-main); }
-  }
-
-  /* Scan button */
-  &--scan {
-    padding: 0;
-    min-width: 60px;
-    overflow: visible;
-  }
-}
-
-.scan-orb {
-  width: 58px;
-  height: 58px;
-  background: var(--text-main);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(-20px);
-  box-shadow:
-    0 8px 24px rgba(30, 41, 59, 0.28),
-    0 2px 8px rgba(30, 41, 59, 0.16);
-  transition: transform 0.15s, box-shadow 0.15s;
-  cursor: pointer;
+  font-size: 10px;
+  color: var(--text-muted);
+  border: none;
+  background: none;
 
   ion-icon {
-    font-size: 26px;
-    color: #fff;
+    font-size: 22px;
   }
 
   &:active {
-    transform: translateY(-18px) scale(0.93);
-    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+    transform: scale(0.9);
   }
+}
+
+/* center scan */
+.scan {
+  background: var(--primary);
+  color: #fff;
+  padding: 10px;
+  border-radius: 50%;
+  margin-top: -20px;
 }
