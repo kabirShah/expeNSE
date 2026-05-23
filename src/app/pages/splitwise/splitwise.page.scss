@@ -1,0 +1,28 @@
+.splitwise-page {
+  padding: 16px;
+}
+
+.inner-card {
+  margin-top: 16px;
+}
+
+.member-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.empty-state {
+  color: var(--ion-color-medium);
+  margin: 12px 0;
+}
+
+.loader-center {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100vh - 140px);
+  padding: 24px 0;
+}

@@ -1,61 +1,65 @@
-﻿<ion-header class="clean-header">
+<ion-header class="clean-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/multi-view-expense']" class="back-btn">
-        <ion-icon name="arrow-back-outline" size="medium"></ion-icon>
+      <ion-button routerLink="/multi-view-expense">
+        <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Multi Transaction' : 'New Multi Transaction' }}</ion-title>
+
+    <ion-title>
+      {{ isEditMode ? 'Edit Multi Expense' : 'New Multi Expense' }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="form-bg-content">
-  <ion-spinner *ngIf="pageLoading" name="crescent" class="loader-center"></ion-spinner>
 
-  <div class="form-container" *ngIf="!pageLoading">
-    <form [formGroup]="multiForm" (ngSubmit)="submitForm()" class="form-card">
+  <ion-spinner *ngIf="pageLoading" class="loader-center"></ion-spinner>
 
-      <div class="form-row">
-        <div class="input-group half-width">
-          <ion-label class="field-label">Title</ion-label>
-          <ion-item lines="none" class="custom-input-item">
-            <ion-icon name="text-outline" slot="start"></ion-icon>
-            <ion-input placeholder="Expense Title" formControlName="title"></ion-input>
-          </ion-item>
-        </div>
+  <form *ngIf="!pageLoading" [formGroup]="multiForm" (ngSubmit)="submitForm()" class="form-card">
 
-        <div class="input-group half-width">
-          <ion-label class="field-label">Category</ion-label>
-          <ion-item lines="none" class="custom-input-item">
-            <ion-icon name="layers-outline" slot="start"></ion-icon>
-            <ion-input placeholder="Category" formControlName="category"></ion-input>
-          </ion-item>
-        </div>
-      </div>
+    <!-- TITLE -->
+    <div class="input-group">
+      <ion-label>Title *</ion-label>
+      <ion-input formControlName="title" placeholder="Trip, Party, Shopping"></ion-input>
+      <p class="error" *ngIf="showError('title')">Enter valid title</p>
+    </div>
 
-      <div class="input-group">
-        <ion-label class="field-label">Multi Expense Details</ion-label>
-        <ion-item lines="none" class="custom-input-item textarea-item">
-          <ion-icon name="document-text-outline" slot="start"></ion-icon>
-          <ion-textarea
-            formControlName="message"
-            rows="6"
-            placeholder="Example:
-200 INR Groceries
-500 INR Transport
-150 INR Snacks">
-          </ion-textarea>
-        </ion-item>
-      </div>
+    <!-- CATEGORY -->
+    <div class="input-group">
+      <ion-label>Category *</ion-label>
+      <ion-select formControlName="category" placeholder="Select category">
+        <ion-select-option *ngFor="let c of categories" [value]="c.name">
+          {{ c.name }}
+        </ion-select-option>
+      </ion-select>
+      <p class="error" *ngIf="showError('category')">Select category</p>
+    </div>
 
-      <ion-button
-        expand="block"
-        type="submit"
-        class="main-button"
-        [disabled]="isProcessing || multiForm.invalid">
-        {{ isEditMode ? 'Update Transaction' : 'Save Transaction' }}
-      </ion-button>
+    <!-- MESSAGE -->
+    <div class="input-group">
+      <ion-label>Details *</ion-label>
+      <ion-textarea
+        formControlName="message"
+        rows="6"
+        placeholder="₹200 Grocery, ₹500 Travel, ₹100 Snacks">
+      </ion-textarea>
+      <p class="error" *ngIf="showError('message')">Enter details</p>
+    </div>
 
-    </form>
-  </div>
+    <!-- TOTAL PREVIEW -->
+    <div class="preview-box" *ngIf="totalPreview > 0">
+      Total: ₹{{ totalPreview }}
+    </div>
+
+    <!-- BUTTON -->
+    <ion-button expand="block" type="submit" [disabled]="isProcessing">
+      <ion-spinner *ngIf="isProcessing"></ion-spinner>
+      <span *ngIf="!isProcessing">
+        {{ isEditMode ? 'Update' : 'Save' }}
+      </span>
+    </ion-button>
+
+  </form>
+
 </ion-content>

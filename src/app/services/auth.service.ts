@@ -52,16 +52,16 @@ export class AuthService {
     return this.http.post<any>(`${this.API_URL}/auth/register`, userData);
   }
 
-  sendOtp(payload: { email?: string; phone?: string }): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/send-otp`, payload);
+  sendOtp(payload: { mobile?: string; phone?: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/send-otp`, payload);
   }
 
-  verifyOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/verify-otp`, payload);
+  verifyOtp(payload: { mobile?: string; phone?: string; otp: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/verify-otp`, payload);
   }
 
-  loginOtp(payload: { email?: string; phone?: string; otp: string }): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/login-otp`, payload);
+  loginOtp(payload: { mobile?: string; phone?: string; otp: string }): Observable<any> {
+    return this.verifyOtp(payload);
   }
 
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
@@ -92,9 +92,11 @@ export class AuthService {
     storage.setItem('auth_token', token);
     storage.setItem('loginTime', now);
     storage.setItem('user', JSON.stringify(user));
+    storage.setItem('user_id', String(user?.id ?? ''));
     localStorage.setItem('rememberMe', rememberMe ? '7d' : '1d');
     localStorage.setItem('token_timestamp', now);
     localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('user_id', String(user?.id ?? ''));
   }
 
   clearSession(): void {
@@ -162,10 +164,12 @@ export class AuthService {
     const params: any = {};
     if (month) params.month = month;
     if (year) params.year = year;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezone) params.timezone = timezone;
 
     return this.http.get<any>(`${this.API_URL}/dashboard`, {
       params,
-      headers: this.authHeaders()
+      headers: this.authHeaders().set('X-Timezone', timezone)
     });
   }
   updateProfile(formData: FormData) {

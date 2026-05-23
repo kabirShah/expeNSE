@@ -1,10 +1,10 @@
 <ion-header class="header-clean">
 
-  <!-- Top Toolbar -->
+  <!-- TOP BAR -->
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']">
-        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      <ion-button routerLink="/home">
+        <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
 
@@ -17,47 +17,48 @@
     </ion-buttons>
   </ion-toolbar>
 
-  <!-- Search + Period Filter -->
+  <!-- FILTER TOOLBAR -->
   <ion-toolbar class="filter-toolbar">
 
-    <!-- Search -->
-    <ion-searchbar
-      mode="ios"
-      [(ngModel)]="searchTerm"
-      placeholder="Search expenses..."
-      (ionInput)="applySearchFilter()"
-      debounce="400">
-    </ion-searchbar>
+    <div class="filter-inline">
 
-    <!-- Period Segment -->
-    <ion-segment
-      scrollable="true"
-      [(ngModel)]="selectedPeriod"
-      (ionChange)="onPeriodChange()">
+      <!-- SEARCH (takes more space) -->
+      <ion-searchbar
+        class="search-inline"
+        mode="ios"
+        [(ngModel)]="searchTerm"
+        placeholder="Search..."
+        (ionInput)="applySearchFilter()"
+        debounce="400">
+      </ion-searchbar>
 
-      <ion-segment-button value="today">
-        <ion-label>Today</ion-label>
-      </ion-segment-button>
+      <!-- FILTER DROPDOWN -->
+      <ion-item lines="none" class="filter-inline-item">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
 
-      <ion-segment-button value="week">
-        <ion-label>Week</ion-label>
-      </ion-segment-button>
+        <ion-select
+          [(ngModel)]="selectedPeriod"
+          (ionChange)="onPeriodChange()"
+          interface="popover">
 
-      <ion-segment-button value="month">
-        <ion-label>Month</ion-label>
-      </ion-segment-button>
+          <ion-select-option value="today">Today</ion-select-option>
+          <ion-select-option value="week">Week</ion-select-option>
+          <ion-select-option value="month">Month</ion-select-option>
+          <ion-select-option value="6months">6 Months</ion-select-option>
 
-      <ion-segment-button value="6months">
-        <ion-label>6 Months</ion-label>
-      </ion-segment-button>
+        </ion-select>
+      </ion-item>
 
-    </ion-segment>
+    </div>
 
   </ion-toolbar>
 
 </ion-header>
 
 <ion-content class="page-content">
+  <ion-refresher slot="fixed" (ionRefresh)="refreshExpensesList($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- Loading Spinner -->
   <ion-spinner
@@ -95,7 +96,11 @@
       *ngFor="let exp of filteredExpenses; trackBy: trackById"
       class="slide-wrapper">
 
-      <ion-item class="expense-card">
+      <ion-item
+        class="expense-card"
+        button="true"
+        detail="true"
+        (click)="editExpense(exp.id!.toString())">
 
         <div class="icon-box" slot="start">
           <ion-icon name="receipt-outline"></ion-icon>
@@ -118,6 +123,15 @@
 
             <span class="cat-badge">
               {{ getCategoryName(exp) }}
+            </span>
+
+            <span class="cat-badge" *ngIf="paymentSourceFeatureEnabled && exp.payment_source">
+              <ion-icon [name]="getPaymentSourceIcon(exp.payment_source)"></ion-icon>
+              {{ getPaymentSourceLabel(exp.payment_source) }}
+            </span>
+
+            <span class="cat-badge" *ngIf="isAutoDetected(exp)">
+              Auto detected
             </span>
           </div>
 
@@ -146,6 +160,14 @@
 
   </ion-list>
 
+  <ion-infinite-scroll
+    *ngIf="filteredExpenses.length > 0"
+    [disabled]="!hasMoreRecords || loadingMore"
+    threshold="120px"
+    (ionInfinite)="loadMoreExpenses($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more records..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
   <!-- Empty State -->
   <div
     *ngIf="!loading && filteredExpenses.length === 0"
@@ -159,26 +181,10 @@
     <p>Add a new expense to get started.</p>
 
   </div>
-
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="navigateToAddExpense()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
 
-<!-- Footer -->
-<ion-footer class="custom-footer">
-  <ion-toolbar>
-
-    <ion-button
-      expand="block"
-      class="main-btn"
-      (click)="navigateToAddExpense()">
-
-      <ion-icon
-        name="add-circle-outline"
-        slot="start">
-      </ion-icon>
-
-      Add Expense
-
-    </ion-button>
-
-  </ion-toolbar>
-</ion-footer>

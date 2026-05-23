@@ -43,8 +43,11 @@
 
     <ion-item>
       <ion-label position="stacked">Date</ion-label>
-      <ion-input type="date" formControlName="expense_date"></ion-input>
+      <ion-input type="date" formControlName="expense_date" [max]="getTodayDateValue()"></ion-input>
     </ion-item>
+    <ion-note color="danger" *ngIf="form.get('expense_date')?.touched && form.get('expense_date')?.hasError('futureDate')">
+      Future dates are not allowed.
+    </ion-note>
 
     <ion-item>
       <ion-label position="stacked">Notes</ion-label>

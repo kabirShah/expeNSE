@@ -1,6 +1,6 @@
 ﻿import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NavController, AlertController, Platform } from '@ionic/angular';
-import { ExpenseService } from 'src/app/services/expense.service';
+import { NavController, AlertController, InfiniteScrollCustomEvent, Platform } from '@ionic/angular';
+import { ExpenseService, PaginatedResponse } from 'src/app/services/expense.service';
 import { Router } from '@angular/router';
 
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -17,14 +17,21 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./single-view-expenses.page.scss'],
 })
 export class SingleViewExpensesPage implements OnInit, OnDestroy {
+  private readonly pageSize = 10;
 
   expenses: Expense[] = [];
   filteredExpenses: Expense[] = [];
+  paymentSourceFeatureEnabled = false;
 
   searchTerm: string = '';
   selectedPeriod: string = 'month';
   loading = false;
+  loadingMore = false;
+  hasMoreRecords = true;
+  private currentPage = 1;
+  private isNavigating = false;
   private expensesSub?: Subscription;
+  private autoDetectedHandler = () => this.refreshExpenses();
 
   constructor(
     private navCtrl: NavController,
@@ -41,38 +48,107 @@ export class SingleViewExpensesPage implements OnInit, OnDestroy {
       this.applySearchFilter();
     });
 
-    this.loadExpenses();
+    this.db.getCategories().subscribe({
+      error: (err) => console.error('Error preloading categories:', err)
+    });
+
+    if (this.db.getCachedExpenses().length) {
+      this.expenses = this.db.getCachedExpenses();
+      this.applySearchFilter();
+      this.refreshExpenses();
+      window.addEventListener('expense:auto-detected', this.autoDetectedHandler);
+      return;
+    }
+
+    this.loadExpenses(true);
+    window.addEventListener('expense:auto-detected', this.autoDetectedHandler);
   }
 
   ionViewWillEnter() {
     if (!this.expenses.length) {
-      this.loadExpenses();
+      this.loadExpenses(true);
+      return;
     }
+
+    this.refreshExpenses();
   }
 
   ngOnDestroy() {
     this.expensesSub?.unsubscribe();
+    window.removeEventListener('expense:auto-detected', this.autoDetectedHandler);
   }
 
-  loadExpenses() {
-    this.loading = true;
+  loadExpenses(reset: boolean = false, event?: any) {
+    if (reset) {
+      this.currentPage = 1;
+      this.hasMoreRecords = true;
+      this.loading = !this.expenses.length;
+    } else if (!this.hasMoreRecords || this.loadingMore) {
+      event?.target.complete();
+      return;
+    } else {
+      this.loadingMore = true;
+    }
 
-    this.db.getExpenses(this.selectedPeriod).subscribe({
+    const page = reset ? 1 : this.currentPage + 1;
+
+    this.db.getExpenses(this.selectedPeriod, page, this.pageSize).subscribe({
       next: (res) => {
         if (res.success) {
-          this.db.setExpenses(res.data || []);
+          this.paymentSourceFeatureEnabled = !!res?.features?.enable_payment_source_detection;
+          const pagination = this.normalizePage(res.data);
+          const nextExpenses = reset
+            ? this.mergeExpenses(this.getOptimisticExpenses(), pagination.data)
+            : this.mergeExpenses(this.db.getCachedExpenses(), pagination.data);
+
+          this.currentPage = pagination.current_page;
+          this.hasMoreRecords = pagination.current_page < pagination.last_page;
+          this.db.setExpenses(nextExpenses);
         }
-        this.loading = false;
+        this.finishLoading(event);
       },
       error: (err) => {
         console.error('Error fetching expenses:', err);
-        this.loading = false;
+        this.finishLoading(event);
       },
     });
   }
 
   onPeriodChange() {
-    this.loadExpenses();
+    this.loadExpenses(true);
+  }
+
+  loadMoreExpenses(event: Event) {
+    this.loadExpenses(false, event as InfiniteScrollCustomEvent);
+  }
+
+  refreshExpensesList(event: Event) {
+    this.loadExpenses(true, event);
+  }
+
+  private refreshExpenses() {
+    this.db.getExpenses(this.selectedPeriod, 1, this.pageSize).subscribe({
+      next: (res) => {
+        if (!res.success) {
+          return;
+        }
+
+        this.paymentSourceFeatureEnabled = !!res?.features?.enable_payment_source_detection;
+        const pagination = this.normalizePage(res.data);
+        const merged = this.mergeExpenses(
+          this.getOptimisticExpenses(),
+          pagination.data,
+          this.db.getCachedExpenses()
+        );
+
+        this.currentPage = pagination.current_page;
+        this.hasMoreRecords = pagination.current_page < pagination.last_page;
+        this.db.setExpenses(merged);
+      },
+      error: (err) => {
+        console.error('Error refreshing expenses:', err);
+      }
+    });
   }
 
   applySearchFilter() {
@@ -130,16 +206,130 @@ export class SingleViewExpensesPage implements OnInit, OnDestroy {
     return expense.category?.name || '';
   }
 
-  editExpense(id: string) {
-    this.router.navigate(['/single-expense', id]);
+  getPaymentSourceLabel(source: string | null | undefined): string {
+    switch (source) {
+      case 'gpay':
+        return 'GPay';
+      case 'phonepe':
+        return 'PhonePe';
+      case 'paytm':
+        return 'Paytm';
+      case 'upi':
+        return 'UPI';
+      case 'bank':
+        return 'Bank';
+      case 'unknown':
+        return 'Unknown';
+      default:
+        return '';
+    }
   }
 
-  navigateToAddExpense() {
-    this.router.navigate(['/single-expense']);
+  getPaymentSourceIcon(source: string | null | undefined): string {
+    switch (source) {
+      case 'gpay':
+        return 'logo-google';
+      case 'phonepe':
+        return 'wallet-outline';
+      case 'paytm':
+        return 'card-outline';
+      case 'upi':
+        return 'swap-horizontal-outline';
+      case 'bank':
+        return 'business-outline';
+      default:
+        return 'help-circle-outline';
+    }
+  }
+
+  isAutoDetected(expense: Expense): boolean {
+    return ['sms', 'notification'].includes(String(expense?.source_type || '')) && !expense?.source_ref_id;
+  }
+
+  async editExpense(id: string) {
+    if (this.isNavigating) {
+      return;
+    }
+
+    this.isNavigating = true;
+
+    try {
+      await this.router.navigate(['/single-expense', id]);
+    } finally {
+      this.isNavigating = false;
+    }
+  }
+
+  async navigateToAddExpense() {
+    if (this.isNavigating) {
+      return;
+    }
+
+    this.isNavigating = true;
+
+    try {
+      await this.router.navigate(['/single-expense']);
+    } finally {
+      this.isNavigating = false;
+    }
   }
 
   trackById(index: number, item: any): any {
     return item.id;
+  }
+
+  private normalizePage(data: PaginatedResponse<Expense> | Expense[]): PaginatedResponse<Expense> {
+    if (Array.isArray(data)) {
+      return {
+        current_page: 1,
+        data,
+        last_page: 1,
+        per_page: data.length,
+        total: data.length
+      };
+    }
+
+    return {
+      current_page: Number(data?.current_page) || 1,
+      data: data?.data || [],
+      last_page: Number(data?.last_page) || 1,
+      per_page: Number(data?.per_page) || this.pageSize,
+      total: Number(data?.total) || 0
+    };
+  }
+
+  private mergeExpenses(...groups: Expense[][]): Expense[] {
+    const merged = new Map<string, Expense>();
+    const expenses = groups.reduce((all, group) => all.concat(group || []), [] as Expense[]);
+
+    expenses.forEach((expense) => {
+      if (!expense) {
+        return;
+      }
+
+      const key = String(expense.id ?? expense.expense_id ?? `${expense.description}-${expense.date}-${expense.amount}`);
+      if (!merged.has(key)) {
+        merged.set(key, expense);
+      }
+    });
+
+    return [...merged.values()].sort((a, b) => this.getExpenseSortTime(b) - this.getExpenseSortTime(a));
+  }
+
+  private getOptimisticExpenses(): Expense[] {
+    return this.db.getCachedExpenses().filter((expense) => Number(expense.id) < 0);
+  }
+
+  private getExpenseSortTime(expense: Expense): number {
+    const value = expense.date || expense.created_at || expense.updated_at;
+    const parsed = value ? new Date(value).getTime() : 0;
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  private finishLoading(event?: any) {
+    this.loading = false;
+    this.loadingMore = false;
+    event?.target.complete();
   }
 
   async exportToPDF() {

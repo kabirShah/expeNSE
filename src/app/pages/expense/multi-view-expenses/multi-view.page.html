@@ -1,40 +1,58 @@
 <ion-header class="header-clean">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button href="/home">
-        <ion-icon name="chevron-back" size="medium"></ion-icon>
+      <ion-button routerLink="/home">
+        <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>Multi Expense</ion-title>
   </ion-toolbar>
+<ion-toolbar class="filter-toolbar">
 
-  <ion-toolbar class="filter-toolbar">
-    <div class="filter-row">
-      <ion-searchbar
-        class="custom-search"
-        mode="ios"
-        [(ngModel)]="searchTerm"
-        placeholder="Search..."
-        (ionInput)="applyFilters()"
-        debounce="500">
-      </ion-searchbar>
+  <div class="filter-inline">
 
-      <div class="select-wrapper">
-        <ion-select
-          interface="popover"
-          [(ngModel)]="selectedMonth"
-          (ionChange)="applyFilters()"
-          placeholder="Month">
-          <ion-select-option value="all">All</ion-select-option>
-          <ion-select-option *ngFor="let m of ['January','February','March','April','May','June','July','August','September','October','November','December']" [value]="m">
-            {{ m | slice:0:3 }} </ion-select-option>
-        </ion-select>
-      </div>
-    </div>
-  </ion-toolbar>
+    <!-- SEARCH -->
+    <ion-searchbar
+      class="search-inline"
+      mode="ios"
+      [(ngModel)]="searchTerm"
+      placeholder="Search..."
+      (ionInput)="applyFilters()"
+      debounce="400">
+    </ion-searchbar>
+
+    <!-- MONTH FILTER -->
+    <ion-item lines="none" class="filter-inline-item">
+      <ion-icon name="calendar-outline" slot="start"></ion-icon>
+
+      <ion-select
+        [(ngModel)]="selectedMonth"
+        (ionChange)="applyFilters()"
+        interface="popover"
+        placeholder="Month">
+
+        <ion-select-option value="all">All</ion-select-option>
+
+        <ion-select-option
+          *ngFor="let m of months"
+          [value]="m">
+
+          {{ m | slice:0:3 }}
+
+        </ion-select-option>
+
+      </ion-select>
+    </ion-item>
+
+  </div>
+
+</ion-toolbar>
 </ion-header>
 
 <ion-content class="page-content">
+  <ion-refresher slot="fixed" (ionRefresh)="refreshList($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <ion-spinner *ngIf="loading" name="crescent" class="loader-center"></ion-spinner>
 
@@ -51,23 +69,20 @@
   </div>
 
   <ion-list *ngIf="filteredExpenses.length > 0 && !loading" lines="none">
-    
     <ion-item-sliding *ngFor="let exp of filteredExpenses; trackBy: trackById" class="slide-wrapper">
-      
-      <ion-item class="expense-card">
-        
+      <ion-item class="expense-card" button="true" detail="true" (click)="editAutoExpense(exp.id!)">
         <div class="icon-box" slot="start">
-          <ion-icon name="receipt-outline"></ion-icon>
+          <ion-icon name="layers-outline"></ion-icon>
         </div>
 
         <ion-label>
           <div class="top-row">
             <h2>{{ exp.title }}</h2>
-            <span class="price-tag">-₹{{ exp.total_amount }}</span>
+            <span class="price-tag">₹{{ exp.total_amount }}</span>
           </div>
-          
+
           <p class="description">{{ exp.description }}</p>
-          
+
           <div class="meta-row">
             <span class="date">
               <ion-icon name="calendar-clear-outline"></ion-icon>
@@ -86,10 +101,16 @@
           <ion-icon slot="icon-only" name="trash"></ion-icon>
         </ion-item-option>
       </ion-item-options>
-
     </ion-item-sliding>
-
   </ion-list>
+
+  <ion-infinite-scroll
+    *ngIf="filteredExpenses.length > 0"
+    [disabled]="!hasMoreRecords || loadingMore"
+    threshold="120px"
+    (ionInfinite)="loadMoreExpenses($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more records..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 
   <div *ngIf="!loading && filteredExpenses.length === 0" class="empty-state">
     <div class="icon-circle">
@@ -99,13 +120,9 @@
     <p>Add a new multi-expense to get started.</p>
   </div>
 
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="navigateToMultiExpense()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
-
-<ion-footer class="custom-footer">
-  <ion-toolbar>
-    <ion-button expand="block" class="main-btn" (click)="navigateToMultiExpense()">
-      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-      Add Multi Expense
-    </ion-button>
-  </ion-toolbar>
-</ion-footer>

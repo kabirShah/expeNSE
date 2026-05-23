@@ -6,7 +6,7 @@
       </ion-button>
     </ion-buttons>
 
-    <ion-title>{{ isEdit ? 'Edit Balance' : 'Add Money' }}</ion-title>
+    <ion-title>{{ isEdit ? 'Edit ' + appConfig.getLabel() : 'Add Money' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -71,7 +71,7 @@
     </form>
 
     <div class="list-head">
-      <h3>Recent Balance Entries</h3>
+      <h3>Recent {{ appConfig.getLabel() }} Entries</h3>
       <ion-note *ngIf="balances.length">{{ balances.length }} items</ion-note>
     </div>
 
@@ -105,7 +105,7 @@
       <ng-template #emptyState>
         <div class="empty-box">
           <ion-icon name="albums-outline"></ion-icon>
-          <h4>No balance records yet</h4>
+          <h4>No {{ appConfig.getLabel().toLowerCase() }} records yet</h4>
           <p>Add your first entry using the form above.</p>
         </div>
       </ng-template>
@@ -120,7 +120,7 @@
     class="submit-btn"
     (click)="saveBalance()"
     [disabled]="balanceForm.invalid || loading || loadingList">
-    <span>{{ isEdit ? 'Update Balance' : 'Add Funds' }}</span>
+    <span>{{ isEdit ? 'Update ' + appConfig.getLabel() : 'Add Funds' }}</span>
   </ion-button>
 
   <div class="footer-actions" *ngIf="isEdit">
@@ -132,7 +132,7 @@
       fill="outline"
       (click)="confirmDelete()"
       [disabled]="loading">
-      Delete Balance
+      Delete {{ appConfig.getLabel() }}
     </ion-button>
   </div>
 </ion-footer>

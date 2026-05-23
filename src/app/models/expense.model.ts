@@ -1,16 +1,19 @@
 export interface Expense {
-   id?: number;          // auto increment id (Laravel default)
+  id?: number;          // auto increment id (Laravel default)
   expense_id?: string;  // UUID
   user_id?: number;     // will come from backend
   category?: {
-  id: number;
-  name: string;
-  parent_id?: number | null;
-};
+    id: number;
+    name: string;
+    parent_id?: number | null;
+  };
   transaction_type: string;
   description: string;
   amount: number;
   date: string;         // ISO date string
+  payment_source?: 'gpay' | 'phonepe' | 'paytm' | 'upi' | 'bank' | 'unknown' | null;
+  source_type?: string | null;
+  source_ref_id?: number | null;
   notes?: string;
   paidBy?: string;
   created_at?: string;

@@ -1,0 +1,161 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Routine Expenses</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="page-shell">
+    <form [formGroup]="routineForm" (ngSubmit)="saveRoutine()" class="routine-form">
+      <div class="form-topline">
+        <h2>{{ editingRoutine ? 'Edit Routine' : 'Add Routine' }}</h2>
+        <ion-button *ngIf="editingRoutine" fill="clear" size="small" type="button" (click)="resetForm()">
+          <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+      <ion-item lines="none" [class.item-error]="shouldShowError('title')">
+        <ion-icon name="receipt-outline" slot="start"></ion-icon>
+        <ion-input formControlName="title" placeholder="Title"></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" [class.item-error]="shouldShowError('amount')">
+        <ion-icon name="cash-outline" slot="start"></ion-icon>
+        <ion-input formControlName="amount" type="number" inputmode="decimal" placeholder="Amount"></ion-input>
+      </ion-item>
+
+      <ion-item lines="none" [class.item-error]="shouldShowError('category_id')">
+        <ion-icon name="pricetag-outline" slot="start"></ion-icon>
+        <ion-select formControlName="category_id" interface="popover" placeholder="Category">
+          <ion-select-option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item lines="none" [class.item-error]="shouldShowError('wallet_id')">
+        <ion-icon name="wallet-outline" slot="start"></ion-icon>
+        <ion-select formControlName="wallet_id" interface="popover" placeholder="Wallet">
+          <ion-select-option *ngFor="let wallet of wallets" [value]="wallet.id">
+            {{ wallet.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-segment formControlName="frequency">
+        <ion-segment-button *ngFor="let frequency of frequencies" [value]="frequency.value">
+          <ion-label>{{ frequency.label }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <div class="date-grid">
+        <ion-item lines="none" [class.item-error]="shouldShowError('start_date')">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          <ion-datetime-button datetime="routineStart"></ion-datetime-button>
+          <ion-note slot="end">{{ routineForm.get('start_date')?.value | date:'dd MMM yyyy' }}</ion-note>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-icon name="calendar-clear-outline" slot="start"></ion-icon>
+          <ion-datetime-button datetime="routineEnd"></ion-datetime-button>
+          <ion-note slot="end">
+            {{ routineForm.get('end_date')?.value ? (routineForm.get('end_date')?.value | date:'dd MMM yyyy') : 'No end' }}
+          </ion-note>
+        </ion-item>
+      </div>
+
+      <ion-item lines="none">
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        <ion-toggle formControlName="reminder">Reminder</ion-toggle>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-textarea formControlName="notes" rows="3" placeholder="Notes"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" type="submit" [disabled]="isSubmitting">
+        <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+        <span *ngIf="!isSubmitting">{{ editingRoutine ? 'Update Routine' : 'Create Routine' }}</span>
+      </ion-button>
+    </form>
+
+    <section class="routine-list">
+      <div class="section-title">
+        <h2>Active Plan</h2>
+        <ion-button fill="clear" size="small" (click)="loadRoutines()">
+          <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div *ngIf="isLoading" class="empty-state">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="!isLoading && !routines.length" class="empty-state">
+        <ion-icon name="repeat-outline"></ion-icon>
+        <p>No routine expenses yet</p>
+      </div>
+
+      <ion-list *ngIf="!isLoading && routines.length">
+        <ion-item-sliding *ngFor="let routine of routines; trackBy: trackByRoutineId">
+          <ion-item>
+            <ion-label>
+              <div class="routine-row">
+                <h3>{{ routine.title }}</h3>
+                <strong>₹{{ routine.amount | number:'1.2-2' }}</strong>
+              </div>
+              <p>
+                {{ routine.frequency | titlecase }}
+                <span *ngIf="routine.next_due_date"> • Next {{ routine.next_due_date | date:'dd MMM yyyy' }}</span>
+              </p>
+              <p>{{ routine.category?.name || 'Others' }} • {{ routine.wallet?.name || 'Default wallet' }}</p>
+            </ion-label>
+            <ion-badge [color]="routine.status === 'active' ? 'success' : 'medium'">
+              {{ routine.status }}
+            </ion-badge>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option color="primary" (click)="editRoutine(routine)">
+              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="warning" (click)="toggleRoutine(routine)">
+              <ion-icon [name]="routine.status === 'active' ? 'pause-outline' : 'play-outline'" slot="icon-only"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="danger" (click)="deleteRoutine(routine)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+    </section>
+  </div>
+
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime
+        id="routineStart"
+        presentation="date"
+        [value]="routineForm.get('start_date')?.value"
+        (ionChange)="routineForm.patchValue({ start_date: $event.detail.value })">
+      </ion-datetime>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime
+        id="routineEnd"
+        presentation="date"
+        [value]="routineForm.get('end_date')?.value"
+        (ionChange)="routineForm.patchValue({ end_date: $event.detail.value })">
+      </ion-datetime>
+    </ng-template>
+  </ion-modal>
+</ion-content>

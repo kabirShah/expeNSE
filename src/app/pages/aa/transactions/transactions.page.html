@@ -1,0 +1,114 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/aa/accounts" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Transactions</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshTransactions()">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Account Filter -->
+  <div class="account-filter" *ngIf="accounts.length > 1">
+    <ion-select
+      [value]="selectedAccountId"
+      (ionChange)="selectAccount($event.detail.value)"
+      placeholder="Select Account"
+      interface="popover"
+    >
+      <ion-select-option [value]="null">All Accounts</ion-select-option>
+      <ion-select-option 
+        *ngFor="let account of accounts" 
+        [value]="account.id"
+      >
+        {{ account.bank_name }} - {{ account.masked_account_number | slice:-4 }}
+      </ion-select-option>
+    </ion-select>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && transactions.length === 0" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading transactions...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && errorMessage" class="error-container">
+    <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button (click)="loadTransactions()">Retry</ion-button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !errorMessage && transactions.length === 0" class="empty-container">
+    <ion-icon name="receipt-outline" size="large" color="medium"></ion-icon>
+    <p>No transactions found</p>
+    <ion-button fill="outline" (click)="refreshTransactions()">
+      Refresh
+    </ion-button>
+  </div>
+
+  <!-- Transaction List -->
+  <ion-list *ngIf="transactions.length > 0" class="transaction-list">
+    <ion-item-sliding 
+      *ngFor="let txn of transactions; trackBy: trackByTransactionId"
+      class="transaction-item"
+    >
+      <ion-item>
+        <ion-icon 
+          slot="start"
+          [name]="getTransactionIcon(txn.type)"
+          [color]="getAmountColor(txn.type)"
+          size="medium"
+        ></ion-icon>
+        
+        <ion-label>
+          <div class="txn-main">
+            <span class="txn-narration">{{ txn.narration || 'Transaction' }}</span>
+            <span class="txn-amount" [class]="getAmountColor(txn.type)">
+              {{ formatAmount(txn.amount, txn.type) }}
+            </span>
+          </div>
+          <div class="txn-meta">
+            <span class="txn-date">{{ formatDate(txn.txn_date) }}</span>
+            <span class="txn-category" *ngIf="txn.category">{{ txn.category }}</span>
+          </div>
+        </ion-label>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="primary">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Add to Expense
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Load More -->
+  <div class="load-more" *ngIf="hasMore && transactions.length > 0">
+    <ion-button 
+      expand="block" 
+      fill="outline" 
+      (click)="loadMoreTransactions()"
+      [disabled]="isLoading"
+    >
+      <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+      <span *ngIf="!isLoading">Load More</span>
+    </ion-button>
+  </div>
+
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshTransactions()">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingSpinner="crescent"
+    >
+    </ion-refresher-content>
+  </ion-refresher>
+</ion-content>

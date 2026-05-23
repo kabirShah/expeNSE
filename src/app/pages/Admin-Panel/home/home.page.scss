@@ -1,4 +1,4 @@
-﻿/* ==========================================================
+/* ==========================================================
    HOME PAGE — OPTIMIZED SCSS
    ========================================================== */
 
@@ -23,6 +23,21 @@
 /* ── PAGE ── */
 ion-content {
   --background: var(--bg);
+}
+
+.loader-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+
+  ion-spinner {
+    width: 42px;
+    height: 42px;
+    color: var(--primary);
+  }
 }
 
 .page {
@@ -66,10 +81,11 @@ ion-content {
 
   .hero-stats {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 
     .stat {
-      flex: 1;
+      flex: 1 1 140px;
       padding: 10px;
       border-radius: 12px;
       background: rgba(255,255,255,0.08);
@@ -85,8 +101,8 @@ ion-content {
       }
     }
 
-    .expense { color: #ff6b6b; }
-    .saving { color: #4ade80; }
+    .positive-stat { color: #4ade80; }
+    .negative-stat { color: #ff6b6b; }
   }
 }
 
@@ -131,8 +147,55 @@ ion-content {
    ───────────────────────────────── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
+}
+
+.splitwise-section {
+  margin-bottom: 18px;
+}
+
+.splitwise-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.splitwise-overview div {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.splitwise-overview p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.splitwise-overview h4 {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+
+.splitwise-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.section-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.status-message {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--danger);
 }
 
 .card {
@@ -161,6 +224,30 @@ ion-content {
     font-size: 12px;
     color: var(--text-muted);
   }
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.icon.green {
+  color: var(--success);
+  background: #ecfdf5;
+}
+
+.icon.blue {
+  color: var(--primary);
+  background: #eef2ff;
+}
+
+.icon.yellow {
+  color: var(--warning);
+  background: #fffbeb;
 }
 
 /* ─────────────────────────────────
@@ -245,28 +332,17 @@ ion-content {
 }
 
 .dock-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 10px;
+  border: 0;
+  background: transparent;
   color: var(--text-muted);
-  border: none;
-  background: none;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  min-width: 72px;
+  font-size: 11px;
+  font-weight: 700;
 
   ion-icon {
-    font-size: 22px;
+    font-size: 20px;
   }
-
-  &:active {
-    transform: scale(0.9);
-  }
-}
-
-/* center scan */
-.scan {
-  background: var(--primary);
-  color: #fff;
-  padding: 10px;
-  border-radius: 50%;
-  margin-top: -20px;
 }

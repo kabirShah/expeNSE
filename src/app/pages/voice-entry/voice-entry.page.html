@@ -1,32 +1,181 @@
-<ion-header>
+<ion-header class="ion-no-border voice-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button [routerLink]="['/home']">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
     </ion-buttons>
     <ion-title>Voice Entry</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-button expand="block" (click)="toggleListening()" [color]="isListening ? 'danger' : 'primary'">
-    {{ isListening ? 'Stop Listening' : 'Start Listening' }}
-  </ion-button>
+<ion-content [fullscreen]="true">
+  <div class="page-shell">
+    <section class="hero-card">
+      <p class="eyebrow">Voice Parser</p>
+      <h1>Speak an expense or income and review it before saving</h1>
+      <p class="hero-copy">
+        Try phrases like “I spent 250 on Swiggy today” or “I received salary yesterday”.
+      </p>
 
-  <ion-card *ngIf="transcript">
-    <ion-card-header><ion-card-title>Transcript</ion-card-title></ion-card-header>
-    <ion-card-content>{{ transcript }}</ion-card-content>
-  </ion-card>
+      <div class="hero-actions">
+        <ion-button
+          expand="block"
+          [color]="isListening ? 'danger' : 'dark'"
+          (click)="toggleListening()"
+          [disabled]="isParsing || isSaving">
+          {{ isListening ? 'Stop Listening' : 'Start Voice Entry' }}
+        </ion-button>
+      </div>
 
-  <ion-card *ngIf="parsedData">
-    <ion-card-header><ion-card-title>Parsed</ion-card-title></ion-card-header>
-    <ion-card-content>
-      <p>Amount: {{ parsedData.amount }}</p>
-      <p>Type: {{ parsedData.type }}</p>
-      <p>Method: {{ parsedData.payment_method }}</p>
-      <p>Note: {{ parsedData.note }}</p>
-      <ion-button expand="block" color="success" (click)="confirm()">Confirm Entry</ion-button>
-    </ion-card-content>
-  </ion-card>
+      <div class="status-strip" [class.active]="isListening || isParsing || isSaving">
+        <div>
+          <strong>{{ statusMessage }}</strong>
+          <p *ngIf="isListening">Voice capture is active.</p>
+          <p *ngIf="isParsing">Converting speech to structured finance data.</p>
+          <p *ngIf="isSaving">Creating your transaction now.</p>
+        </div>
+        <ion-spinner *ngIf="isListening || isParsing || isSaving" name="crescent"></ion-spinner>
+      </div>
+    </section>
+
+    <section class="transcript-card" *ngIf="transcript">
+      <div class="section-head">
+        <h2>Transcript</h2>
+      </div>
+      <p>{{ transcript }}</p>
+    </section>
+
+    <section class="parsed-card" *ngIf="parsedData">
+      <div class="section-head">
+        <h2>Review Parsed Voice Data</h2>
+        <ion-chip [color]="typeTone()" outline="true">
+          <ion-label>{{ parsedData.type }}</ion-label>
+        </ion-chip>
+      </div>
+
+      <div class="summary-card" [class.income]="parsedData.type === 'income'">
+        <div>
+          <label>Amount</label>
+          <h3>{{ amountLabel() }}</h3>
+        </div>
+        <div>
+          <label>Merchant</label>
+          <strong>{{ parsedData.merchant || 'Not detected' }}</strong>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <ion-item>
+          <ion-label position="stacked">Wallet</ion-label>
+          <ion-select [(ngModel)]="selectedWalletId" interface="popover">
+            <ion-select-option *ngFor="let wallet of wallets" [value]="wallet.id">
+              {{ wallet.name || wallet.wallet_name || ('Wallet #' + wallet.id) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Type</ion-label>
+          <ion-select [(ngModel)]="parsedData.type" interface="popover">
+            <ion-select-option value="expense">expense</ion-select-option>
+            <ion-select-option value="income">income</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input type="number" [(ngModel)]="parsedData.amount"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Merchant</ion-label>
+          <ion-input [(ngModel)]="parsedData.merchant"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Detected Category</ion-label>
+          <ion-select [(ngModel)]="parsedData.category" interface="popover">
+            <ion-select-option value="food">food</ion-select-option>
+            <ion-select-option value="shopping">shopping</ion-select-option>
+            <ion-select-option value="travel">travel</ion-select-option>
+            <ion-select-option value="bills">bills</ion-select-option>
+            <ion-select-option value="transfer">transfer</ion-select-option>
+            <ion-select-option value="recharge">recharge</ion-select-option>
+            <ion-select-option value="entertainment">entertainment</ion-select-option>
+            <ion-select-option value="salary">salary</ion-select-option>
+            <ion-select-option value="other">other</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">App Category</ion-label>
+          <ion-select [(ngModel)]="selectedCategoryId" interface="popover">
+            <ion-select-option [value]="null">No category</ion-select-option>
+            <ion-select-option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Date</ion-label>
+          <ion-input type="date" [(ngModel)]="parsedData.date"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Time</ion-label>
+          <ion-input type="time" [(ngModel)]="parsedData.time"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Payment Method</ion-label>
+          <ion-select [(ngModel)]="paymentMethod" interface="popover">
+            <ion-select-option value="cash">cash</ion-select-option>
+            <ion-select-option value="upi">upi</ion-select-option>
+            <ion-select-option value="debit card">debit card</ion-select-option>
+            <ion-select-option value="credit card">credit card</ion-select-option>
+            <ion-select-option value="bank transfer">bank transfer</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <ion-item class="notes-item">
+        <ion-label position="stacked">Notes</ion-label>
+        <ion-textarea auto-grow="true" rows="4" [(ngModel)]="parsedData.notes"></ion-textarea>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        color="success"
+        class="confirm-btn"
+        (click)="confirm()"
+        [disabled]="isSaving || parsedData.type === 'unknown' || parsedData.amount === null || !selectedWalletId">
+        {{ isSaving ? 'Saving...' : 'Confirm Voice Entry' }}
+      </ion-button>
+    </section>
+
+    <section class="history-card" *ngIf="history.length">
+      <div class="section-head">
+        <h2>Recent Voice Notes</h2>
+      </div>
+
+      <article class="history-item" *ngFor="let entry of history">
+        <div class="history-top">
+          <div>
+            <ion-chip [color]="historyTypeTone(entry)" outline="true">
+              <ion-label>{{ entry.parsed_data?.type || 'unknown' }}</ion-label>
+            </ion-chip>
+            <h3>{{ historyMerchant(entry) }}</h3>
+            <p>{{ historyDate(entry) }}</p>
+          </div>
+
+          <div class="history-amount">
+            <strong>{{ historyAmountLabel(entry) }}</strong>
+            <span [class.confirmed]="entry.status === 'confirmed'">{{ entry.status }}</span>
+          </div>
+        </div>
+
+        <p class="history-note">{{ historyNotes(entry) }}</p>
+      </article>
+    </section>
+  </div>
 </ion-content>

@@ -1,0 +1,234 @@
+:host {
+  --ink: #162521;
+  --muted: #60706b;
+  --card: #fffdf7;
+  --surface: #f4efe6;
+  --accent: #1f8a70;
+  --accent-soft: #d7f0e7;
+  --warm: #f1b24a;
+}
+
+.onboarding-shell {
+  --background: linear-gradient(180deg, #f8f3ea 0%, #eef6f2 100%);
+  color: var(--ink);
+  padding: 28px 18px 32px;
+}
+
+.hero {
+  margin: 18px 0 22px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.stepper {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.64);
+  border: 1px solid rgba(22, 37, 33, 0.08);
+  border-radius: 18px;
+}
+
+.step-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(22, 37, 33, 0.08);
+  font-weight: 700;
+}
+
+.step-pill strong,
+.step-pill small {
+  display: block;
+}
+
+.step-pill small {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.step-pill.active {
+  background: #ffffff;
+  border-color: rgba(31, 138, 112, 0.35);
+  box-shadow: 0 18px 40px rgba(31, 138, 112, 0.08);
+}
+
+.step-pill.active span,
+.step-pill.complete span {
+  background: var(--accent);
+  color: white;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(22, 37, 33, 0.08);
+  border-radius: 28px;
+  padding: 18px;
+  box-shadow: 0 18px 48px rgba(22, 37, 33, 0.08);
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.section-head p {
+  margin: 8px 0 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.choice-card {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(22, 37, 33, 0.08);
+  background: var(--card);
+  text-align: left;
+}
+
+.choice-card h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.choice-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.choice-card.selected {
+  border-color: rgba(31, 138, 112, 0.42);
+  background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 100%);
+}
+
+.privacy-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px;
+  margin-top: 6px;
+  background: rgba(31, 138, 112, 0.1);
+  border-radius: 18px;
+  color: var(--ink);
+}
+
+.field {
+  --background: #fffdf8;
+  --border-radius: 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(22, 37, 33, 0.08);
+}
+
+.quick-categories {
+  margin-top: 18px;
+}
+
+.quick-categories p {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(22, 37, 33, 0.08);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.chip.selected {
+  background: var(--ink);
+  color: white;
+}
+
+.summary-card {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(241, 178, 74, 0.18), rgba(31, 138, 112, 0.15));
+}
+
+.summary-card span {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.summary-card strong {
+  font-size: 1rem;
+}
+
+.footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 18px 0 24px;
+}
+
+.primary-action {
+  --background: var(--ink);
+  --background-activated: #0f1916;
+  --border-radius: 16px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+}
+
+@media (min-width: 768px) {
+  .onboarding-shell {
+    padding: 36px 48px;
+  }
+
+  .stepper {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .panel {
+    padding: 28px;
+  }
+}

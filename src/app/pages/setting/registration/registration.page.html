@@ -88,7 +88,7 @@
           <div class="input-wrapper">
             <ion-input 
               formControlName="dob"
-              placeholder="MM/DD/YYYY" 
+              placeholder="DD/MM/YYYY" 
               class="custom-input"
               type="tel"
               maxlength="10"
@@ -99,7 +99,9 @@
             </ion-button>
           </div>
           <div class="error-msg" *ngIf="regForm.get('dob')?.invalid && regForm.get('dob')?.touched">
-            Required.
+            <span *ngIf="regForm.get('dob')?.hasError('required')">Required.</span>
+            <span *ngIf="regForm.get('dob')?.hasError('invalidDob')">Enter a valid date in DD/MM/YYYY.</span>
+            <span *ngIf="regForm.get('dob')?.hasError('underAge')">You must be at least 16 years old.</span>
           </div>
         </div>
 

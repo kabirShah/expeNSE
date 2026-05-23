@@ -1,0 +1,192 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Splitwise</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="splitwise-page">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Create Splitwise Group</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Group Name</ion-label>
+          <ion-input [(ngModel)]="createGroupForm.name" placeholder="Weekend Trip"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Description</ion-label>
+          <ion-textarea [(ngModel)]="createGroupForm.description" placeholder="Separate from personal expenses"></ion-textarea>
+        </ion-item>
+        <ion-button expand="block" (click)="createGroup()">Create Group</ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Splitwise Workspace</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label>Group</ion-label>
+          <ion-select [(ngModel)]="selectedGroupId" (ionChange)="onGroupChange()" interface="popover">
+            <ion-select-option *ngFor="let group of groups; trackBy: trackById" [value]="group.id">
+              {{ group.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <p *ngIf="!groups.length && !isLoading" class="empty-state">
+          No Splitwise groups yet. Create one above to get started.
+        </p>
+
+        <div *ngIf="selectedGroup">
+          <div class="member-chips">
+            <ion-chip *ngFor="let member of members(); trackBy: trackById">
+              <ion-label>{{ member.name }}</ion-label>
+            </ion-chip>
+          </div>
+
+          <ion-card class="inner-card">
+            <ion-card-header>
+              <ion-card-title>Add Group Expense</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item>
+                <ion-label position="stacked">Title</ion-label>
+                <ion-input [(ngModel)]="expenseForm.title" placeholder="Dinner"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Amount</ion-label>
+                <ion-input type="number" [(ngModel)]="expenseForm.amount" placeholder="1200"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label>Payer</ion-label>
+                <ion-select [(ngModel)]="expenseForm.paid_by_member_id" interface="popover">
+                  <ion-select-option *ngFor="let member of members(); trackBy: trackById" [value]="member.id">
+                    {{ member.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Date</ion-label>
+                <ion-input type="date" [(ngModel)]="expenseForm.expense_date"></ion-input>
+              </ion-item>
+              <ion-button expand="block" (click)="createExpense()">Split Equally</ion-button>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="inner-card">
+            <ion-card-header>
+              <ion-card-title>Balances</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list *ngIf="balances?.members?.length">
+                <ion-item *ngFor="let balance of balances?.members">
+                  <ion-label>
+                    <h3>{{ balance.name }}</h3>
+                    <p *ngIf="balance.you_are_owed > 0">Gets back ₹{{ balance.you_are_owed | number:'1.0-2' }}</p>
+                    <p *ngIf="balance.you_owe > 0">Owes ₹{{ balance.you_owe | number:'1.0-2' }}</p>
+                    <p *ngIf="balance.you_are_owed === 0 && balance.you_owe === 0">All settled up</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+
+              <ion-list *ngIf="balances?.simplified?.length">
+                <ion-list-header>Suggested Settlements</ion-list-header>
+                <ion-item *ngFor="let item of balances?.simplified">
+                  <ion-label>
+                    <p>{{ item.from_name }} pays {{ item.to_name }}</p>
+                    <h3>₹{{ item.amount | number:'1.0-2' }}</h3>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="inner-card">
+            <ion-card-header>
+              <ion-card-title>Record Settlement</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-item>
+                <ion-label>Payer</ion-label>
+                <ion-select [(ngModel)]="settlementForm.payer_member_id" interface="popover">
+                  <ion-select-option *ngFor="let member of members(); trackBy: trackById" [value]="member.id">
+                    {{ member.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item>
+                <ion-label>Payee</ion-label>
+                <ion-select [(ngModel)]="settlementForm.payee_member_id" interface="popover">
+                  <ion-select-option *ngFor="let member of members(); trackBy: trackById" [value]="member.id">
+                    {{ member.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Amount</ion-label>
+                <ion-input type="number" [(ngModel)]="settlementForm.amount" placeholder="600"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Settlement Date</ion-label>
+                <ion-input type="date" [(ngModel)]="settlementForm.settled_at"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Note</ion-label>
+                <ion-input [(ngModel)]="settlementForm.note" placeholder="Paid via UPI"></ion-input>
+              </ion-item>
+              <ion-button expand="block" fill="outline" (click)="createSettlement()">Record Settlement</ion-button>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="inner-card">
+            <ion-card-header>
+              <ion-card-title>Recent Group Expenses</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list *ngIf="expenses.length">
+                <ion-item *ngFor="let expense of expenses; trackBy: trackById">
+                  <ion-label>
+                    <h3>{{ expense.title }}</h3>
+                    <p>₹{{ expense.amount | number:'1.0-2' }} paid on {{ expense.expense_date | date:'mediumDate' }}</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              <p *ngIf="!expenses.length" class="empty-state">No group expenses added yet.</p>
+            </ion-card-content>
+          </ion-card>
+
+          <ion-card class="inner-card">
+            <ion-card-header>
+              <ion-card-title>Recent Settlements</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list *ngIf="settlements.length">
+                <ion-item *ngFor="let settlement of settlements; trackBy: trackById">
+                  <ion-label>
+                    <h3>₹{{ settlement.amount | number:'1.0-2' }}</h3>
+                    <p>{{ settlement.settled_at | date:'mediumDate' }}</p>
+                    <p *ngIf="settlement.note">{{ settlement.note }}</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              <p *ngIf="!settlements.length" class="empty-state">No settlements recorded yet.</p>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="loader-center" *ngIf="isLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  </div>
+</ion-content>

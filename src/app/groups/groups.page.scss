@@ -1,0 +1,12 @@
+.groups-page {
+  padding: 16px;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100vh - 140px);
+  padding: 32px 0;
+}

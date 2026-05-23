@@ -1,0 +1,50 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Connected Accounts</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="loadAccounts()" [disabled]="isLoading">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="accounts-page">
+  <section class="summary-card">
+    <p class="eyebrow">Account Aggregator</p>
+    <h1>All connected bank accounts</h1>
+    <p>Review linked accounts and keep balances in sync after each consented refresh.</p>
+    <ion-button fill="outline" color="dark" routerLink="/aa/connect">Connect Another Bank</ion-button>
+  </section>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading connected accounts...</p>
+  </div>
+
+  <section class="empty-card" *ngIf="!isLoading && !accounts.length">
+    <h2>No connected accounts yet</h2>
+    <p>{{ errorMessage || 'Connect a bank account to start automatic syncing.' }}</p>
+    <ion-button color="dark" routerLink="/aa/connect">Connect Bank</ion-button>
+  </section>
+
+  <section class="account-list" *ngIf="!isLoading && accounts.length">
+    <article class="account-card" *ngFor="let account of accounts">
+      <div class="bank-head">
+        <div>
+          <h2>{{ account.bank_name || 'Connected bank' }}</h2>
+          <p>{{ last4Label(account) }}</p>
+        </div>
+        <span class="type-chip">{{ account.type || 'savings' }}</span>
+      </div>
+
+      <div class="balance-row">
+        <label>Balance</label>
+        <strong>{{ balanceLabel(account) }}</strong>
+      </div>
+    </article>
+  </section>
+</ion-content>

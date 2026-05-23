@@ -76,6 +76,39 @@
         (ionChange)="toggleDarkMode($event)">
       </ion-toggle>
     </ion-item>
+
+    <ion-item>
+      <div class="icon-slot active" slot="start">
+        <ion-icon name="eye-outline"></ion-icon>
+      </div>
+      <ion-label>
+        <h2>Enable smart expense tracking</h2>
+        <p>Add supported bank and UPI transactions to your transaction list automatically</p>
+      </ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="integrationVisibilityEnabled"
+        (ionChange)="onToggleIntegrationVisibility($event)">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item button detail lines="none" (click)="openIntegrationVisibility()">
+      <div class="icon-slot" slot="start">
+        <ion-icon name="link-outline"></ion-icon>
+      </div>
+      <ion-label>
+        <h2>Manage Integrations</h2>
+        <p>Review supported banks and UPI apps</p>
+      </ion-label>
+    </ion-item>
+  </div>
+
+  <div class="settings-note-card">
+    <h3>Smart expense tracking</h3>
+    <p>
+      When enabled, supported integrations can add transaction entries from
+      {{ integrationPartners.join(', ') }} inside Pocket Money.
+    </p>
   </div>
 
   <div class="section-title">Legal</div>

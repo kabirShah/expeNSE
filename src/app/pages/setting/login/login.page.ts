@@ -2,10 +2,13 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from 'src/app/services/auth.service';
 import { BiometricService } from 'src/app/services/biometric.service';
+import { SmartDetectionService } from 'src/app/services/smart-detection.service';
 import { UiToastService } from 'src/app/services/ui-toast.service';
+import { UserPreferencesService } from 'src/app/services/user-preferences.service';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +26,8 @@ export class LoginPage implements OnInit {
     private router: Router,
     private authService: AuthService,
     private biometricService: BiometricService,
+    private userPreferences: UserPreferencesService,
+    private smartDetectionService: SmartDetectionService,
     private uiToast: UiToastService,
     private alertCtrl: AlertController,
     private cd: ChangeDetectorRef
@@ -62,6 +67,7 @@ export class LoginPage implements OnInit {
 
       if (success) {
         localStorage.setItem('loginTime', Date.now().toString());
+        await this.ensureIntegrationConsent();
         this.router.navigateByUrl('/home', { replaceUrl: true });
       }
     }
@@ -87,7 +93,10 @@ export class LoginPage implements OnInit {
         this.isLoading = false;
 
         this.showToast('Login successful');
-        this.router.navigateByUrl('/home', { replaceUrl: true });
+        await this.ensureIntegrationConsent();
+        this.userPreferences.shouldShowOnboarding().subscribe((needsOnboarding) => {
+          this.router.navigateByUrl(needsOnboarding ? '/onboarding' : '/home', { replaceUrl: true });
+        });
       },
       error: async (err) => {
         this.isLoading = false;
@@ -120,6 +129,49 @@ export class LoginPage implements OnInit {
 
   private async showToast(message: string): Promise<void> {
     await this.uiToast.show(message, 'primary');
+  }
+
+  private async ensureIntegrationConsent(): Promise<void> {
+    try {
+      const preferences = await firstValueFrom(this.userPreferences.loadPreferences());
+      if (preferences?.integration_visibility_consent_at) {
+        return;
+      }
+
+      const consented = await this.presentIntegrationConsentPopup();
+      if (consented) {
+        await this.smartDetectionService.enableSmartTracking();
+      }
+      await firstValueFrom(this.userPreferences.savePreferences({
+        integration_visibility_enabled: consented,
+        integration_visibility_consent_at: new Date().toISOString()
+      }));
+    } catch {
+      // Keep login flow moving even if preference sync is unavailable.
+    }
+  }
+
+  private async presentIntegrationConsentPopup(): Promise<boolean> {
+    return new Promise<boolean>(async (resolve) => {
+      const alert = await this.alertCtrl.create({
+        header: 'Enable smart expense tracking',
+        message: 'Allow access to notifications to automatically detect your expenses from supported bank, UPI, and wallet alerts.',
+        backdropDismiss: false,
+        buttons: [
+          {
+            text: 'Not Now',
+            role: 'cancel',
+            handler: () => resolve(false)
+          },
+          {
+            text: 'Enable',
+            handler: () => resolve(true)
+          }
+        ]
+      });
+
+      await alert.present();
+    });
   }
 
   async showErrorAlert(message: string): Promise<void> {

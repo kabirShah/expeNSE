@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -9,12 +9,48 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
+  private authHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || '';
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    });
+  }
+
   getWallets(): Observable<any> {
     return this.http.get(`${this.base}/wallets`);
   }
 
+  getAppConfig(): Observable<any> {
+    return this.http.get(`${this.base}/app-config`);
+  }
+
+  getOnboardingStatus(): Observable<any> {
+    return this.http.get(`${this.base}/onboarding/status`, { headers: this.authHeaders() });
+  }
+
+  saveOnboardingStep(data: any): Observable<any> {
+    return this.http.post(`${this.base}/onboarding/save-step`, data, { headers: this.authHeaders() });
+  }
+
+  initSync(messages: any[]): Observable<any> {
+    return this.http.post(`${this.base}/sync/init`, { messages }, { headers: this.authHeaders() });
+  }
+
+  getSyncStatus(): Observable<any> {
+    return this.http.get(`${this.base}/sync/status`, { headers: this.authHeaders() });
+  }
+
+  completeOnboarding(): Observable<any> {
+    return this.http.post(`${this.base}/onboarding/complete`, {}, { headers: this.authHeaders() });
+  }
+
   createWallet(data: any): Observable<any> {
     return this.http.post(`${this.base}/wallets`, data);
+  }
+
+  updateWallet(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.base}/wallets/${id}`, data);
   }
 
   addBalance(id: number, amount: number): Observable<any> {
@@ -58,7 +94,28 @@ export class ApiService {
     let params = new HttpParams();
     if (month) params = params.set('month', month);
     if (year) params = params.set('year', year);
-    return this.http.get(`${this.base}/dashboard/summary`, { params });
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezone) params = params.set('timezone', timezone);
+    return this.http.get(`${this.base}/dashboard/summary`, {
+      params,
+      headers: this.authHeaders()
+    });
+  }
+
+  getGroups(): Observable<any> {
+    return this.http.get(`${this.base}/groups`, { headers: this.authHeaders() });
+  }
+
+  createGroup(data: { name: string; description?: string | null; member_user_ids?: number[] }): Observable<any> {
+    return this.http.post(`${this.base}/groups`, data, { headers: this.authHeaders() });
+  }
+
+  addExpenseToGroup(groupId: number | string, data: any): Observable<any> {
+    return this.http.post(`${this.base}/groups/${groupId}/expenses`, data, { headers: this.authHeaders() });
+  }
+
+  getGroupBalances(groupId: number | string): Observable<any> {
+    return this.http.get(`${this.base}/groups/${groupId}/balances`, { headers: this.authHeaders() });
   }
 
   getPaymentBreakdown(month?: number, year?: number): Observable<any> {
@@ -84,8 +141,31 @@ export class ApiService {
     return this.http.post(`${this.base}/voice/parse`, { transcript });
   }
 
+  getVoiceEntries(filters: any = {}): Observable<any> {
+    let params = new HttpParams();
+    Object.keys(filters).forEach((k) => {
+      const value = filters[k];
+      if (value !== null && value !== undefined && value !== '') {
+        params = params.set(k, value);
+      }
+    });
+    return this.http.get(`${this.base}/voice`, { params });
+  }
+
   confirmVoice(entryId: number, data: any): Observable<any> {
     return this.http.post(`${this.base}/voice/${entryId}/confirm`, data);
+  }
+
+  autoDetectTransaction(data: any): Observable<any> {
+    return this.http.post(`${this.base}/transactions/auto-detect`, data, {
+      headers: this.authHeaders()
+    });
+  }
+
+  parseDetectedTransaction(data: { raw_text: string; package_name?: string; received_at?: string }): Observable<any> {
+    return this.http.post(`${this.base}/transactions/parse-detection`, data, {
+      headers: this.authHeaders()
+    });
   }
 
   getBudgets(): Observable<any> {

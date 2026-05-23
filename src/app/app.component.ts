@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { MenuService } from './services/menu.service';
+import { AppConfigService } from './services/app-config.service';
+import { AuthService } from './services/auth.service';
+import { OnboardingService } from './services/onboarding.service';
+import { SmartDetectionService } from './services/smart-detection.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +15,11 @@ export class AppComponent {
 
   constructor(
     private platform: Platform,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private authService: AuthService,
+    private appConfigService: AppConfigService,
+    private onboardingService: OnboardingService,
+    private smartDetectionService: SmartDetectionService
   ) {
     this.initializeApp();
   }
@@ -19,6 +27,12 @@ export class AppComponent {
   initializeApp(): void {
     this.platform.ready().then(() => {
       this.loadDarkMode();
+      void this.appConfigService.initialize();
+
+      if (this.authService.getToken()) {
+        void this.onboardingService.initialize();
+        void this.smartDetectionService.startIfEnabled();
+      }
     });
   }
 

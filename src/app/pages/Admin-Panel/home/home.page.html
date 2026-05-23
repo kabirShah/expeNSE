@@ -1,4 +1,4 @@
-﻿<ion-header class="ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button color="dark"></ion-menu-button>
@@ -7,9 +7,6 @@
     <ion-title>Pocket Money</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="openNotifications()">
-        <ion-icon name="notifications-outline"></ion-icon>
-      </ion-button>
       <ion-button (click)="navigateTo('/setting')">
         <ion-icon name="settings-outline"></ion-icon>
       </ion-button>
@@ -31,36 +28,95 @@
 
       <div class="hero-top">
         <div>
-          <p class="greet">Good Morning</p>
+          <p class="greet">{{ getGreeting() }}</p>
           <h2>Hi, {{ userFirstName || 'User' }}</h2>
         </div>
       </div>
 
       <div class="hero-balance">
-        <p>TOTAL BALANCE</p>
+        <p>Your Current {{ appConfig.getLabel() }}</p>
         <h1>₹{{ totalBalance | number:'1.0-0' }}</h1>
       </div>
 
       <!-- mini stats -->
       <div class="hero-stats">
-        <div class="stat expense">
+        <div class="stat" [ngClass]="isExpenseWithinBalance() ? 'positive-stat' : 'negative-stat'">
           <p>EXPENSE</p>
-          <h3>₹{{ totalMonthExpense }}</h3>
+          <h3>₹{{ totalMonthExpense | number:'1.0-0' }}</h3>
         </div>
 
-        <div class="stat saving">
-          <p>SAVING</p>
-          <h3>₹{{ monthSaving }}</h3>
+        <div class="stat" [ngClass]="isSavingNegative() ? 'negative-stat' : 'positive-stat'">
+          <p>This Month Saving</p>
+          <h3>₹{{ monthSaving | number:'1.0-0' }}</h3>
         </div>
       </div>
 
+      <p class="hero-note">{{ getSavingInsight() }}</p>
+
+    </div>
+
+    <div class="section splitwise-section">
+      <div class="section-header">
+        <h3>Splitwise Workspace</h3>
+        <ion-button size="small" fill="outline" (click)="navigateTo('/splitwise')">Open</ion-button>
+      </div>
+
+      <ion-card button (click)="navigateTo('/splitwise')">
+        <ion-card-content>
+          <div class="splitwise-overview">
+            <div>
+              <p>Active groups</p>
+              <h4>{{ splitwiseGroupCount }}</h4>
+            </div>
+            <div>
+              <p>Quick access</p>
+              <h4>Splitwise</h4>
+            </div>
+          </div>
+          <p class="section-note">
+            Track group expenses, balances, and settlements all from one place.
+          </p>
+          <div class="splitwise-actions">
+            <ion-chip color="primary" outline (click)="navigateTo('/splitwise')">View Workspace</ion-chip>
+            <ion-chip color="medium" outline (click)="navigateTo('/splitwise')">Manage Splitwise</ion-chip>
+          </div>
+          <p *ngIf="splitwiseStatusMessage" class="status-message">{{ splitwiseStatusMessage }}</p>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <!-- ================= PAYMENT CHIPS ================= -->
-    <div class="chips">
-      <div class="chip">💰 Cash ₹{{ totalBalance }}</div>
-      <div class="chip">🏦 HDFC ₹0.00</div>
-      <div class="chip">📱 GPay ₹0.00</div>
+    <div class="chips" *ngIf="transactionBreakdown?.length">
+
+  <div class="chip"
+       *ngFor="let t of transactionBreakdown">
+
+    {{ getIcon(t.transaction_type || t.source_type) }}
+    {{ t.transaction_type }} ₹{{ t.total }}
+
+  </div>
+
+</div>
+
+    <div class="section" *ngIf="isAutoTrackingEnabled || budgetStatus">
+      <ion-card>
+        <ion-card-content>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+              <h4 style="margin:0 0 6px;">Live Tracking</h4>
+              <p style="margin:0;color:var(--ion-color-medium);">
+                {{ autoDetectedCount }} auto-detected transactions this month
+              </p>
+            </div>
+            <ion-badge color="success" *ngIf="isAutoTrackingEnabled">Enabled</ion-badge>
+          </div>
+
+          <p *ngIf="budgetStatus?.message" style="margin:12px 0 0;">{{ budgetStatus.message }}</p>
+          <p *ngIf="budgetStatus && !budgetStatus.message" style="margin:12px 0 0;">
+            Remaining budget: ₹{{ budgetStatus.remaining_budget | number:'1.0-0' }}
+          </p>
+        </ion-card-content>
+      </ion-card>
     </div>
 
     <!-- ================= ADD EXPENSE ================= -->
@@ -84,16 +140,37 @@
         <div class="card" (click)="navigateTo('/scan')">
           <div class="icon yellow"><ion-icon name="camera-outline"></ion-icon></div>
           <h4>Scan Receipt</h4>
+          <p>Smart OCR + save</p>
         </div>
 
-        <div class="card">
-          <div class="icon purple"><ion-icon name="recording-outline"></ion-icon></div>
+
+
+
+        <div class="card" (click)="navigateTo('/voice-entry')">
+          <div class="icon blue"><ion-icon name="mic-outline"></ion-icon></div>
           <h4>Voice</h4>
+          <p>Speak and review entry</p>
+        </div>
+
+        <div class="card" (click)="navigateTo('/routine-expenses')">
+          <div class="icon green"><ion-icon name="repeat-outline"></ion-icon></div>
+          <h4>Routine</h4>
+          <p>Automate repeated expenses</p>
         </div>
 
       </div>
     </div>
 
+  </div>
+
+  <div *ngIf="!isLoading && hasError" class="page">
+    <ion-card>
+      <ion-card-content>
+        <h3>Dashboard Unavailable</h3>
+        <p>{{ errorMessage }}</p>
+        <ion-button expand="block" (click)="retryDashboard()">Try Again</ion-button>
+      </ion-card-content>
+    </ion-card>
   </div>
 
 </ion-content>
@@ -102,14 +179,9 @@
 <div class="floating-actions-container">
   <div class="floating-dock">
 
-    <button class="dock-btn" (click)="navigateTo('/groups')">
-      <ion-icon name="people-outline"></ion-icon>
-      <span>Groups</span>
-    </button>
-
     <button class="dock-btn" (click)="navigateTo('/balance')">
       <ion-icon name="wallet-outline"></ion-icon>
-      <span>Balance</span>
+      <span>{{ appConfig.getLabel() }}</span>
     </button>
 
     <button class="dock-btn" (click)="navigateTo('/analytics')">

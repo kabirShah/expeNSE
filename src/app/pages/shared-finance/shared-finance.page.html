@@ -1,0 +1,246 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Shared Finance</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showRoadmap()">
+        <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="shared-page">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <section class="hero">
+    <div>
+      <p>Net shared balance</p>
+      <h1 [class.negative]="netBalance < 0">
+        {{ netBalance >= 0 ? '+' : '-' }}₹{{ (netBalance < 0 ? -netBalance : netBalance) | number:'1.0-0' }}
+      </h1>
+      <span>{{ offlineQueueCount ? offlineQueueCount + ' action(s) queued offline' : 'Synced and ready' }}</span>
+    </div>
+    <ion-chip>
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <ion-label>Trusted splits</ion-label>
+    </ion-chip>
+  </section>
+
+  <ion-segment [(ngModel)]="activeTab" scrollable="true" class="workspace-tabs">
+    <ion-segment-button value="friends">
+      <ion-label>Friends</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="contacts">
+      <ion-label>Contacts</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="split">
+      <ion-label>Split</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="activity">
+      <ion-label>Activity</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="analytics">
+      <ion-label>Analytics</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="recurring">
+      <ion-label>Recurring</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <section *ngIf="activeTab === 'friends'" class="workspace-section">
+      <ion-searchbar [(ngModel)]="searchTerm" placeholder="Search friends"></ion-searchbar>
+
+      <div class="summary-grid" *ngIf="analytics">
+        <app-balance-summary-card label="You get" [amount]="analytics.totalReceivable" tone="gets"></app-balance-summary-card>
+        <app-balance-summary-card label="You owe" [amount]="analytics.totalOwed" tone="owed"></app-balance-summary-card>
+      </div>
+
+      <div class="section-title">
+        <h2>Groups</h2>
+      </div>
+      <div class="horizontal-cards">
+        <app-shared-group-card *ngFor="let group of groups; trackBy: trackById" [group]="group"></app-shared-group-card>
+      </div>
+
+      <div class="section-title">
+        <h2>Frequent contacts</h2>
+        <ion-button fill="clear" size="small" (click)="addFriend()">Add</ion-button>
+      </div>
+      <app-shared-friend-card
+        *ngFor="let friend of filteredFriends; trackBy: trackById"
+        [friend]="friend"
+        (favorite)="toggleFavorite($event)">
+      </app-shared-friend-card>
+
+      <div class="section-title" *ngIf="pendingFriends.length">
+        <h2>Pending requests</h2>
+      </div>
+      <ion-chip *ngFor="let friend of pendingFriends; trackBy: trackById" color="warning">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>{{ friend.name }}</ion-label>
+      </ion-chip>
+    </section>
+
+    <section *ngIf="activeTab === 'contacts'" class="workspace-section">
+      <div class="permission-card">
+        <ion-icon name="people-circle-outline"></ion-icon>
+        <div>
+          <h2>Sync device contacts</h2>
+          <p>Contacts permission is requested only when you tap sync. Phone numbers and emails are normalized before future API mapping.</p>
+        </div>
+      </div>
+
+      <ion-button expand="block" (click)="syncContacts()" [disabled]="isSyncingContacts">
+        <ion-spinner *ngIf="isSyncingContacts" name="crescent"></ion-spinner>
+        <ion-icon *ngIf="!isSyncingContacts" name="sync-outline" slot="start"></ion-icon>
+        {{ isSyncingContacts ? 'Syncing...' : 'Sync Contacts' }}
+      </ion-button>
+
+      <ion-list lines="none" class="plain-list">
+        <ion-list-header>Recent contacts</ion-list-header>
+        <ion-item *ngFor="let contact of contacts; trackBy: trackById">
+          <ion-avatar slot="start">
+            <span>{{ contact.name.charAt(0) }}</span>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ contact.name }}</h2>
+            <p>{{ contact.phone || contact.email }}</p>
+          </ion-label>
+          <ion-badge [color]="contact.isRegistered ? 'success' : 'medium'">
+            {{ contact.isRegistered ? 'Registered' : 'New' }}
+          </ion-badge>
+          <ion-button size="small" fill="outline" (click)="inviteContact(contact)" [disabled]="contact.isInvited">
+            {{ contact.isInvited ? 'Invited' : (contact.isRegistered ? 'Request' : 'Invite') }}
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </section>
+
+    <section *ngIf="activeTab === 'split'" class="workspace-section">
+      <form [formGroup]="splitForm" (ngSubmit)="calculateSplit()" class="form-card">
+        <ion-item lines="none">
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input type="number" formControlName="amount" inputmode="decimal"></ion-input>
+        </ion-item>
+
+        <ion-segment formControlName="split_type" scrollable="true">
+          <ion-segment-button value="equal">
+            <ion-label>Equal</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="exact">
+            <ion-label>Exact</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="percentage">
+            <ion-label>%</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="shares">
+            <ion-label>Shares</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <div formArrayName="participants" class="participant-list">
+          <div *ngFor="let participant of participants.controls; let i = index" [formGroupName]="i" class="participant-row">
+            <ion-input formControlName="name" label="Name" labelPlacement="stacked"></ion-input>
+            <ion-input type="number" formControlName="amount" label="Exact" labelPlacement="stacked"></ion-input>
+            <ion-input type="number" formControlName="percentage" label="%" labelPlacement="stacked"></ion-input>
+            <ion-input type="number" formControlName="shares" label="Shares" labelPlacement="stacked"></ion-input>
+            <ion-button fill="clear" color="danger" type="button" (click)="removeParticipant(i)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <ion-button fill="outline" type="button" (click)="addParticipant()">Add Participant</ion-button>
+          <ion-button type="submit">Recalculate</ion-button>
+        </div>
+      </form>
+
+      <app-expense-split-card *ngIf="splitPreview" [split]="splitPreview"></app-expense-split-card>
+    </section>
+
+    <section *ngIf="activeTab === 'activity'" class="workspace-section">
+      <app-settlement-card
+        *ngFor="let settlement of settlements; trackBy: trackById"
+        [settlement]="settlement"
+        (complete)="completeSettlement($event)">
+      </app-settlement-card>
+
+      <div class="section-title">
+        <h2>Timeline</h2>
+      </div>
+      <app-activity-feed-card *ngFor="let item of activity; trackBy: trackById" [activity]="item"></app-activity-feed-card>
+    </section>
+
+    <section *ngIf="activeTab === 'analytics'" class="workspace-section">
+      <app-shared-analytics-card *ngIf="analytics" [analytics]="analytics"></app-shared-analytics-card>
+
+      <div class="summary-grid analytics-grid" *ngIf="analytics">
+        <app-balance-summary-card label="Groups total" [amount]="analytics.groupTotal"></app-balance-summary-card>
+        <app-balance-summary-card label="Friend totals" [amount]="analytics.friendTotal"></app-balance-summary-card>
+      </div>
+    </section>
+
+    <section *ngIf="activeTab === 'recurring'" class="workspace-section">
+      <form [formGroup]="recurringForm" (ngSubmit)="saveRecurring()" class="form-card">
+        <ion-item lines="none">
+          <ion-label position="stacked">Title</ion-label>
+          <ion-input formControlName="title" placeholder="Rent, Internet, Netflix"></ion-input>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input type="number" formControlName="amount"></ion-input>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Group</ion-label>
+          <ion-select formControlName="group_id" interface="popover">
+            <ion-select-option *ngFor="let group of groups; trackBy: trackById" [value]="group.id">
+              {{ group.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Frequency</ion-label>
+          <ion-select formControlName="frequency" interface="popover">
+            <ion-select-option value="daily">Daily</ion-select-option>
+            <ion-select-option value="weekly">Weekly</ion-select-option>
+            <ion-select-option value="monthly">Monthly</ion-select-option>
+            <ion-select-option value="yearly">Yearly</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-toggle formControlName="autoReminder">Auto reminder</ion-toggle>
+        </ion-item>
+        <ion-button expand="block" type="submit">Save Recurring Expense</ion-button>
+      </form>
+
+      <ion-list lines="none" class="plain-list recurring-list">
+        <ion-list-header>Upcoming</ion-list-header>
+        <ion-item *ngFor="let item of recurring; trackBy: trackById">
+          <ion-icon name="repeat-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h2>{{ item.title }}</h2>
+            <p>{{ item.groupName }} · {{ item.frequency | titlecase }} · next {{ item.nextDueAt | date:'dd MMM' }}</p>
+          </ion-label>
+          <ion-note slot="end">₹{{ item.amount | number:'1.0-0' }}</ion-note>
+        </ion-item>
+      </ion-list>
+    </section>
+  </ng-container>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="activeTab === 'friends' ? addFriend() : activeTab = 'split'">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

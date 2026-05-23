@@ -1,0 +1,54 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/aa/connect" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Secure Bank Consent</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="webview-page">
+  <section class="status-card">
+    <div>
+      <p class="eyebrow">Protected Session</p>
+      <h1>Review and approve the bank connection</h1>
+      <p class="copy">You’ll be redirected back automatically after Setu confirms the consent.</p>
+    </div>
+    <ion-spinner *ngIf="isLoading || isSyncing" name="crescent"></ion-spinner>
+  </section>
+
+  <section class="frame-card" *ngIf="safeConsentUrl; else missingState">
+    <iframe
+      #consentFrame
+      class="consent-frame"
+      [src]="safeConsentUrl"
+      title="Bank consent"
+      (load)="onFrameLoad(consentFrame)">
+    </iframe>
+  </section>
+
+  <section class="retry-card" *ngIf="errorMessage">
+    <h2>Need another try?</h2>
+    <p>{{ errorMessage }}</p>
+    <div class="actions">
+      <ion-button color="dark" (click)="retrySync()" [disabled]="isSyncing">Retry Sync</ion-button>
+      <ion-button fill="outline" color="dark" (click)="openExternal()">Open Consent Again</ion-button>
+    </div>
+  </section>
+
+  <section class="manual-card" *ngIf="!errorMessage">
+    <h2>If the page does not return automatically</h2>
+    <p>Finish the consent, then tap below to continue syncing your accounts.</p>
+    <ion-button fill="outline" color="dark" (click)="completeConnection()" [disabled]="isSyncing">
+      {{ isSyncing ? 'Syncing...' : 'I Finished Consent' }}
+    </ion-button>
+  </section>
+
+  <ng-template #missingState>
+    <section class="retry-card">
+      <h2>Consent session not found</h2>
+      <p>Please restart the bank connection flow.</p>
+      <ion-button color="dark" routerLink="/aa/connect">Back to Connect</ion-button>
+    </section>
+  </ng-template>
+</ion-content>

@@ -3,18 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-export interface UploadReceiptPayload {
-  image_url: string;
-  amount?: number | null;
-  title?: string | undefined;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class ReceiptService {
 
-  private apiUrl = environment.apiURL;
+  private apiUrl = `${environment.apiURL}/receipts`;
 
   constructor(private http: HttpClient) {}
 
@@ -27,27 +21,28 @@ export class ReceiptService {
     });
   }
 
-  // Correct endpoint for base64 uploads
-  saveReceipt(base64Image: string, amount?: number | null, notes?: string): Observable<any> {
-
-    const payload: UploadReceiptPayload = {
-      image_url: base64Image,
-      amount: amount ?? null,
-      title: notes ?? undefined
-    };
-
+  // 🔥 THIS IS MISSING IN YOUR FILE
+  uploadReceipt(base64Image: string): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}/receipts`,
-      payload,
+      `${this.apiUrl}/upload`,
+      {
+        image_url: `data:image/jpeg;base64,${base64Image}`
+      },
       { headers: this.getAuthHeaders() }
     );
   }
 
   getReceipts(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/receipts`, { headers: this.getAuthHeaders() });
+    return this.http.get(
+      `${this.apiUrl}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 
   deleteReceipt(id: string | number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/receipts/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(
+      `${this.apiUrl}/${id}`,
+      { headers: this.getAuthHeaders() }
+    );
   }
 }

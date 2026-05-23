@@ -1,13 +1,67 @@
-<ion-header [translucent]="true">
+<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>SBI</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/integration"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ provider?.name || 'SBI' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">SBI</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="integration-provider-page" [style.--provider-accent]="provider?.accent">
+  <section class="provider-hero">
+    <p class="provider-eyebrow">Bank integration visibility</p>
+    <h1>{{ provider?.name || 'SBI' }}</h1>
+    <p class="provider-summary">{{ provider?.description }}</p>
+    <div class="status-strip">
+      <div class="status-chip" [class.enabled]="enabled">
+        <ion-icon [name]="enabled ? 'checkmark-circle-outline' : 'pause-circle-outline'"></ion-icon>
+        <span>{{ enabled ? 'Enabled for visibility' : 'Disabled for visibility' }}</span>
+      </div>
+      <div class="mode-chip">
+        <ion-icon name="eye-outline"></ion-icon>
+        <span>Background tracking</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="provider-card">
+    <div class="toggle-row">
+      <div class="toggle-copy">
+        <h2>Provider status</h2>
+        <p>Turn this on if the user wants Pocket Money to surface supported {{ provider?.name || 'bank' }} expense visibility inside the app.</p>
+      </div>
+      <ion-toggle [checked]="enabled" (ionChange)="onToggle($event)"></ion-toggle>
+    </div>
+
+    <ion-button fill="outline" class="settings-link" (click)="openSettings()">Review Smart Tracking Setting</ion-button>
+  </section>
+
+  <section class="provider-card section-grid">
+    <div>
+      <h2>What is required</h2>
+      <ul class="provider-list">
+        <li *ngFor="let item of provider?.requirements">{{ item }}</li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>What can become visible</h2>
+      <ul class="provider-list">
+        <li *ngFor="let item of provider?.visibleData">{{ item }}</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="provider-card">
+    <h2>Supported flows</h2>
+    <p>{{ provider?.syncMethod }}</p>
+    <div class="flow-grid">
+      <div class="flow-pill" *ngFor="let flow of provider?.supportedFlows">{{ flow }}</div>
+    </div>
+  </section>
+
+  <section class="privacy-banner">
+    <h2>Privacy boundary</h2>
+    <p>This setup is only for integration visibility and expense tracking. Pocket Money should not store bank credentials or raw source banking records through this page.</p>
+  </section>
 </ion-content>

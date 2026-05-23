@@ -1,0 +1,143 @@
+<ion-content class="onboarding-shell">
+  <div class="hero">
+    <p class="eyebrow">Unified Setup</p>
+    <h1>Set up wallets, categories, and smart expense tracking.</h1>
+    <p class="subtitle">
+      Step {{ progressIndex }} of {{ stepOrder.length }}. The backend stays in charge, so we can resume cleanly after restarts or network drops.
+    </p>
+  </div>
+
+  <div class="panel">
+    <section *ngIf="currentStep === 'START'" class="panel-section">
+      <div class="section-head">
+        <h2>Start setup</h2>
+        <p>We will collect your starter details first, then ask for in-app visibility consent.</p>
+      </div>
+
+      <ion-button expand="block" class="primary-action" (click)="continueFromIntro()">
+        Begin Setup
+      </ion-button>
+    </section>
+
+    <section *ngIf="currentStep === 'USER_DETAILS'" class="panel-section">
+      <div class="section-head">
+        <h2>Your starter details</h2>
+        <p>These values seed the first version of your {{ appConfig.getLabel().toLowerCase() }} experience.</p>
+      </div>
+
+      <form [formGroup]="form">
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Storage mode</ion-label>
+          <ion-select formControlName="storage_preference" interface="popover">
+            <ion-select-option *ngFor="let option of storageOptions" [value]="option.value">
+              {{ option.title }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">{{ appConfig.getLabel() }} name</ion-label>
+          <ion-input formControlName="wallet_name" [placeholder]="appConfig.getLabel()"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">{{ appConfig.getLabel() }} type</ion-label>
+          <ion-select formControlName="wallet_type" interface="popover">
+            <ion-select-option value="cash">Cash</ion-select-option>
+            <ion-select-option value="bank">Bank</ion-select-option>
+            <ion-select-option value="upi">UPI</ion-select-option>
+            <ion-select-option value="debit_card">Debit Card</ion-select-option>
+            <ion-select-option value="other">Other</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Opening amount</ion-label>
+          <ion-input formControlName="wallet_balance" type="number" inputmode="decimal" placeholder="0"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Budget name</ion-label>
+          <ion-input formControlName="budget_name" placeholder="Monthly Budget"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Budget amount</ion-label>
+          <ion-input formControlName="budget_amount" type="number" inputmode="decimal" placeholder="15000"></ion-input>
+        </ion-item>
+      </form>
+
+      <ion-button expand="block" class="primary-action" (click)="saveDetails()">
+        Continue To Permissions
+      </ion-button>
+    </section>
+
+    <section *ngIf="currentStep === 'PERMISSIONS'" class="panel-section">
+      <div class="section-head">
+        <h2>Enable smart expense tracking</h2>
+        <p>Allow access to notifications to automatically detect your expenses from supported bank, UPI, and wallet alerts.</p>
+      </div>
+
+      <ion-button expand="block" class="primary-action" (click)="allowAppVisibility()">
+        Enable smart expense tracking
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" color="medium" (click)="continueWithoutSync()">
+        Continue Without Sync
+      </ion-button>
+    </section>
+
+    <section *ngIf="currentStep === 'SYNC_INIT'" class="panel-section">
+      <div class="section-head">
+        <h2>Ready to sync once</h2>
+        <p>We have your details and permission. The next action queues a single backend job and resumes safely if the app closes.</p>
+      </div>
+
+      <ion-button expand="block" class="primary-action" [disabled]="isSyncing" (click)="startSync()">
+        Start Sync
+      </ion-button>
+    </section>
+
+    <section *ngIf="currentStep === 'SYNC_PROGRESS'" class="panel-section">
+      <div class="section-head">
+        <h2>Sync in progress</h2>
+        <p>{{ syncMessage }}</p>
+      </div>
+
+      <div class="summary-card">
+        <span>Status</span>
+        <strong>{{ syncStatus }}</strong>
+      </div>
+
+      <ion-spinner *ngIf="syncStatus === 'in_progress' || isSyncing"></ion-spinner>
+
+      <ion-button
+        *ngIf="syncStatus === 'failed'"
+        expand="block"
+        class="primary-action"
+        [disabled]="isSyncing"
+        (click)="startSync()">
+        Retry Sync
+      </ion-button>
+
+      <ion-button
+        *ngIf="syncStatus === 'done'"
+        expand="block"
+        class="primary-action"
+        (click)="finishOnboarding()">
+        Finish Setup
+      </ion-button>
+    </section>
+
+    <section *ngIf="currentStep === 'COMPLETE'" class="panel-section">
+      <div class="section-head">
+        <h2>Setup complete</h2>
+        <p>Your onboarding state is saved on the backend, and the app can reopen straight into the dashboard.</p>
+      </div>
+
+      <ion-button expand="block" class="primary-action" (click)="finishOnboarding()">
+        Open Dashboard
+      </ion-button>
+    </section>
+  </div>
+</ion-content>

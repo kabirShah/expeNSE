@@ -1,13 +1,97 @@
-<ion-header [translucent]="true">
+<ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>integration</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/setting"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Integrations</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">integration</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="integration-page">
+  <section class="hero-card">
+    <p class="eyebrow">Connected visibility</p>
+    <h1>Turn Indian bank integrations on or off in one place</h1>
+    <p class="hero-copy">
+      When a bank or UPI integration is enabled, its detected expenses should become visible to the user inside Pocket Money.
+    </p>
+    <div class="status-chip" [class.enabled]="integrationVisibilityEnabled">
+      <ion-icon [name]="integrationVisibilityEnabled ? 'checkmark-circle-outline' : 'pause-circle-outline'"></ion-icon>
+      <span>{{ integrationVisibilityEnabled ? 'Smart tracking enabled' : 'Smart tracking disabled' }}</span>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <strong>{{ enabledCount('bank') }}</strong>
+        <span>Banks enabled</span>
+      </div>
+      <div class="stat-pill">
+        <strong>{{ enabledCount('upi') }}</strong>
+        <span>UPI apps enabled</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="integration-section">
+    <div class="section-head">
+      <h2>Indian Banks</h2>
+      <p>Users can enable or disable any bank here. Enabled banks will show visible expenses in the app.</p>
+    </div>
+
+    <div class="master-card">
+      <div class="master-copy">
+        <h3>Enable All Banks</h3>
+        <p>Turn on all supported bank integrations together.</p>
+      </div>
+      <ion-toggle [checked]="allBanksEnabled()" (ionChange)="toggleAllBanks($event)"></ion-toggle>
+    </div>
+
+    <div class="toggle-list">
+      <div class="integration-card" *ngFor="let bank of banks">
+        <div class="integration-icon" [style.background]="bank.accent + '20'" [style.color]="bank.accent">
+          <ion-icon [name]="bank.icon"></ion-icon>
+        </div>
+        <div class="integration-copy">
+          <div class="title-row">
+            <h3>{{ bank.name }}</h3>
+            <span class="mini-status" [class.enabled]="isEnabled(bank)">
+              {{ isEnabled(bank) ? 'On' : 'Off' }}
+            </span>
+          </div>
+          <p>If enabled, {{ bank.name }} expenses will be visible to the user.</p>
+        </div>
+        <ion-toggle [checked]="isEnabled(bank)" (ionChange)="toggleProvider(bank, $event)"></ion-toggle>
+      </div>
+    </div>
+  </section>
+
+  <section class="integration-section">
+    <div class="section-head">
+      <h2>UPI Apps</h2>
+      <p>These payment app expenses can also be shown to the user when enabled.</p>
+    </div>
+
+    <div class="toggle-list">
+      <div class="integration-card compact" *ngFor="let app of apps">
+        <div class="integration-icon" [style.background]="app.accent + '20'" [style.color]="app.accent">
+          <ion-icon [name]="app.icon"></ion-icon>
+        </div>
+        <div class="integration-copy">
+          <div class="title-row">
+            <h3>{{ app.name }}</h3>
+            <span class="mini-status" [class.enabled]="isEnabled(app)">
+              {{ isEnabled(app) ? 'On' : 'Off' }}
+            </span>
+          </div>
+          <p>If enabled, {{ app.name }} expenses will be visible to the user.</p>
+        </div>
+        <ion-toggle [checked]="isEnabled(app)" (ionChange)="toggleProvider(app, $event)"></ion-toggle>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy-card">
+    <h2>Smart Tracking</h2>
+    <p>
+      Keep it simple for the user: turn integrations on or off, and when turned on, the related expenses become visible in the app.
+    </p>
+  </section>
 </ion-content>

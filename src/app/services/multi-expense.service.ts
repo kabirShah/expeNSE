@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BaseApiService } from './base-api.service';
 
@@ -31,22 +31,88 @@ export interface MultiExpense {
   updated_at?: string;
 }
 
+export interface PaginatedMultiExpenseResponse {
+  current_page: number;
+  data: MultiExpense[];
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class MultiExpenseService extends BaseApiService {
   private readonly baseUrl = `${this.apiUrl}/multi-expenses`;
+  private readonly multiExpensesSubject = new BehaviorSubject<MultiExpense[]>([]);
+  readonly multiExpenses$ = this.multiExpensesSubject.asObservable();
 
   constructor(http: HttpClient) {
     super(http);
   }
 
+  setMultiExpenses(expenses: MultiExpense[]): void {
+    this.multiExpensesSubject.next(this.sortMultiExpenses(expenses || []));
+  }
+
+  getCachedMultiExpenses(): MultiExpense[] {
+    return [...this.multiExpensesSubject.value];
+  }
+
+  addOptimisticMultiExpense(expense: MultiExpense): void {
+    this.multiExpensesSubject.next(
+      this.sortMultiExpenses([expense, ...this.multiExpensesSubject.value])
+    );
+  }
+
+  replaceOptimisticMultiExpense(tempId: number, saved: MultiExpense): void {
+    this.multiExpensesSubject.next(
+      this.sortMultiExpenses(
+        this.multiExpensesSubject.value.map((expense) =>
+          expense.id === tempId ? saved : expense
+        )
+      )
+    );
+  }
+
+  updateMultiExpenseInCache(id: string | number, updatedExpense: Partial<MultiExpense>): void {
+    this.multiExpensesSubject.next(
+      this.sortMultiExpenses(
+        this.multiExpensesSubject.value.map((expense) =>
+          String(expense.id) === String(id) ? { ...expense, ...updatedExpense } : expense
+        )
+      )
+    );
+  }
+
+  removeMultiExpenseFromCache(id: string | number): void {
+    this.multiExpensesSubject.next(
+      this.multiExpensesSubject.value.filter((expense) => String(expense.id) !== String(id))
+    );
+  }
+
+  rollbackOptimisticMultiExpense(tempId: number): void {
+    this.multiExpensesSubject.next(
+      this.multiExpensesSubject.value.filter((expense) => expense.id !== tempId)
+    );
+  }
+
   /** 🌐 Get all multi-expenses for logged-in user */
-  getMultiExpenses(): Observable<{ success: boolean; data: MultiExpense[] }> {
+  private sortMultiExpenses(expenses: MultiExpense[]): MultiExpense[] {
+    return [...expenses].sort((a, b) => this.getMultiExpenseSortTime(b) - this.getMultiExpenseSortTime(a));
+  }
+
+  private getMultiExpenseSortTime(expense: MultiExpense): number {
+    const value = expense.created_at || expense.updated_at;
+    const parsed = value ? new Date(value).getTime() : 0;
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  getMultiExpenses(page: number = 1, perPage: number = 10): Observable<{ success: boolean; total?: number; data: PaginatedMultiExpenseResponse }> {
     if (!this.isOnline()) return this.handleOfflineError();
 
     return this.http
-      .get<{ success: boolean; data: MultiExpense[] }>(this.baseUrl, {
+      .get<{ success: boolean; total?: number; data: PaginatedMultiExpenseResponse }>(`${this.baseUrl}?page=${page}&per_page=${perPage}`, {
         headers: this.getAuthHeaders(),
       })
       .pipe(catchError(this.handleError));

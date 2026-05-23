@@ -1,0 +1,76 @@
+:host {
+  --aa-bg: linear-gradient(180deg, #f7f3eb 0%, #ffffff 48%, #edf7f2 100%);
+  --aa-card: rgba(255, 255, 255, 0.92);
+  --aa-text: #17352d;
+  --aa-muted: #5f6f68;
+  --aa-accent: #123c31;
+  --aa-outline: rgba(18, 60, 49, 0.12);
+}
+
+.aa-shell {
+  --background: var(--aa-bg);
+}
+
+.hero-card,
+.fallback-card {
+  margin: 20px 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--aa-card);
+  border: 1px solid var(--aa-outline);
+  box-shadow: 0 24px 60px rgba(18, 60, 49, 0.08);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #7b5c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  color: var(--aa-text);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  color: var(--aa-muted);
+  font-size: 1rem;
+}
+
+.trust-panel {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.trust-panel div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--aa-text);
+  background: rgba(18, 60, 49, 0.05);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.trust-panel ion-icon {
+  font-size: 1.2rem;
+  color: var(--aa-accent);
+}
+
+.fallback-card h2 {
+  margin: 0 0 8px;
+  color: var(--aa-text);
+}
+
+.fallback-card p {
+  margin: 0;
+  color: var(--aa-muted);
+  line-height: 1.5;
+}

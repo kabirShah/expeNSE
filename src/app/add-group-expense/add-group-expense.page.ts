@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GroupsService } from '../services/groups.service';
 import { GroupMember } from '../models/group.model';
@@ -25,7 +25,7 @@ export class AddGroupExpensePage implements OnInit {
       amount: [null, [Validators.required, Validators.min(0.01)]],
       paid_by: [null, Validators.required],
       split_type: ['equal'],
-      expense_date: [new Date().toISOString().split('T')[0]],
+      expense_date: [this.getTodayDateValue(), [Validators.required, this.noFutureDateValidator()]],
       notes: [''],
       splits: this.fb.array([]),
     });
@@ -84,5 +84,28 @@ export class AddGroupExpensePage implements OnInit {
     this.groupsService.addGroupExpense(this.groupId, payload).subscribe({
       next: () => this.router.navigate(['/groups', this.groupId]),
     });
+  }
+
+  getTodayDateValue(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  private noFutureDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = String(control.value ?? '');
+      if (!value) {
+        return null;
+      }
+
+      const selectedDate = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(selectedDate.getTime())) {
+        return { futureDate: true };
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return selectedDate > today ? { futureDate: true } : null;
+    };
   }
 }

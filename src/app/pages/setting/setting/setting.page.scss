@@ -140,3 +140,29 @@ ion-item {
   text-align: center; color: var(--text-muted);
   font-size: 12px; margin-top: 20px; margin-bottom: 40px; opacity: 0.5;
 }
+
+.settings-note-card {
+  margin: -8px 16px 24px;
+  padding: 18px 20px;
+  border-radius: var(--border-radius);
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  border: 1px solid #dbeafe;
+  color: var(--text-main);
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  p + p {
+    margin-top: 10px;
+  }
+}

@@ -1,0 +1,26 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Connection Complete</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="success-page">
+  <section class="success-card">
+    <div class="icon-ring">
+      <ion-icon name="checkmark-done-outline"></ion-icon>
+    </div>
+    <p class="eyebrow">Secure Sync Ready</p>
+    <h1>Bank Connected Successfully</h1>
+    <p class="copy">Your account is now ready for automatic transaction syncing.</p>
+
+    <div class="account-chip">
+      <strong>{{ account?.bank_name || 'Connected bank' }}</strong>
+      <span>{{ accountLabel() }}</span>
+    </div>
+
+    <div class="actions">
+      <ion-button expand="block" color="dark" routerLink="/aa/accounts">View Connected Accounts</ion-button>
+      <ion-button expand="block" fill="outline" color="dark" routerLink="/home">Back to Home</ion-button>
+    </div>
+  </section>
+</ion-content>

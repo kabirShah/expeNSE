@@ -1,0 +1,45 @@
+<ion-header class="ion-no-border aa-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/integration" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Connect Bank</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="aa-shell">
+  <section class="hero-card">
+    <p class="eyebrow">Secure Bank Connection</p>
+    <h1>Auto-track your expenses</h1>
+    <p class="subtitle">Securely connect your bank account</p>
+
+    <div class="trust-panel">
+      <div>
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Consent-driven access through Account Aggregator</span>
+      </div>
+      <div>
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        <span>No bank passwords or PINs are stored in Pocket Money</span>
+      </div>
+      <div>
+        <ion-icon name="flash-outline"></ion-icon>
+        <span>Fast sync for recent transactions after approval</span>
+      </div>
+    </div>
+
+    <ion-button expand="block" color="dark" (click)="connectBank()" [disabled]="isConnecting">
+      <ion-spinner slot="start" *ngIf="isConnecting" name="crescent"></ion-spinner>
+      {{ isConnecting ? 'Starting secure connection...' : 'Connect Bank' }}
+    </ion-button>
+
+    <ion-note color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-note>
+  </section>
+
+  <section class="fallback-card">
+    <h2>Fallback ready</h2>
+    <p>
+      If bank linking is temporarily unavailable, app-supported visibility can be used in a future release as a lighter backup path.
+    </p>
+  </section>
+</ion-content>

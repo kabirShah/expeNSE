@@ -27,7 +27,8 @@
   --danger: #ef4444;
   --success: #22c55e;
 
-  --page-bg: #f8fafc;
+  --app-surface-gray: #cccccc;
+  --page-bg: #cccccc;
   --card-bg: #ffffff;
 
   --text-main: #1e293b;
@@ -51,8 +52,68 @@ body {
   color: var(--text-main);
 }
 
+app-root,
+ion-app,
+ion-router-outlet,
+.ion-page,
+ion-content,
+main {
+  background-color: var(--page-bg);
+}
+
+/* Display copy should read with capitalized words across the app.
+   Keep specificity low so page-level overrides like uppercase/none still work. */
+:where(
+  ion-title,
+  ion-label,
+  ion-note,
+  ion-card-title,
+  ion-card-subtitle,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  button
+) {
+  text-transform: capitalize;
+}
+
 ion-content {
   --background: var(--page-bg);
+}
+
+/* App-wide page loader placement. Button-level spinners intentionally do not use
+   these classes, so this keeps full-page loading states centered consistently. */
+.loader-center,
+.loading-state,
+.loading-container,
+.spinner-center,
+.loader {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+ion-spinner.loader-center,
+ion-spinner.spinner-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
 /* Hide scrollbars (mobile UX) */
@@ -224,6 +285,18 @@ ion-header.clean-header ion-title {
 ion-card {
   border-radius: 18px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.app-page-shell {
+  --background: var(--page-bg);
+  background: var(--page-bg);
+}
+
+.app-surface-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(30, 41, 59, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(30, 41, 59, 0.08);
 }
 
 /* Form layout primitives shared by multiple pages */

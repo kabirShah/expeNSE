@@ -1,0 +1,105 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/aa/accounts" color="dark"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Consent Status</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="status-container">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="state-card loading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Loading consent status...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && errorMessage" class="state-card error">
+      <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
+      <p>{{ errorMessage }}</p>
+      <ion-button (click)="retryConnection()">Try Again</ion-button>
+    </div>
+
+    <!-- Status Display -->
+    <div *ngIf="!isLoading && !errorMessage" class="state-card" [ngClass]="status.toLowerCase()">
+      <ion-icon 
+        [name]="getStatusIcon()" 
+        [color]="getStatusColor()" 
+        size="large"
+        class="status-icon"
+      ></ion-icon>
+      
+      <h2 class="status-title">{{ status }}</h2>
+      <p class="status-message">{{ getStatusMessage() }}</p>
+
+      <!-- Polling Indicator -->
+      <div *ngIf="isPolling && status === 'PENDING'" class="polling-indicator">
+        <ion-spinner name="dots" color="primary"></ion-spinner>
+        <span>Polling every 3 seconds...</span>
+      </div>
+
+      <!-- Actions based on status -->
+      <div class="actions">
+        <!-- PENDING - Show cancel option -->
+        <ion-button 
+          *ngIf="status === 'PENDING'" 
+          fill="outline" 
+          color="medium"
+          (click)="cancelAndNavigate()"
+        >
+          Cancel
+        </ion-button>
+
+        <!-- REJECTED/EXPIRED - Show retry -->
+        <ion-button 
+          *ngIf="status === 'REJECTED' || status === 'EXPIRED'" 
+          color="primary"
+          (click)="recreateConsent()"
+        >
+          Connect Bank Again
+        </ion-button>
+
+        <!-- REVOKED - Show recreate -->
+        <ion-button 
+          *ngIf="status === 'REVOKED'" 
+          color="primary"
+          (click)="recreateConsent()"
+        >
+          Create New Consent
+        </ion-button>
+      </div>
+
+      <!-- Consent Details -->
+      <div *ngIf="consent" class="consent-details">
+        <ion-list>
+          <ion-item>
+            <ion-label>
+              <p class="label">Consent ID</p>
+              <p class="value">{{ consent.consent_id }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p class="label">Purpose</p>
+              <p class="value">{{ consent.purpose_text }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p class="label">Data Types</p>
+              <p class="value">{{ consent.fi_types.join(', ') }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="consent.expiry_at">
+            <ion-label>
+              <p class="label">Expires</p>
+              <p class="value">{{ consent.expiry_at | date:'medium' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+  </div>
+</ion-content>

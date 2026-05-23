@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { BalanceService } from 'src/app/services/balance.service';
 import { Balance } from 'src/app/models/balance.model';
 import { MockNotificationService } from 'src/app/services/mock-notification.service';
+import { AppConfigService } from 'src/app/services/app-config.service';
 import { UiToastService } from 'src/app/services/ui-toast.service';
 
 @Component({
@@ -27,6 +28,7 @@ export class BalancePage implements OnInit {
     private navCtrl: NavController,
     private balanceService: BalanceService,
     private route: ActivatedRoute,
+    public appConfig: AppConfigService,
     private uiToast: UiToastService,
     private alertCtrl: AlertController,
     private mockNotificationService: MockNotificationService
@@ -105,13 +107,15 @@ export class BalancePage implements OnInit {
 
       if (response?.success) {
         this.mockNotificationService.addCrudNotification(
-          'Balance',
+          this.appConfig.getLabel() as 'Balance' | 'Expense' | 'Multi Expense',
           this.isEdit ? 'updated' : 'created',
-          `${formData.source || 'Balance entry'} • ₹${formData.amount || 0}`
+          `${formData.source || this.appConfig.getLabel() + ' entry'} • ₹${formData.amount || 0}`
         );
 
         this.showToast(
-          this.isEdit ? 'Balance updated successfully.' : 'Balance added successfully.',
+          this.isEdit
+            ? `${this.appConfig.getLabel()} updated successfully.`
+            : `${this.appConfig.getLabel()} added successfully.`,
           'success'
         );
 
@@ -171,12 +175,12 @@ export class BalancePage implements OnInit {
 
       if (response?.success) {
         this.mockNotificationService.addCrudNotification(
-          'Balance',
+          this.appConfig.getLabel() as 'Balance' | 'Expense' | 'Multi Expense',
           'deleted',
-          `${deletingItem?.source || 'Balance entry'} was deleted.`
+          `${deletingItem?.source || this.appConfig.getLabel() + ' entry'} was deleted.`
         );
 
-        this.showToast('Balance deleted successfully.', 'success');
+        this.showToast(`${this.appConfig.getLabel()} deleted successfully.`, 'success');
 
         if (this.balanceId === id) {
           this.resetFormState();

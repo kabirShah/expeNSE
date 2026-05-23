@@ -2,32 +2,46 @@
   <ion-toolbar color="primary">
     <ion-title>Groups</ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/create-group">
-        <ion-icon name="add"></ion-icon>
+      <ion-button (click)="createGroup()" [disabled]="creating">
+        <ion-icon name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item *ngFor="let group of groups" [routerLink]="['/groups', group.id]" detail>
-      <ion-avatar slot="start">
-        <img [src]="group.avatar || 'assets/group-default.png'" />
-      </ion-avatar>
-      <ion-label>
-        <h2>{{ group.name }}</h2>
-        <p>{{ group.expenses_count }} expenses · {{ group.members?.length }} members</p>
-      </ion-label>
-      <ion-badge [color]="getBalanceColor(group.my_balance || 0)" slot="end">
-        {{ getBalanceText(group.my_balance || 0) }}
-      </ion-badge>
-    </ion-item>
-  </ion-list>
+  <ion-refresher slot="fixed" (ionRefresh)="loadGroups($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button routerLink="/create-group">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <div class="groups-page">
+    <ion-button expand="block" (click)="createGroup()" [disabled]="creating">
+      <ion-icon slot="start" name="people-outline"></ion-icon>
+      Create Group
+    </ion-button>
+
+    <ion-card *ngIf="errorMessage">
+      <ion-card-content>{{ errorMessage }}</ion-card-content>
+    </ion-card>
+
+    <div class="loader" *ngIf="loading">
+      <ion-spinner></ion-spinner>
+    </div>
+
+    <ion-list *ngIf="!loading && groups.length">
+      <ion-item *ngFor="let group of groups; trackBy: trackByGroupId">
+        <ion-label>
+          <h2>{{ group.name }}</h2>
+          <p>{{ group.description || 'No description yet' }}</p>
+          <p>{{ memberCount(group) }} members</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-card *ngIf="!loading && !groups.length">
+      <ion-card-content>
+        No groups yet. Tap "Create Group" to add your first shared expense group.
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

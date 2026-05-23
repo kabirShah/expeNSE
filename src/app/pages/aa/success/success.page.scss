@@ -1,0 +1,65 @@
+.success-page {
+  --background: linear-gradient(180deg, #f8f4ed 0%, #eaf7f0 100%);
+}
+
+.success-card {
+  margin: 24px 16px;
+  padding: 28px 24px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  box-shadow: 0 28px 60px rgba(19, 58, 45, 0.1);
+}
+
+.icon-ring {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #123c31, #2f8f74);
+  color: #fff;
+  font-size: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: #8a6c2f;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  color: #17352d;
+}
+
+.copy {
+  margin: 10px 0 0;
+  color: #607168;
+}
+
+.account-chip {
+  margin: 22px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(18, 60, 49, 0.06);
+  display: grid;
+  gap: 4px;
+}
+
+.account-chip strong {
+  color: #17352d;
+}
+
+.account-chip span {
+  color: #607168;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+}
