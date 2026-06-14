@@ -33,8 +33,7 @@ export class HomePage implements OnInit, OnDestroy {
   private autoDetectedHandler = () => {
     void this.loadDashboard();
   };
-
-  splitwiseGroupCount = 0;
+  trial: any = null;  splitwiseGroupCount = 0;
   splitwiseStatusMessage = '';
 
   constructor(
@@ -66,6 +65,7 @@ export class HomePage implements OnInit, OnDestroy {
       void this.ensureIntegrationConsentPrompt();
     });
 
+    this.trial = this.authService.getTrial();
     window.addEventListener('expense:auto-detected', this.autoDetectedHandler);
   }
 
@@ -223,6 +223,22 @@ export class HomePage implements OnInit, OnDestroy {
 
   get totalBalance(): number {
     return +(this.dashboardData?.financial_container?.amount ?? this.dashboardData?.total_balance ?? 0);
+  }
+
+  get hasActiveTrial(): boolean {
+    if (!this.trial || !this.trial.active || !this.trial.expires_at) {
+      return false;
+    }
+    return new Date(this.trial.expires_at).getTime() > Date.now();
+  }
+
+  get trialDaysRemaining(): number {
+    if (!this.hasActiveTrial) {
+      return 0;
+    }
+    const expiresAt = new Date(this.trial.expires_at).getTime();
+    const diffMs = expiresAt - Date.now();
+    return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
   }
 
   get totalMonthExpense(): number {

@@ -33,6 +33,19 @@
         </div>
       </div>
 
+      <ion-card class="trial-banner" *ngIf="hasActiveTrial">
+        <ion-card-content>
+          <div class="trial-header">
+            <div>
+              <h4>Premium trial active</h4>
+              <p>You have {{ trialDaysRemaining }} day{{ trialDaysRemaining === 1 ? '' : 's' }} left.</p>
+            </div>
+            <ion-badge color="success">Active</ion-badge>
+          </div>
+          <p>Enjoy premium budgeting tools, advanced insights, and better expense tracking until {{ trial.expires_at | date:'mediumDate' }}.</p>
+        </ion-card-content>
+      </ion-card>
+
       <div class="hero-balance">
         <p>Your Current {{ appConfig.getLabel() }}</p>
         <h1>₹{{ totalBalance | number:'1.0-0' }}</h1>
@@ -137,14 +150,11 @@
           <p>Add multiple</p>
         </div>
 
-        <div class="card" (click)="navigateTo('/scan')">
+        <div class="card" (click)="navigateTo('/receipt')">
           <div class="icon yellow"><ion-icon name="camera-outline"></ion-icon></div>
           <h4>Scan Receipt</h4>
           <p>Smart OCR + save</p>
         </div>
-
-
-
 
         <div class="card" (click)="navigateTo('/voice-entry')">
           <div class="icon blue"><ion-icon name="mic-outline"></ion-icon></div>

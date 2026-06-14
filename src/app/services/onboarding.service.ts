@@ -91,6 +91,15 @@ export class OnboardingService {
     return nextState;
   }
 
+  async saveProfile(profileData: any): Promise<any> {
+    return firstValueFrom(this.apiService.saveOnboardingProfile(profileData));
+  }
+
+  async fetchTrialStatus(): Promise<any> {
+    const response = await firstValueFrom(this.apiService.getTrialStatus());
+    return response?.data || null;
+  }
+
   async startSync(messages: any[]): Promise<OnboardingFlowState> {
     if (this.syncPromise) {
       return this.syncPromise;

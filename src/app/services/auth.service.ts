@@ -84,7 +84,7 @@ export class AuthService {
      SESSION HANDLING
      =============================== */
 
-  saveSession(token: string, user: any, rememberMe: boolean): void {
+  saveSession(token: string, user: any, rememberMe: boolean, trial?: any): void {
     const now = Date.now().toString();
 
     const storage = rememberMe ? localStorage : sessionStorage;
@@ -93,10 +93,12 @@ export class AuthService {
     storage.setItem('loginTime', now);
     storage.setItem('user', JSON.stringify(user));
     storage.setItem('user_id', String(user?.id ?? ''));
+    storage.setItem('trial', JSON.stringify(trial ?? null));
     localStorage.setItem('rememberMe', rememberMe ? '7d' : '1d');
     localStorage.setItem('token_timestamp', now);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('user_id', String(user?.id ?? ''));
+    localStorage.setItem('trial', JSON.stringify(trial ?? null));
   }
 
   clearSession(): void {
@@ -116,6 +118,13 @@ export class AuthService {
       localStorage.getItem('user') ||
       sessionStorage.getItem('user');
     return user ? JSON.parse(user) : null;
+  }
+
+  getTrial(): any | null {
+    const trial =
+      localStorage.getItem('trial') ||
+      sessionStorage.getItem('trial');
+    return trial ? JSON.parse(trial) : null;
   }
 
   getLoginTime(): string | null {

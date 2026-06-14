@@ -1,0 +1,49 @@
+// receipt-edit.page.scss
+
+.edit-content { --background: var(--ion-color-light); }
+
+.loading-center {
+  display: flex; align-items: center; justify-content: center; min-height: 60vh;
+}
+
+ion-card { margin: 8px 12px; border-radius: 14px; }
+
+// ── Two-column layout ─────────────────────────────────────────────────────────
+.two-col {
+  display: flex; gap: 8px;
+  ion-item { flex: 1; }
+}
+
+// ── Item blocks ───────────────────────────────────────────────────────────────
+.item-block {
+  border: 1px solid var(--ion-color-light-shade);
+  border-radius: 10px; margin-bottom: 12px; overflow: hidden;
+
+  .item-block-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 12px; background: var(--ion-color-light);
+    .item-num { font-size: 12px; font-weight: 600; color: var(--ion-color-medium); }
+  }
+}
+
+.no-items {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 24px; text-align: center;
+  ion-icon { font-size: 40px; }
+  p { color: var(--ion-color-medium); font-size: 13px; }
+}
+
+// ── Totals ────────────────────────────────────────────────────────────────────
+.amt       { text-align: right; font-weight: 500; }
+.grand     { color: var(--ion-color-primary); font-size: 18px; font-weight: 700; }
+.grand-total { --background: var(--ion-color-primary-tint); }
+
+.err { font-size: 12px; padding: 2px 16px; margin: 0; }
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.footer-btns {
+  display: flex; gap: 10px; padding: 8px 12px;
+  ion-button { flex: 1; --border-radius: 10px; }
+}
+
+.bottom-space { height: 80px; }

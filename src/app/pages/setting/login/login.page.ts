@@ -89,7 +89,7 @@ export class LoginPage implements OnInit {
 
     this.authService.loginLaravel(email, password).subscribe({
       next: async (res: any) => {
-        this.authService.saveSession(res.token, res.user, rememberMe);
+        this.authService.saveSession(res.token, res.user, rememberMe, res.trial);
         this.isLoading = false;
 
         this.showToast('Login successful');

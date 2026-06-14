@@ -30,25 +30,45 @@ export interface UserPreferences {
   monthly_budget?: number | null;
   category_budget?: Record<string, number> | null;
   warning_threshold?: number | null;
+
+  monthly_income?: number | null;
+
   saving_goal?: string | null;
+
   saving_target?: number | null;
+
+  budgeting_style?: string | null;
+
+  financial_goals?: string[] | null;
+
   tips_enabled?: boolean;
   tips_types?: string[] | null;
   notification_frequency?: string | null;
   notify_time?: string | null;
+
   onboarding_completed?: boolean;
   onboarding_completed_at?: string | null;
+
   storage_preference?: StoragePreference;
+
   favorite_categories?: string[] | null;
+
   setup_wallet_name?: string | null;
   setup_wallet_type?: string | null;
   setup_wallet_balance?: number | null;
+
   setup_budget_name?: string | null;
   setup_budget_amount?: number | null;
   setup_budget_period?: string | null;
+
   integration_visibility_enabled?: boolean;
   integration_visibility_consent_at?: string | null;
-  integration_sources?: Partial<Record<IntegrationProviderKey, IntegrationSourcePreference>> | null;
+
+  integration_sources?: Partial<
+    Record<IntegrationProviderKey, IntegrationSourcePreference>
+  > | null;
+
+
 }
 
 @Injectable({

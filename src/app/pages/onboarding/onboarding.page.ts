@@ -19,6 +19,7 @@ export class OnboardingPage implements OnInit {
   isSaving = false;
   isSyncing = false;
   syncMessage = 'Your smart tracking choice is saved with onboarding.';
+  trialStatus: any | null = null;
 
   readonly stepOrder = [
     OnboardingStep.START,
@@ -69,7 +70,11 @@ export class OnboardingPage implements OnInit {
       wallet_balance: [prefs.setup_wallet_balance ?? 0, [Validators.min(0)]],
       budget_name: [prefs.setup_budget_name || 'Monthly Budget', [Validators.maxLength(100)]],
       budget_amount: [prefs.setup_budget_amount ?? null, [Validators.min(0)]],
-      budget_period: [prefs.setup_budget_period || 'monthly']
+      budget_period: [prefs.setup_budget_period || 'monthly'],
+      monthly_income: [prefs.monthly_income ?? null, [Validators.min(0)]],
+      saving_target: [prefs.saving_target ?? null, [Validators.min(0)]],
+      budgeting_style: [prefs.budgeting_style || '', [Validators.maxLength(100)]],
+      financial_goals: [prefs.financial_goals?.join(', ') || '', [Validators.maxLength(250)]]
     });
 
     const state = await this.onboardingService.initialize(true);
@@ -84,7 +89,11 @@ export class OnboardingPage implements OnInit {
         wallet_balance: saved.setup_wallet_balance ?? prefs.setup_wallet_balance ?? 0,
         budget_name: saved.setup_budget_name ?? prefs.setup_budget_name ?? 'Monthly Budget',
         budget_amount: saved.setup_budget_amount ?? prefs.setup_budget_amount ?? null,
-        budget_period: saved.setup_budget_period ?? prefs.setup_budget_period ?? 'monthly'
+        budget_period: saved.setup_budget_period ?? prefs.setup_budget_period ?? 'monthly',
+        monthly_income: saved.monthly_income ?? prefs.monthly_income ?? null,
+        saving_target: saved.saving_target ?? prefs.saving_target ?? null,
+        budgeting_style: saved.budgeting_style ?? prefs.budgeting_style ?? '',
+        financial_goals: saved.financial_goals?.join(', ') ?? (prefs.financial_goals?.join(', ') || '')
       });
     }
 
@@ -92,6 +101,8 @@ export class OnboardingPage implements OnInit {
       this.isSyncing = true;
       await this.watchSync();
     }
+
+    await this.loadTrialStatus();
   }
 
   get progressIndex(): number {
@@ -121,11 +132,23 @@ export class OnboardingPage implements OnInit {
       setup_wallet_balance: Number(values.wallet_balance || 0),
       setup_budget_name: values.budget_name || 'Monthly Budget',
       setup_budget_amount: values.budget_amount !== null && values.budget_amount !== '' ? Number(values.budget_amount) : null,
-      setup_budget_period: values.budget_period
+      setup_budget_period: values.budget_period,
+      monthly_income: values.monthly_income !== null && values.monthly_income !== '' ? Number(values.monthly_income) : null,
+      savings_target: values.savings_target !== null && values.savings_target !== '' ? Number(values.savings_target) : null,
+      budgeting_style: values.budgeting_style || null,
+      financial_goals: values.financial_goals
+        ? values.financial_goals.split(',').map((item: string) => item.trim()).filter((item: string) => !!item)
+        : []
     };
 
     const persistRemote = values.storage_preference !== 'device_only';
     await firstValueFrom(this.userPreferences.savePreferences(payload, persistRemote));
+    await this.onboardingService.saveProfile({
+      monthly_income: payload.monthly_income,
+      savings_target: payload.savings_target,
+      budgeting_style: payload.budgeting_style,
+      financial_goals: payload.financial_goals
+    });
     await this.onboardingService.saveStep(OnboardingStep.PERMISSIONS, { preferences: payload });
     this.currentStep = OnboardingStep.PERMISSIONS;
   }
@@ -216,6 +239,14 @@ export class OnboardingPage implements OnInit {
 
     this.currentStep = OnboardingStep.SYNC_PROGRESS;
     this.syncMessage = 'Sync paused before completion. You can retry safely without duplicate runs.';
+  }
+
+  private async loadTrialStatus(): Promise<void> {
+    try {
+      this.trialStatus = await this.onboardingService.fetchTrialStatus();
+    } catch {
+      this.trialStatus = null;
+    }
   }
 
   private async showToast(

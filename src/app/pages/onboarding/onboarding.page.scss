@@ -219,6 +219,34 @@
   --padding-end: 20px;
 }
 
+.trial-banner {
+  padding: 16px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, rgba(31, 138, 112, 0.15), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(31, 138, 112, 0.2);
+}
+
+.trial-banner strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.trial-card {
+  margin-bottom: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(31, 138, 112, 0.2);
+}
+
+.trial-card ion-card-header {
+  padding: 16px 16px 0;
+}
+
+.trial-card ion-card-content {
+  padding: 0 16px 16px;
+}
+
 @media (min-width: 768px) {
   .onboarding-shell {
     padding: 36px 48px;

@@ -1,0 +1,215 @@
+<!-- receipt-edit.page.html -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="discard()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Edit Receipt</ion-title>
+      <ion-buttons slot="end">
+      <ion-button fill="solid" color="light" (click)="save()" [disabled]="isSaving || form.invalid">
+        <ion-spinner *ngIf="isSaving" name="dots" slot="start"></ion-spinner>
+        {{ isSaving ? 'Saving…' : 'Save' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="edit-content" *ngIf="!isLoading && form">
+  <form [formGroup]="form">
+
+    <!-- ── Merchant ───────────────────────────────────────────────────────── -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Merchant</ion-card-title></ion-card-header>
+      <ion-card-content>
+
+        <ion-item>
+          <ion-icon name="storefront-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Merchant Name *</ion-label>
+          <ion-input formControlName="merchant" placeholder="Store / Restaurant"></ion-input>
+        </ion-item>
+        <ion-text color="danger" *ngIf="form.get('merchant')?.invalid && form.get('merchant')?.touched">
+          <p class="err">Merchant name is required.</p>
+        </ion-text>
+
+        <ion-item>
+          <ion-icon name="pricetag-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Receipt Type</ion-label>
+          <ion-select formControlName="receipt_type" interface="action-sheet">
+            <ion-select-option *ngFor="let t of receiptTypes" [value]="t.value">{{ t.label }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Date</ion-label>
+          <ion-input type="date" formControlName="receipt_date"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Payment Method</ion-label>
+          <ion-select formControlName="payment_method" interface="action-sheet" placeholder="Select">
+            <ion-select-option *ngFor="let pm of paymentMethods" [value]="pm.value">{{ pm.label }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="barcode-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Reference / Invoice No.</ion-label>
+          <ion-input formControlName="reference_number" placeholder="Optional"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="cash-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Currency</ion-label>
+          <ion-select formControlName="currency" interface="popover">
+            <ion-select-option value="INR">₹ INR</ion-select-option>
+            <ion-select-option value="USD">$ USD</ion-select-option>
+            <ion-select-option value="EUR">€ EUR</ion-select-option>
+            <ion-select-option value="GBP">£ GBP</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ── Expense Mapping ────────────────────────────────────────────────── -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Expense Mapping</ion-card-title></ion-card-header>
+      <ion-card-content>
+
+        <ion-item>
+          <ion-icon name="text-outline" slot="start" color="secondary"></ion-icon>
+          <ion-label position="stacked">Expense Title</ion-label>
+          <ion-input formControlName="expense_title"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="document-text-outline" slot="start" color="secondary"></ion-icon>
+          <ion-label position="stacked">Notes</ion-label>
+          <ion-textarea formControlName="notes" rows="2" placeholder="Optional"></ion-textarea>
+        </ion-item>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ── Items ──────────────────────────────────────────────────────────── -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Items</ion-card-title>
+        <ion-button slot="end" fill="clear" size="small" (click)="addItem()">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon> Add
+        </ion-button>
+      </ion-card-header>
+      <ion-card-content formArrayName="items">
+
+        <div *ngFor="let item of itemsArray.controls; let i = index"
+             [formGroupName]="i" class="item-block">
+
+          <div class="item-block-header">
+            <span class="item-num">Item {{ i + 1 }}</span>
+            <ion-button fill="clear" size="small" color="danger" (click)="removeItem(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+
+          <ion-item>
+            <ion-label position="stacked">Name *</ion-label>
+            <ion-input formControlName="name" placeholder="Item name"></ion-input>
+          </ion-item>
+
+          <div class="two-col">
+            <ion-item>
+              <ion-label position="stacked">Qty</ion-label>
+              <ion-input type="number" formControlName="qty" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="stacked">Unit</ion-label>
+              <ion-input formControlName="unit" placeholder="kg, pcs…"></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="two-col">
+            <ion-item>
+              <ion-label position="stacked">Unit Price</ion-label>
+              <ion-input type="number" formControlName="unit_price" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="stacked">Discount</ion-label>
+              <ion-input type="number" formControlName="discount" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+            </ion-item>
+          </div>
+
+          <div class="two-col">
+            <ion-item>
+              <ion-label position="stacked">Tax %</ion-label>
+              <ion-input type="number" formControlName="tax_rate" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+            </ion-item>
+            <ion-item class="total-item">
+              <ion-label position="stacked">Total</ion-label>
+              <ion-input type="number" formControlName="total" readonly></ion-input>
+            </ion-item>
+          </div>
+
+        </div>
+
+        <div class="no-items" *ngIf="itemsArray.length === 0">
+          <ion-icon name="list-outline" color="medium"></ion-icon>
+          <p>No items. Tap Add to create one.</p>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ── Totals ──────────────────────────────────────────────────────────── -->
+    <ion-card>
+      <ion-card-header><ion-card-title>Totals</ion-card-title></ion-card-header>
+      <ion-card-content>
+
+        <ion-item>
+          <ion-label>Subtotal</ion-label>
+          <ion-input type="number" formControlName="subtotal" slot="end" class="amt"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="danger">Discount</ion-label>
+          <ion-input type="number" formControlName="discount" slot="end" class="amt"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label>Tax (GST)</ion-label>
+          <ion-input type="number" formControlName="tax" slot="end" class="amt"></ion-input>
+        </ion-item>
+        <ion-item class="grand-total">
+          <ion-label><strong>Grand Total *</strong></ion-label>
+          <ion-input type="number" formControlName="total" slot="end" class="amt grand"></ion-input>
+        </ion-item>
+        <ion-text color="danger" *ngIf="form.get('total')?.invalid && form.get('total')?.touched">
+          <p class="err">Total must be greater than 0.</p>
+        </ion-text>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="bottom-space"></div>
+  </form>
+</ion-content>
+
+<!-- Loading -->
+<ion-content *ngIf="isLoading">
+  <div class="loading-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+</ion-content>
+
+<ion-footer *ngIf="!isLoading && form" class="ion-no-border">
+  <ion-toolbar>
+    <div class="footer-btns">
+      <ion-button fill="outline" color="medium" expand="block" (click)="discard()">Cancel</ion-button>
+      <ion-button color="primary" expand="block" (click)="save()" [disabled]="isSaving || form.invalid">
+        <ion-spinner *ngIf="isSaving" name="dots" slot="start"></ion-spinner>
+        {{ isSaving ? 'Saving…' : 'Save Changes' }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

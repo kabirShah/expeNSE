@@ -140,12 +140,7 @@ const routes: Routes = [
       import('./pages/routine-expenses/routine-expenses.module').then(m => m.RoutineExpensesPageModule),
     canActivate: protectedGuards
   },
-  {
-    path: 'scan',
-    loadChildren: () =>
-      import('./pages/scan/scan.module').then(m => m.ScanPageModule),
-    canActivate: protectedGuards
-  },
+
 
 
   {
@@ -264,6 +259,11 @@ const routes: Routes = [
     path: 'aa/transactions',
     loadChildren: () =>
       import('./pages/aa/transactions/transactions.module').then(m => m.TransactionsPageModule),
+    canActivate: protectedGuards
+  },
+  {
+    path: 'receipt',
+    loadChildren: () => import('./receipt/receipt.module').then(m => m.ReceiptModule),
     canActivate: protectedGuards
   },
   {

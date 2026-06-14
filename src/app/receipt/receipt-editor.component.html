@@ -1,0 +1,169 @@
+<!-- receipt-editor.component.html -->
+<form [formGroup]="form" *ngIf="form" class="editor-form">
+
+  <!-- ── Merchant Info ────────────────────────────────────────────────────── -->
+  <ion-list lines="full">
+
+    <ion-item [class.field-warn]="isLowConf('merchant')">
+      <ion-icon name="storefront-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">
+        Merchant *
+        <ion-badge color="warning" *ngIf="isLowConf('merchant')">Verify</ion-badge>
+      </ion-label>
+      <ion-input formControlName="merchant" placeholder="Store / Restaurant name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="pricetag-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">Receipt Type</ion-label>
+      <ion-select formControlName="receipt_type" interface="action-sheet">
+        <ion-select-option *ngFor="let t of receiptTypes" [value]="t.value">{{ t.label }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item [class.field-warn]="isLowConf('date')">
+      <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">
+        Date
+        <ion-badge color="warning" *ngIf="isLowConf('date')">Verify</ion-badge>
+      </ion-label>
+      <ion-input type="date" formControlName="receipt_date"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">Payment</ion-label>
+      <ion-select formControlName="payment_method" interface="action-sheet" placeholder="Select">
+        <ion-select-option *ngFor="let pm of paymentMethods" [value]="pm.value">{{ pm.label }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="cash-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">Currency</ion-label>
+      <ion-select formControlName="currency" interface="popover">
+        <ion-select-option value="INR">₹ INR</ion-select-option>
+        <ion-select-option value="USD">$ USD</ion-select-option>
+        <ion-select-option value="EUR">€ EUR</ion-select-option>
+        <ion-select-option value="GBP">£ GBP</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="barcode-outline" slot="start" color="primary"></ion-icon>
+      <ion-label position="stacked">Reference No.</ion-label>
+      <ion-input formControlName="reference_number" placeholder="Optional"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon name="text-outline" slot="start" color="secondary"></ion-icon>
+      <ion-label position="stacked">Expense Title</ion-label>
+      <ion-input formControlName="expense_title"></ion-input>
+    </ion-item>
+
+    <ion-item *ngIf="!compact">
+      <ion-icon name="document-text-outline" slot="start" color="secondary"></ion-icon>
+      <ion-label position="stacked">Notes</ion-label>
+      <ion-textarea formControlName="notes" rows="2" placeholder="Optional"></ion-textarea>
+    </ion-item>
+
+  </ion-list>
+
+  <!-- ── Items ────────────────────────────────────────────────────────────── -->
+  <div class="section-header">
+    <h3>Items ({{ itemsArray.length }})</h3>
+    <ion-button fill="clear" size="small" (click)="addItem()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon> Add
+    </ion-button>
+  </div>
+
+  <div formArrayName="items">
+    <div *ngFor="let ctrl of itemsArray.controls; let i = index"
+         [formGroupName]="i" class="item-card">
+
+      <div class="item-head">
+        <span class="item-label">{{ ctrl.get('name')?.value || 'Item ' + (i+1) }}</span>
+        <div>
+          <ion-button fill="clear" size="small" (click)="duplicateItem(i)">
+            <ion-icon name="copy-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" color="danger" (click)="removeItem(i)">
+            <ion-icon name="trash-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <ion-item>
+        <ion-label position="stacked">Name *</ion-label>
+        <ion-input formControlName="name" placeholder="Item name"></ion-input>
+      </ion-item>
+
+      <div class="two-col">
+        <ion-item class="half">
+          <ion-label position="stacked">Qty</ion-label>
+          <ion-input type="number" formControlName="qty" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+        </ion-item>
+        <ion-item class="half">
+          <ion-label position="stacked">Unit</ion-label>
+          <ion-input formControlName="unit" placeholder="kg / pcs"></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="two-col">
+        <ion-item class="half">
+          <ion-label position="stacked">Unit Price</ion-label>
+          <ion-input type="number" formControlName="unit_price" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+        </ion-item>
+        <ion-item class="half">
+          <ion-label position="stacked">Discount</ion-label>
+          <ion-input type="number" formControlName="discount" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="two-col">
+        <ion-item class="half">
+          <ion-label position="stacked">Tax %</ion-label>
+          <ion-input type="number" formControlName="tax_rate" (ionChange)="onItemChange(i)" inputmode="decimal"></ion-input>
+        </ion-item>
+        <ion-item class="half total-item">
+          <ion-label position="stacked">Total</ion-label>
+          <ion-input type="number" formControlName="total" readonly></ion-input>
+        </ion-item>
+      </div>
+
+    </div>
+
+    <div class="empty-items" *ngIf="itemsArray.length === 0">
+      <ion-icon name="list-outline" color="medium"></ion-icon>
+      <p>No items extracted. Add manually.</p>
+      <ion-button fill="outline" size="small" (click)="addItem()">Add Item</ion-button>
+    </div>
+  </div>
+
+  <!-- ── Totals ────────────────────────────────────────────────────────────── -->
+  <div class="section-header"><h3>Totals</h3></div>
+  <ion-list lines="full">
+
+    <ion-item [class.field-warn]="isLowConf('subtotal')">
+      <ion-label>Subtotal</ion-label>
+      <ion-input type="number" formControlName="subtotal" slot="end" class="amt-input"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="danger">Discount</ion-label>
+      <ion-input type="number" formControlName="discount" slot="end" class="amt-input"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Tax / GST</ion-label>
+      <ion-input type="number" formControlName="tax" slot="end" class="amt-input"></ion-input>
+    </ion-item>
+
+    <ion-item class="grand-row" [class.field-warn]="isLowConf('total')">
+      <ion-label><strong>Grand Total *</strong></ion-label>
+      <ion-input type="number" formControlName="total" slot="end" class="amt-input grand-amt"></ion-input>
+    </ion-item>
+
+  </ion-list>
+
+</form>

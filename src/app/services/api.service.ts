@@ -45,6 +45,14 @@ export class ApiService {
     return this.http.post(`${this.base}/onboarding/complete`, {}, { headers: this.authHeaders() });
   }
 
+  saveOnboardingProfile(data: any): Observable<any> {
+    return this.http.post(`${this.base}/onboarding/profile`, data, { headers: this.authHeaders() });
+  }
+
+  getTrialStatus(): Observable<any> {
+    return this.http.get(`${this.base}/onboarding/trial-status`, { headers: this.authHeaders() });
+  }
+
   createWallet(data: any): Observable<any> {
     return this.http.post(`${this.base}/wallets`, data);
   }
@@ -82,8 +90,8 @@ export class ApiService {
 
   uploadReceipt(file: File): Observable<any> {
     const form = new FormData();
-    form.append('receipt', file);
-    return this.http.post(`${this.base}/transactions/scan`, form);
+    form.append('file', file);
+    return this.http.post(`${this.base}/receipts`, form);
   }
 
   deleteTransaction(id: number): Observable<any> {

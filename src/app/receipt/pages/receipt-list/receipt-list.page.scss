@@ -1,0 +1,266 @@
+ion-content {
+  --background: #f5f7fa;
+}
+
+// Search and filters toolbar
+.filters-toolbar {
+  padding: 0;
+  --min-height: 44px;
+  --background: #ffffff;
+
+  ion-button {
+    text-transform: none;
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}
+
+// Filters panel
+.filters-panel {
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px;
+  margin-bottom: 8px;
+
+  .filter-group {
+    margin-bottom: 24px;
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    ion-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    ion-chip {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --height: 32px;
+      font-size: 13px;
+    }
+
+    ion-item {
+      --padding-start: 0;
+      --padding-end: 0;
+      --inner-padding-end: 0;
+      margin-bottom: 12px;
+
+      ion-input {
+        --padding-start: 0;
+        --padding-end: 0;
+      }
+    }
+  }
+
+  ion-button {
+    margin-top: 12px;
+  }
+}
+
+// Status indicators
+ion-toolbar[color='light'] ion-chip {
+  margin: 8px;
+}
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 80px;
+    color: #d0d0d0;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    color: #888;
+    margin: 0 0 20px 0;
+    font-size: 14px;
+  }
+
+  ion-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+// Loading state
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #888;
+    font-size: 14px;
+  }
+}
+
+// Receipt list items
+.receipt-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --inner-padding-start: 12px;
+  --inner-padding-end: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  --background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  &.requires-review {
+    border-left: 4px solid #ffc409;
+  }
+
+  &:hover {
+    --background: #f9f9f9;
+  }
+
+  ion-avatar {
+    width: 44px;
+    height: 44px;
+    margin-right: 12px;
+
+    .receipt-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+
+  ion-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+
+    .receipt-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+
+      h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .status-badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        text-transform: capitalize;
+        font-weight: 500;
+      }
+    }
+
+    .receipt-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #888;
+
+      .date {
+        font-weight: 500;
+      }
+
+      .type {
+        text-transform: capitalize;
+        background: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+// Receipt amount
+.receipt-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+
+  .amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    min-width: 70px;
+  }
+
+  ion-icon {
+    font-size: 20px;
+    margin: 0 4px;
+  }
+
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    --border-radius: 4px;
+    --min-height: 28px;
+  }
+}
+
+// Responsive
+@media (max-width: 360px) {
+  .filters-panel {
+    padding: 12px;
+  }
+
+  .receipt-item {
+    ion-label {
+      .receipt-title h3 {
+        font-size: 14px;
+      }
+
+      .receipt-meta {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .receipt-amount .amount {
+    font-size: 14px;
+    min-width: 60px;
+  }
+}

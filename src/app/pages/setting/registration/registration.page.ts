@@ -175,7 +175,7 @@ export class RegistrationPage implements OnInit {
 
     this.authService?.register(formData)?.subscribe({
       next: async (res) => {
-        this.authService.saveSession(res.token, res.user, true);
+        this.authService.saveSession(res.token, res.user, true, res.trial);
         this.userPreferences.cachePreferences({
           onboarding_completed: false,
           storage_preference: 'cloud_sync'

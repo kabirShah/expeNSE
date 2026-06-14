@@ -7,6 +7,14 @@
     </p>
   </div>
 
+  <div *ngIf="trialStatus?.active" class="trial-banner">
+    <strong>Premium trial active</strong>
+    <p>
+      You have {{ trialStatus.days_remaining }} days left until
+      {{ trialStatus.expires_at | date:'mediumDate' }}.
+    </p>
+  </div>
+
   <div class="panel">
     <section *ngIf="currentStep === 'START'" class="panel-section">
       <div class="section-head">
@@ -64,6 +72,26 @@
         <ion-item lines="none" class="field">
           <ion-label position="stacked">Budget amount</ion-label>
           <ion-input formControlName="budget_amount" type="number" inputmode="decimal" placeholder="15000"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Monthly income</ion-label>
+          <ion-input formControlName="monthly_income" type="number" inputmode="decimal" placeholder="0"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Savings goal</ion-label>
+          <ion-input formControlName="savings_target" type="number" inputmode="decimal" placeholder="0"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Budgeting style</ion-label>
+          <ion-input formControlName="budgeting_style" placeholder="e.g. 50/30/20"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="field">
+          <ion-label position="stacked">Financial goals</ion-label>
+          <ion-textarea formControlName="financial_goals" placeholder="Split rent, save ₹10k, clear credit card"></ion-textarea>
         </ion-item>
       </form>
 
@@ -134,6 +162,16 @@
         <h2>Setup complete</h2>
         <p>Your onboarding state is saved on the backend, and the app can reopen straight into the dashboard.</p>
       </div>
+
+      <ion-card *ngIf="trialStatus?.active" class="trial-card">
+        <ion-card-header>
+          <ion-card-title>Premium Trial Active</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>You are on a premium trial until {{ trialStatus.expires_at | date:'mediumDate' }}.</p>
+          <p>{{ trialStatus.days_remaining }} days remaining.</p>
+        </ion-card-content>
+      </ion-card>
 
       <ion-button expand="block" class="primary-action" (click)="finishOnboarding()">
         Open Dashboard

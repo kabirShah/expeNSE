@@ -79,6 +79,45 @@ ion-content {
     }
   }
 
+  .trial-banner {
+    margin: 0 -20px 16px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.16);
+
+    ion-card-content {
+      padding: 16px 18px;
+      background: transparent;
+    }
+
+    .trial-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      p {
+        margin: 0;
+        font-size: 12px;
+        color: rgba(255,255,255,0.85);
+      }
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: rgba(255,255,255,0.82);
+    }
+  }
+
   .hero-stats {
     display: flex;
     flex-wrap: wrap;

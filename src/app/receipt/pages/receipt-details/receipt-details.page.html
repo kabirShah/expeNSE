@@ -1,0 +1,246 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/receipt/list"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Receipt Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="deleteReceipt()" color="danger">
+        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading receipt...</p>
+  </div>
+
+  <!-- Receipt Content -->
+  <div *ngIf="!isLoading && receipt" class="receipt-details">
+    <!-- Image Section -->
+    <div class="image-section" *ngIf="imageUrl">
+      <img [src]="imageUrl" [alt]="receipt.merchant || 'Receipt'" class="receipt-image" />
+    </div>
+
+    <!-- Status Card -->
+    <ion-card class="status-card">
+      <ion-card-content>
+        <div class="status-info">
+          <div class="status-badge" [attr.data-color]="getStatusColor(receipt.status)">
+            <ion-icon [name]="getStatusIcon(receipt.status)"></ion-icon>
+            <span>{{ receipt.status | titlecase }}</span>
+          </div>
+
+          <!-- Processing Indicator -->
+          <div *ngIf="isPolling" class="processing-indicator">
+            <ion-spinner name="dots"></ion-spinner>
+            <span>Processing ({{ pollingCount }}/{{ MAX_POLLING_ATTEMPTS }})</span>
+          </div>
+
+          <!-- Review Warning -->
+          <ion-chip
+            *ngIf="receipt.requires_review"
+            color="warning"
+            outline
+          >
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <ion-label>Review Required</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Main Details -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Receipt Information</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid class="info-grid">
+          <ion-row>
+            <ion-col size="6" class="label">Merchant</ion-col>
+            <ion-col size="6" class="value">{{ receipt.merchant || '-' }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.receipt_type">
+            <ion-col size="6" class="label">Type</ion-col>
+            <ion-col size="6" class="value">{{ receipt.receipt_type | titlecase }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.receipt_date">
+            <ion-col size="6" class="label">Date</ion-col>
+            <ion-col size="6" class="value">{{ formatDate(receipt.receipt_date) }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.payment_method">
+            <ion-col size="6" class="label">Payment Method</ion-col>
+            <ion-col size="6" class="value">{{ receipt.payment_method | titlecase }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.reference_number">
+            <ion-col size="6" class="label">Reference</ion-col>
+            <ion-col size="6" class="value">{{ receipt.reference_number }}</ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Financial Summary -->
+    <ion-card class="financial-card">
+      <ion-card-header>
+        <ion-card-title>Amount Details</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="amount-row" *ngIf="receipt.subtotal">
+          <span>Subtotal</span>
+          <span>{{ formatAmount(receipt.subtotal) }}</span>
+        </div>
+        <div class="amount-row" *ngIf="receipt.discount">
+          <span>Discount</span>
+          <span class="discount">-{{ formatAmount(receipt.discount) }}</span>
+        </div>
+        <div class="amount-row" *ngIf="receipt.tax">
+          <span>Tax</span>
+          <span>{{ formatAmount(receipt.tax) }}</span>
+        </div>
+        <div class="amount-row total">
+          <span>Total</span>
+          <span>{{ formatAmount(receipt.total) }}</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Items List -->
+    <ion-card *ngIf="receipt.items && receipt.items.length > 0">
+      <ion-card-header>
+        <ion-card-title>Items ({{ receipt.items.length }})</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="full">
+          <ion-item *ngFor="let item of receipt.items" class="item-row">
+            <ion-label>
+              <h3>{{ item.name }}</h3>
+              <p *ngIf="item.qty">{{ item.qty }} {{ item.unit || 'pcs' }}</p>
+            </ion-label>
+            <div slot="end" class="item-price">
+              <div class="price">{{ formatAmount(item.total) }}</div>
+              <div class="unit-price" *ngIf="item.unit_price">
+                {{ formatAmount(item.unit_price) }}
+              </div>
+            </div>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- OCR Confidence -->
+    <ion-card *ngIf="receipt.ocr_confidence">
+      <ion-card-header>
+        <ion-card-title>OCR Confidence</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="confidence-info">
+          <ion-progress-bar
+            type="determinate"
+            [value]="receipt.ocr_confidence / 100"
+            [color]="receipt.ocr_confidence >= 80 ? 'success' : receipt.ocr_confidence >= 50 ? 'warning' : 'danger'"
+          ></ion-progress-bar>
+          <div class="confidence-text">
+            <span>{{ formatConfidence(receipt.ocr_confidence) }}</span>
+            <small *ngIf="receipt.ocr_provider">({{ receipt.ocr_provider }})</small>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Notes -->
+    <ion-card *ngIf="receipt.notes">
+      <ion-card-header>
+        <ion-card-title>Notes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="notes-text">{{ receipt.notes }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Advanced Section -->
+    <ion-button
+      fill="clear"
+      class="advanced-toggle"
+      (click)="showAdvanced = !showAdvanced"
+    >
+      <ion-icon name="chevron-down-outline" [class.rotated]="showAdvanced"></ion-icon>
+      <span>Advanced Information</span>
+    </ion-button>
+
+    <ion-card *ngIf="showAdvanced">
+      <ion-card-header>
+        <ion-card-title>Advanced Details</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid class="info-grid">
+          <ion-row *ngIf="receipt.id">
+            <ion-col size="6" class="label">Receipt ID</ion-col>
+            <ion-col size="6" class="value">{{ receipt.id }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.expense_id">
+            <ion-col size="6" class="label">Linked Expense</ion-col>
+            <ion-col size="6" class="value">{{ receipt.expense_id }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.is_duplicate">
+            <ion-col size="6" class="label">Duplicate</ion-col>
+            <ion-col size="6" class="value">{{ receipt.is_duplicate ? 'Yes' : 'No' }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.receipt_hash">
+            <ion-col size="6" class="label">Hash</ion-col>
+            <ion-col size="6" class="value hash">{{ receipt.receipt_hash | slice:0:16 }}...</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.created_at">
+            <ion-col size="6" class="label">Created</ion-col>
+            <ion-col size="6" class="value">{{ formatDate(receipt.created_at) }}</ion-col>
+          </ion-row>
+          <ion-row *ngIf="receipt.updated_at">
+            <ion-col size="6" class="label">Updated</ion-col>
+            <ion-col size="6" class="value">{{ formatDate(receipt.updated_at) }}</ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button
+        expand="block"
+        fill="outline"
+        (click)="reprocessOCR()"
+        [disabled]="!canReprocess() || isPolling"
+        *ngIf="canReprocess()"
+      >
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Reprocess OCR
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        (click)="confirmReceipt()"
+        [disabled]="!canConfirm() || isPolling"
+        *ngIf="canConfirm()"
+      >
+        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+        Confirm Receipt
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        color="primary"
+        (click)="createExpense()"
+        [disabled]="!canCreateExpense()"
+        *ngIf="canCreateExpense()"
+      >
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Create Expense
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

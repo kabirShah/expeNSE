@@ -1,0 +1,212 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Receipts</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        [routerLink]="['/receipt/upload']"
+        routerLinkActive="active"
+      >
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search Bar -->
+  <ion-toolbar color="light">
+    <ion-searchbar
+      [formControl]="searchCtrl"
+      placeholder="Search receipts..."
+      debounce="500"
+    ></ion-searchbar>
+  </ion-toolbar>
+
+  <!-- Status Indicators -->
+  <ion-toolbar color="light" *ngIf="!isOnline || offlineQueueCount > 0">
+    <ion-chip
+      *ngIf="!isOnline"
+      color="warning"
+      outline
+    >
+      <ion-icon name="wifi-outline"></ion-icon>
+      <ion-label>Offline</ion-label>
+    </ion-chip>
+    <ion-chip
+      *ngIf="offlineQueueCount > 0"
+      color="primary"
+      (click)="syncOfflineQueue()"
+    >
+      <ion-icon name="cloud-upload-outline"></ion-icon>
+      <ion-label>{{ offlineQueueCount }} pending</ion-label>
+    </ion-chip>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Filters Button -->
+  <ion-toolbar class="filters-toolbar">
+    <ion-button
+      fill="clear"
+      (click)="showFilters = !showFilters"
+      class="filter-toggle"
+    >
+      <ion-icon name="funnel-outline"></ion-icon>
+      <ion-label>Filters</ion-label>
+    </ion-button>
+  </ion-toolbar>
+
+  <!-- Filters Panel -->
+  <div *ngIf="showFilters" class="filters-panel">
+    <!-- Status Filter -->
+    <div class="filter-group">
+      <h3>Status</h3>
+      <ion-chip-group>
+        <ion-chip
+          *ngFor="let status of statusFilters"
+          [color]="activeStatus === status.value ? status.color : 'light'"
+          (click)="setStatusFilter(status.value)"
+          [outline]="activeStatus !== status.value"
+        >
+          <ion-label>{{ status.label }}</ion-label>
+        </ion-chip>
+      </ion-chip-group>
+    </div>
+
+    <!-- Type Filter -->
+    <div class="filter-group">
+      <h3>Receipt Type</h3>
+      <ion-chip-group>
+        <ion-chip
+          *ngFor="let type of typeFilters"
+          [outline]="activeType !== type.value"
+          (click)="setTypeFilter(type.value)"
+        >
+          <ion-icon [name]="type.icon"></ion-icon>
+          <ion-label>{{ type.label }}</ion-label>
+        </ion-chip>
+      </ion-chip-group>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="filter-group">
+      <h3>Date Range</h3>
+      <ion-item>
+        <ion-label position="stacked">From</ion-label>
+        <ion-input
+          type="date"
+          [(ngModel)]="dateFrom"
+          (ionChange)="setDateFilter(dateFrom, undefined)"
+        ></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">To</ion-label>
+        <ion-input
+          type="date"
+          [(ngModel)]="dateTo"
+          (ionChange)="setDateFilter(undefined, dateTo)"
+        ></ion-input>
+      </ion-item>
+    </div>
+
+    <!-- Reset Button -->
+    <ion-button
+      expand="block"
+      fill="outline"
+      (click)="resetFilters()"
+    >
+      Reset Filters
+    </ion-button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && receipts.length === 0" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading receipts...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && receipts.length === 0" class="empty-state">
+    <ion-icon name="receipt-outline"></ion-icon>
+    <h2>No Receipts</h2>
+    <p>Upload a receipt to get started</p>
+    <ion-button
+      [routerLink]="['/receipt/upload']"
+      color="primary"
+    >
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      Upload Receipt
+    </ion-button>
+  </div>
+
+  <!-- Receipts List -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-list
+    *ngIf="!isLoading && receipts.length > 0"
+    lines="full"
+  >
+    <ion-item
+      *ngFor="let receipt of receipts"
+      (click)="viewReceipt(receipt.id)"
+      button
+      detail
+      class="receipt-item"
+      [class.requires-review]="receipt.requires_review"
+    >
+      <ion-avatar slot="start">
+        <div class="receipt-avatar" [attr.data-color]="getStatusColor(receipt.status)">
+          <ion-icon [name]="getTypeIcon(receipt.receipt_type || 'general')"></ion-icon>
+        </div>
+      </ion-avatar>
+
+      <ion-label>
+        <div class="receipt-title">
+          <h3>{{ receipt.merchant || 'Unknown' }}</h3>
+          <ion-badge
+            [color]="getStatusColor(receipt.status)"
+            class="status-badge"
+          >
+            {{ receipt.status }}
+          </ion-badge>
+        </div>
+        <div class="receipt-meta">
+          <span class="date">{{ formatDate(receipt.receipt_date) }}</span>
+          <span class="type" *ngIf="receipt.receipt_type">{{ receipt.receipt_type }}</span>
+        </div>
+      </ion-label>
+
+      <div slot="end" class="receipt-amount">
+        <div class="amount">{{ formatAmount(receipt.total) }}</div>
+        <ion-icon
+          *ngIf="receipt.requires_review"
+          name="alert-circle"
+          color="warning"
+        ></ion-icon>
+        <ion-button
+          fill="clear"
+          size="small"
+          (click)="deleteReceipt(receipt.id, $event)"
+          color="danger"
+        >
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll
+    (ionInfinite)="onLoadMore($event)"
+    [disabled]="!hasMore || isLoadingMore"
+    threshold="200px"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="crescent"
+      loadingText="Loading..."
+    ></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
