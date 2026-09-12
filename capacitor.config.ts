@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.pocketexpense.app',
-  appName: 'pocket-money',
+  appName: 'SpendIT',
   webDir: 'www',
   plugins: {
      GoogleAuth: {

@@ -1,0 +1,43 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+     <ion-buttons slot="start">
+      <ion-button [routerLink]="['/home']">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Add Transaction</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="page">
+
+    <div class="mode-grid">
+
+      <button
+        *ngFor="let action of actions"
+        class="mode-card"
+        (click)="navigateTo(action.route)">
+
+        <div
+          class="mode-icon"
+          [ngClass]="action.color">
+
+          <ion-icon
+            [name]="action.icon">
+          </ion-icon>
+
+        </div>
+
+        <h4>{{ action.title }}</h4>
+
+        <p>{{ action.subtitle }}</p>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</ion-content>

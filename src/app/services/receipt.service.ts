@@ -1,3 +1,42 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Receipt } from '../models/receipt.model';
+
+@Injectable({ providedIn: 'root' })
+export class ReceiptService {
+  private base = '/api/receipts';
+
+  constructor(private http: HttpClient) {}
+
+  uploadImage(formData: FormData): Observable<any> {
+    return this.http.post(`${this.base}/upload`, formData);
+  }
+
+  ocr(receiptId: number): Observable<any> {
+    return this.http.post(`${this.base}/ocr`, { receipt_id: receiptId });
+  }
+
+  saveReceipt(payload: any): Observable<any> {
+    return this.http.post(this.base, payload);
+  }
+
+  list(params = {}): Observable<any> {
+    return this.http.get(this.base, { params: params as any });
+  }
+
+  get(id: number): Observable<any> {
+    return this.http.get(`${this.base}/${id}`);
+  }
+
+  attachTransaction(id: number, transactionId: number) {
+    return this.http.post(`${this.base}/${id}/attach-transaction`, { transaction_id: transactionId });
+  }
+
+  detachTransaction(id: number) {
+    return this.http.delete(`${this.base}/${id}/detach-transaction`);
+  }
+}
 /**
  * Receipt Service (Facade)
  * Coordinates HTTP service, state management, and offline support

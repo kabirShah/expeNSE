@@ -211,6 +211,15 @@ export interface ReceiptStatusResponse {
   ocr_confidence: number;
   requires_review: boolean;
   is_duplicate: boolean;
+  is_ready?: boolean;
+  can_create_expense?: boolean;
+  summary?: {
+    merchant?: string | null;
+    total?: number;
+    currency?: string | null;
+    receipt_date?: string | null;
+    items_count?: number;
+  };
   processed_at: string;
 }
 

@@ -105,6 +105,7 @@ export class ReceiptReviewPage implements OnInit, OnDestroy {
         .subscribe({
           next: status => {
             this.pollingAttempts++;
+            this.mergeStatusSummary(status);
 
             if (status.status === 'processing') {
               this.pollStatus();
@@ -135,5 +136,21 @@ export class ReceiptReviewPage implements OnInit, OnDestroy {
 
   formatConfidence(confidence?: number): string {
     return confidence === undefined || confidence === null ? 'Pending' : `${Math.round(confidence)}%`;
+  }
+
+  private mergeStatusSummary(status: any): void {
+    if (!this.receipt) return;
+
+    this.receipt = {
+      ...this.receipt,
+      status: status.status,
+      ocr_confidence: status.ocr_confidence,
+      requires_review: status.requires_review,
+      is_duplicate: status.is_duplicate,
+      merchant: status.summary?.merchant ?? this.receipt.merchant,
+      total: status.summary?.total ?? this.receipt.total,
+      currency: status.summary?.currency ?? this.receipt.currency,
+      receipt_date: status.summary?.receipt_date ?? this.receipt.receipt_date,
+    };
   }
 }

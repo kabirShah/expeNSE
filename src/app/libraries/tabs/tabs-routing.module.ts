@@ -10,7 +10,7 @@ const routes: Routes = [
     children: [
       {
         path: 'home',
-        loadChildren: () => import('../../pages/Admin-Panel/home/home.module').then(m => m.HomePageModule)
+        loadChildren: () => import('../../pages/Home/home/home.module').then(m => m.HomePageModule)
       },
       {
         path: 'view-expenses',

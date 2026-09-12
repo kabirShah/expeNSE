@@ -29,7 +29,7 @@ const routes: Routes = [
   {
     path: 'home',
     loadChildren: () =>
-      import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule),
+      import('./pages/Home/home/home.module').then(m => m.HomePageModule),
     canActivate: protectedGuards
   },
   {
@@ -41,7 +41,7 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: () =>
-      import('./pages/Admin-Panel/home/home.module').then(m => m.HomePageModule),
+      import('./pages/Home/home/home.module').then(m => m.HomePageModule),
     canActivate: protectedGuards  
   },
   {
@@ -99,18 +99,6 @@ const routes: Routes = [
     canActivate: protectedGuards
   },
   {
-    path: 'split',
-    loadChildren: () =>
-      import('./pages/expense/split-view/split/split.module').then(m => m.SplitPageModule),
-    canActivate: protectedGuards
-  },
-  {
-    path: 'split-view',
-    loadChildren: () =>
-      import('./pages/expense/split-view/split-view.module').then(m => m.SplitViewPageModule),
-    canActivate: protectedGuards
-  },
-  {
     path: 'analytics',
     loadChildren: () =>
       import('./pages/analytics/analytics.module').then(m => m.AnalyticsPageModule),
@@ -140,9 +128,6 @@ const routes: Routes = [
       import('./pages/routine-expenses/routine-expenses.module').then(m => m.RoutineExpensesPageModule),
     canActivate: protectedGuards
   },
-
-
-
   {
     path: 'setting',
     loadChildren: () =>
@@ -214,12 +199,6 @@ const routes: Routes = [
     canActivate: protectedGuards
   },
   {
-    path: 'splitwise',
-    loadChildren: () =>
-      import('./pages/splitwise/splitwise.module').then(m => m.SplitwisePageModule),
-    canActivate: protectedGuards
-  },
-  {
     path: 'shared-finance',
     loadChildren: () =>
       import('./pages/shared-finance/shared-finance.module').then(m => m.SharedFinancePageModule),
@@ -264,6 +243,21 @@ const routes: Routes = [
   {
     path: 'receipt',
     loadChildren: () => import('./receipt/receipt.module').then(m => m.ReceiptModule),
+    canActivate: protectedGuards
+  },
+  {
+    path: 'scan-receipt',
+    loadChildren: () => import('./scan-receipt/scan-receipt.module').then(m => m.ScanReceiptPageModule),
+    canActivate: protectedGuards
+  },
+  {
+    path: 'receipt-details/:id',
+    loadChildren: () => import('./receipt-details/receipt-details.module').then(m => m.ReceiptDetailsPageModule),
+    canActivate: protectedGuards
+  },
+    {
+    path: 'expenses-preview',
+    loadChildren: () => import('./pages/expenses-preview/expenses-preview.module').then( m => m.ExpensesPreviewPageModule),
     canActivate: protectedGuards
   },
   {

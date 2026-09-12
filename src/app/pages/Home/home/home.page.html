@@ -1,0 +1,403 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>SpendIT</ion-title>
+
+    <ion-buttons slot="end">
+
+      <ion-button
+        (click)="openNotifications()"
+        aria-label="Notifications">
+
+        <ion-icon
+          slot="icon-only"
+          name="notifications-outline">
+        </ion-icon>
+
+        <ion-badge
+          *ngIf="unreadNotificationCount > 0"
+          color="danger">
+
+          {{ unreadNotificationCount }}
+
+        </ion-badge>
+
+      </ion-button>
+
+      <ion-button
+        (click)="navigateTo('/setting')"
+        aria-label="Settings">
+
+        <ion-icon
+          slot="icon-only"
+          name="settings-outline">
+        </ion-icon>
+
+      </ion-button>
+
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- LOADER -->
+  <div
+    *ngIf="isLoading"
+    class="loader-center">
+
+    <ion-spinner name="crescent"></ion-spinner>
+
+  </div>
+
+  <!-- ERROR -->
+  <div
+    *ngIf="!isLoading && hasError"
+    class="error-state">
+
+    <ion-icon
+      name="cloud-offline-outline">
+    </ion-icon>
+
+    <h3>Something went wrong</h3>
+
+    <p>{{ errorMessage }}</p>
+
+    <ion-button
+      fill="outline"
+      color="primary"
+      (click)="retryDashboard()">
+
+      <ion-icon
+        slot="start"
+        name="refresh-outline">
+      </ion-icon>
+
+      Try Again
+
+    </ion-button>
+
+  </div>
+
+  <!-- DASHBOARD -->
+  <div
+    *ngIf="!isLoading && !hasError"
+    class="page">
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+
+      <div class="welcome">
+
+        <span>
+          {{ getGreeting() }}
+        </span>
+
+        <h2>
+          {{ userFirstName || 'User' }}
+        </h2>
+
+      </div>
+
+      <div class="header-meta">
+
+        <span class="month-label">
+          {{ currentMonth }}
+        </span>
+
+      </div>
+
+    </div>
+
+    <!-- BALANCE -->
+    <div class="balance-card">
+
+      <p>Total Net Worth</p>
+
+      <h1>
+        ₹{{ totalBalance | number:'1.0-0' }}
+      </h1>
+
+      <span
+        [class]="isSavingNegative() ? 'growth negative' : 'growth'">
+
+        {{ isSavingNegative() ? '↓' : '↑' }}
+
+        ₹{{ monthSaving | number:'1.0-0' }}
+
+        this month
+
+      </span>
+
+    </div>
+
+    <!-- SNAPSHOT -->
+    <div class="snapshot-grid">
+
+      <div class="snapshot-card income">
+
+        <p>Income</p>
+
+        <h3>
+          ₹{{ monthIncome | number:'1.0-0' }}
+        </h3>
+
+      </div>
+
+      <div class="snapshot-card expense">
+
+        <p>Expense</p>
+
+        <h3>
+          ₹{{ totalMonthExpense | number:'1.0-0' }}
+        </h3>
+
+      </div>
+
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-card">
+
+      <div class="ai-icon">
+        ✨
+      </div>
+
+      <div>
+
+        <h4>AI Insight</h4>
+
+        <p>
+          {{ getSavingInsight() }}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- AUTO TRACKING -->
+    <div
+      class="auto-banner"
+      *ngIf="isAutoTrackingEnabled && autoDetectedCount > 0">
+
+      <ion-icon name="flash-outline"></ion-icon>
+
+      <span>
+
+        {{ autoDetectedCount }}
+
+        expense{{ autoDetectedCount === 1 ? '' : 's' }}
+
+        auto-detected
+
+      </span>
+
+    </div>
+
+    <!-- BUDGET -->
+    <div
+      class="budget-card"
+      *ngIf="budgetStatus">
+
+      <ion-icon
+        name="wallet-outline">
+      </ion-icon>
+
+      <span>
+
+        Budget:
+        {{ budgetStatus.label || budgetStatus }}
+
+      </span>
+
+    </div>
+
+
+
+    <!-- ACCOUNTS -->
+    <div class="section">
+
+      <div class="section-title">
+
+        <h3>Accounts</h3>
+
+        <span
+          class="view-all"
+          (click)="navigateTo('/balance')">
+
+          View All
+
+        </span>
+
+      </div>
+
+      <div class="account-scroll">
+
+        <div class="account-card">
+
+          <ion-icon
+            name="business-outline">
+          </ion-icon>
+
+          <p>Current Balance</p>
+
+          <h4>
+            ₹{{ totalBalance | number:'1.0-0' }}
+          </h4>
+
+          <span>
+            Updated now
+          </span>
+
+        </div>
+
+        <div
+          class="account-card splitwise"
+          *ngIf="splitwiseGroupCount > 0">
+
+          <ion-icon
+            name="people-outline">
+          </ion-icon>
+
+          <p>Splitwise</p>
+
+          <h4>
+            {{ splitwiseGroupCount }}
+            group{{ splitwiseGroupCount === 1 ? '' : 's' }}
+          </h4>
+
+          <span>Active</span>
+
+        </div>
+
+      </div>
+
+      <p
+        class="muted-hint"
+        *ngIf="splitwiseStatusMessage">
+
+        {{ splitwiseStatusMessage }}
+
+      </p>
+
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="section">
+
+      <div class="section-title">
+
+        <h3>Recent Activity</h3>
+
+        <span
+          class="view-all"
+          (click)="navigateTo('/analytics')">
+
+          View All
+
+        </span>
+
+      </div>
+
+      <div
+        class="recent-card"
+        *ngFor="let item of recentExpenses | slice:0:5; trackBy: trackByExpense">
+
+        <div class="recent-left">
+
+          <div
+            class="avatar"
+            [attr.aria-label]="getExpenseTitle(item)">
+
+            {{ getAvatarLetter(item) }}
+
+          </div>
+
+          <div>
+
+            <h4>
+              {{ getExpenseTitle(item) }}
+            </h4>
+
+            <p>
+
+              <ion-icon
+                name="time-outline">
+              </ion-icon>
+
+              {{
+                item?.created_at
+                ? (item.created_at | date:'dd MMM')
+                : 'Recent'
+              }}
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="recent-right">
+
+          <span class="amount">
+
+            ₹{{
+              (item?.expense_amount ||
+              item?.amount ||
+              0)
+              | number:'1.0-0'
+            }}
+
+          </span>
+
+          <ion-badge
+            *ngIf="isAutoDetected(item)"
+            color="secondary"
+            class="auto-badge">
+
+            Auto
+
+          </ion-badge>
+
+        </div>
+
+      </div>
+
+      <div
+        class="empty-state"
+        *ngIf="recentExpenses.length === 0">
+
+        <ion-icon
+          name="file-tray-outline">
+        </ion-icon>
+
+        <p>No recent transactions</p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</ion-content>
+
+<ion-fab
+  vertical="bottom"
+  horizontal="center"
+  slot="fixed">
+
+  <ion-fab-button
+    (click)="navigateTo('/expenses-preview')">
+
+    <ion-icon
+      name="add">
+    </ion-icon>
+
+  </ion-fab-button>
+
+</ion-fab>

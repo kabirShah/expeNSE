@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Receipt Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" *ngIf="receipt">
+  <ion-card>
+    <img [src]="receipt.receipt_image_url" />
+    <ion-card-header>
+      <ion-card-title>{{ receipt.merchant_name }}</ion-card-title>
+      <ion-card-subtitle>{{ receipt.transaction_date }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p>Total: {{ receipt.total_amount }} {{ receipt.currency }}</p>
+      <ion-list>
+        <ion-item *ngFor="let item of receipt.items">
+          <ion-label>
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.quantity }} x {{ item.unit_price }} = {{ item.total_price }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

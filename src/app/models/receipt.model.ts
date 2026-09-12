@@ -1,3 +1,24 @@
+export interface ReceiptItem {
+  id?: number;
+  name: string;
+  quantity?: number;
+  unit_price?: number;
+  total?: number;
+}
+
+export interface Receipt {
+  id?: number;
+  merchant_name?: string;
+  receipt_number?: string;
+  transaction_date?: string;
+  currency?: string;
+  subtotal?: number;
+  tax?: number;
+  discount?: number;
+  total_amount?: number;
+  items?: ReceiptItem[];
+  receipt_image_url?: string;
+}
 // receipt.model.ts
 
 export type ReceiptStatus = 'draft' | 'processing' | 'review' | 'confirmed' | 'saved' | 'failed';

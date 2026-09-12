@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">pocket-money</string>
-    <string name="title_activity_main">pocket-money</string>
+    <string name="app_name">SpendIT</string>
+    <string name="title_activity_main">SpendIT</string>
     <string name="package_name">io.pocketexpense.app</string>
     <string name="custom_url_scheme">io.pocketexpense.app</string>
 </resources>
